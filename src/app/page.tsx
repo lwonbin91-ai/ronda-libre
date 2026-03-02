@@ -51,7 +51,7 @@ export default function Home() {
             </p>
             <span className="hidden sm:block text-gray-700">·</span>
             <p className="text-gray-500 text-sm leading-relaxed">
-              시즌 동안 최소 <span className="text-green-400 font-semibold">16경기</span> 보장.
+              2개월간 최소 <span className="text-green-400 font-semibold">8경기</span> 보장.
             </p>
           </div>
 
@@ -94,7 +94,7 @@ export default function Home() {
               <div className="absolute -top-10 -right-10 w-48 h-48 bg-green-400/6 rounded-full blur-3xl" />
               <p className="text-[10px] text-green-400/70 font-bold tracking-[0.25em] uppercase mb-6 relative z-10">Ronda Libre</p>
               <ul className="space-y-4 relative z-10">
-                {["아이가 직접 전술을 결정한다", "부모 개입 금지 구역", "매주 1~2경기, 최소 16경기 보장", "모든 선수가 동등한 출전 시간"].map((t) => (
+                {["아이가 스스로 플레이를 결정합니다", "부모 개입 금지 구역", "주 1~2경기 운영, 2개월간 최소 8경기 보장", "모두가 경기에 참여합니다"].map((t) => (
                   <li key={t} className="flex items-start gap-3 text-sm text-gray-300">
                     <span className="mt-2 w-3 h-px bg-green-400/50 shrink-0" />
                     {t}
@@ -150,7 +150,7 @@ export default function Home() {
                 <h3 className="text-2xl font-black tracking-tight mb-3">시즌 리그</h3>
                 <p className="text-gray-500 text-sm leading-relaxed mb-7">임의 편성된 팀에 개인 신청.<br />6–8주 동안 매주 1~2회 리그(리그당 25분씩 3-4경기).<br />아이들이 직접 팀을 운영합니다.</p>
                 <ul className="space-y-2.5 mb-8 flex-1">
-                  {["최소 16경기 보장", "개인 기록 & 영상", "스카우터 공개 프로필", "GK 무료 참가"].map((t) => (
+                  {["2개월간 최소 8경기 보장", "개인 기록 & 영상", "스카우터 공개 프로필", "GK 무료 참가"].map((t) => (
                     <li key={t} className="flex items-center gap-2.5 text-sm text-gray-500">
                       <svg className="w-3.5 h-3.5 text-green-400 shrink-0" fill="none" viewBox="0 0 16 16"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       {t}

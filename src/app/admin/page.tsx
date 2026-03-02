@@ -121,6 +121,7 @@ const GRADE_OPTS = [
   { value: "ALL", label: "전체 학년" },
   { value: "G12", label: "초등 1~2학년" },
   { value: "G34", label: "초등 3~4학년" },
+  { value: "G45", label: "초등 4~5학년" },
   { value: "G56", label: "초등 5~6학년" },
   { value: "M1", label: "중학교 1학년" },
 ];
