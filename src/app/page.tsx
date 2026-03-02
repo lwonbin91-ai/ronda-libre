@@ -183,7 +183,7 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <div className="pt-6 border-t border-white/5">
+              <div className="pt-6 border-t border-orange-500/30">
                 <div className="flex items-baseline gap-1 mb-4">
                   <span className="text-3xl font-black">25,000</span>
                   <span className="text-gray-600 text-sm">원 / 1회</span>
