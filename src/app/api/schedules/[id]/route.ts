@@ -13,6 +13,10 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
       include: {
         season: { select: { name: true } },
         _count: { select: { registrations: true } },
+        registrations: {
+          where: { status: { not: "CANCELLED" } },
+          select: { isGK: true, player: { select: { position: true } } },
+        },
         scheduleTeams: {
           select: { id: true, name: true, color: true, maxPlayers: true, _count: { select: { registrations: true } } },
           orderBy: { createdAt: "asc" },
@@ -20,7 +24,21 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
       },
     });
     if (!schedule) return NextResponse.json({ error: "없음" }, { status: 404 });
-    return NextResponse.json(schedule);
+
+    const POSITION_LIMITS = { GK: 1, DF: 4, MF: 3, FW: 3 };
+    const positionCounts: Record<string, number> = { GK: 0, DF: 0, MF: 0, FW: 0 };
+    for (const r of schedule.registrations) {
+      const p = r.isGK ? "GK" : r.player?.position?.toUpperCase();
+      if (p && p in positionCounts) positionCounts[p]++;
+    }
+    const positionStatus = Object.fromEntries(
+      Object.entries(POSITION_LIMITS).map(([pos, max]) => [
+        pos,
+        { max, current: positionCounts[pos], full: positionCounts[pos] >= max },
+      ])
+    );
+
+    return NextResponse.json({ ...schedule, positionStatus });
   } catch {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
   }

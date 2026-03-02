@@ -25,6 +25,7 @@ interface Schedule {
   season: { name: string } | null;
   _count: { registrations: number };
   scheduleTeams: { id: string; name: string; color: string; maxPlayers: number; _count: { registrations: number } }[];
+  positionStatus: Record<string, { max: number; current: number; full: boolean }>;
 }
 
 interface Player {
@@ -110,7 +111,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
             <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
               schedule.type === "SEASON"
                 ? "border-green-400/25 text-green-400 bg-green-400/5"
-                : "border-white/10 text-gray-500"
+                : "border-orange-500/30 text-orange-400 bg-orange-500/10"
             }`}>
               {schedule.type === "SEASON" ? "시즌 리그" : "오픈 매칭"}
             </span>
@@ -197,7 +198,11 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
 
         {/* Sidebar: 신청 카드 */}
         <div>
-          <div className="bg-white/[0.02] border border-white/8 rounded-2xl p-6 sticky top-20 space-y-4">
+          <div className={`border rounded-2xl p-6 sticky top-20 space-y-4 ${
+            schedule.type === "ONEDAY"
+              ? "bg-[#1a0f00] border-orange-500/25"
+              : "bg-white/[0.02] border-white/8"
+          }`}>
             {/* 가격 */}
             <div>
               <div className="text-2xl font-black">{schedule.fee.toLocaleString()}원</div>
@@ -231,6 +236,47 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                 <span className="text-gray-500">골키퍼(GK)는 축구를 시작한 기간과 관계없이 신청할 수 있습니다.</span>
               </p>
             </div>
+
+            {/* 포지션 현황 */}
+            {schedule.positionStatus && (
+              <div className="bg-white/[0.02] border border-white/6 rounded-xl p-4">
+                <p className="text-xs font-bold text-gray-400 mb-3">포지션별 잔여 자리</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { pos: "GK", label: "골키퍼", icon: "🧤" },
+                    { pos: "DF", label: "수비수", icon: "🛡️" },
+                    { pos: "MF", label: "미드필더", icon: "⚙️" },
+                    { pos: "FW", label: "공격수", icon: "⚡" },
+                  ].map(({ pos, label, icon }) => {
+                    const s = schedule.positionStatus[pos];
+                    const remaining = s ? s.max - s.current : 0;
+                    const isFull = s?.full;
+                    return (
+                      <div
+                        key={pos}
+                        className={`rounded-xl p-3 text-center border ${
+                          isFull
+                            ? "border-red-400/20 bg-red-400/5"
+                            : "border-green-400/15 bg-green-400/5"
+                        }`}
+                      >
+                        <div className="text-lg mb-1">{icon}</div>
+                        <div className="text-[10px] text-gray-500 font-bold">{pos}</div>
+                        <div className="text-[10px] text-gray-600">{label}</div>
+                        {isFull ? (
+                          <div className="text-[10px] font-black text-red-400 mt-1">마감</div>
+                        ) : (
+                          <div className="text-[10px] font-black text-green-400 mt-1">{remaining}자리</div>
+                        )}
+                        {s && (
+                          <div className="text-[9px] text-gray-700 mt-0.5">{s.current}/{s.max}</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {success ? (
               <div className="space-y-3">

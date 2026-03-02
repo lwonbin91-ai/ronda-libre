@@ -18,7 +18,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         where: { id: scheduleId },
         include: {
           _count: { select: { registrations: true } },
-          registrations: { where: { isGK: true }, select: { id: true } },
+          registrations: {
+            where: { status: { not: "CANCELLED" } },
+            select: { isGK: true, player: { select: { position: true } } },
+          },
           scheduleTeams: { select: { id: true, maxPlayers: true, _count: { select: { registrations: true } } } },
         },
       }),
@@ -47,8 +50,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (existing) return NextResponse.json({ error: "이미 신청되었습니다." }, { status: 409 });
 
     const isGK = player?.position === "GK";
-    if (isGK && schedule.registrations.length >= schedule.maxGK) {
+    if (isGK && schedule.registrations.filter((r) => r.isGK).length >= schedule.maxGK) {
       return NextResponse.json({ error: `GK 자리가 마감되었습니다. (최대 ${schedule.maxGK}명)` }, { status: 409 });
+    }
+
+    // 포지션별 자리 제한 (GK 제외)
+    const POSITION_LIMITS: Record<string, number> = { DF: 4, MF: 3, FW: 3 };
+    const pos = player?.position?.toUpperCase();
+    if (pos && POSITION_LIMITS[pos] !== undefined) {
+      const count = schedule.registrations.filter(
+        (r) => r.player?.position?.toUpperCase() === pos
+      ).length;
+      if (count >= POSITION_LIMITS[pos]) {
+        const posName: Record<string, string> = { DF: "수비수(DF)", MF: "미드필더(MF)", FW: "공격수(FW)" };
+        return NextResponse.json(
+          { error: `${posName[pos]} 자리가 마감되었습니다. (최대 ${POSITION_LIMITS[pos]}명)` },
+          { status: 409 }
+        );
+      }
     }
 
     // 팀 정원 체크 (시즌제)

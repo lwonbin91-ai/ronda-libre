@@ -63,6 +63,8 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
   const [offerError, setOfferError] = useState("");
   const [editingHeight, setEditingHeight] = useState(false);
   const [heightValue, setHeightValue] = useState("");
+  const [editingPosition, setEditingPosition] = useState(false);
+  const [positionValue, setPositionValue] = useState("");
 
   useEffect(() => {
     fetch(`/api/players/${id}`)
@@ -92,6 +94,19 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
     if (res.ok) {
       setPlayer((p) => p ? { ...p, height: h } : p);
       setEditingHeight(false);
+    }
+  };
+
+  const savePosition = async () => {
+    if (!positionValue) return;
+    const res = await fetch(`/api/players/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ position: positionValue }),
+    });
+    if (res.ok) {
+      setPlayer((p) => p ? { ...p, position: positionValue } : p);
+      setEditingPosition(false);
     }
   };
 
@@ -158,6 +173,33 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                 />
                 <button onClick={saveHeight} className="text-xs bg-green-400 text-black font-bold px-3 py-1.5 rounded-lg">저장</button>
                 <button onClick={() => setEditingHeight(false)} className="text-xs text-gray-600 hover:text-white">취소</button>
+              </div>
+            )}
+            {/* 포지션 수정 */}
+            {isOwner && !editingPosition && (
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-gray-600">
+                  포지션: <span className="text-gray-400 font-bold">{player.position || "미설정"}</span>
+                </span>
+                <button onClick={() => { setPositionValue(player.position || ""); setEditingPosition(true); }}
+                  className="text-[10px] text-green-400/70 hover:text-green-400 border border-green-400/20 px-2 py-0.5 rounded">✎ 변경</button>
+              </div>
+            )}
+            {editingPosition && (
+              <div className="flex items-center gap-2 mt-2">
+                <select
+                  value={positionValue}
+                  onChange={(e) => setPositionValue(e.target.value)}
+                  className="bg-black border border-white/20 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-green-400"
+                >
+                  <option value="">포지션 선택</option>
+                  <option value="GK">GK - 골키퍼</option>
+                  <option value="DF">DF - 수비수</option>
+                  <option value="MF">MF - 미드필더</option>
+                  <option value="FW">FW - 공격수</option>
+                </select>
+                <button onClick={savePosition} className="text-xs bg-green-400 text-black font-bold px-3 py-1.5 rounded-lg">저장</button>
+                <button onClick={() => setEditingPosition(false)} className="text-xs text-gray-600 hover:text-white">취소</button>
               </div>
             )}
           </div>
