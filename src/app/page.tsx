@@ -169,16 +169,16 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative rounded-3xl border border-white/7 bg-[#080808] p-8 sm:p-10 flex flex-col">
+            <div className="relative rounded-3xl border border-orange-500/20 p-8 sm:p-10 flex flex-col" style={{ background: "linear-gradient(135deg, #1a0a00 0%, #080808 70%)" }}>
               <div className="flex items-center justify-between mb-8">
-                <span className="text-[10px] font-bold text-gray-600 tracking-[0.2em] uppercase border border-white/8 px-3 py-1 rounded-full">1회성</span>
+                <span className="text-[10px] font-bold text-orange-400/70 tracking-[0.2em] uppercase border border-orange-500/20 px-3 py-1 rounded-full">1회성</span>
               </div>
               <h3 className="text-2xl font-black tracking-tight mb-3">오픈 매칭</h3>
               <p className="text-gray-500 text-sm leading-relaxed mb-7">이번주 경기가 부족했다면.<br />개인 신청 후 자동 팀 배정.<br />2시간 25분씩 3–4경기.</p>
               <ul className="space-y-2.5 mb-8 flex-1">
                 {["당일 신청 가능", "자동 팀 배정", "경기 기록 & 영상", "GK 무료 참가"].map((t) => (
-                  <li key={t} className="flex items-center gap-2.5 text-sm text-gray-500">
-                    <svg className="w-3.5 h-3.5 text-gray-600 shrink-0" fill="none" viewBox="0 0 16 16"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <li key={t} className="flex items-center gap-2.5 text-sm text-gray-400">
+                    <svg className="w-3.5 h-3.5 text-orange-400/70 shrink-0" fill="none" viewBox="0 0 16 16"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     {t}
                   </li>
                 ))}
@@ -188,7 +188,7 @@ export default function Home() {
                   <span className="text-3xl font-black">25,000</span>
                   <span className="text-gray-600 text-sm">원 / 1회</span>
                 </div>
-                <Link href="/matches" className="block w-full bg-white/6 text-white text-center py-3 rounded-xl font-black text-sm hover:bg-white/12 transition-colors border border-white/8">
+                <Link href="/matches" className="block w-full bg-orange-500 text-white text-center py-3 rounded-xl font-black text-sm hover:bg-orange-400 transition-colors">
                   매칭 신청하기
                 </Link>
               </div>
