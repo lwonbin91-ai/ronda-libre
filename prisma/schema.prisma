@@ -1,0 +1,294 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          String    @default("PARENT")
+  phone         String?
+  organization  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  players       Player[]
+  offers        RecruitmentOffer[] @relation("ScoutOffers")
+  sessions      Session[]
+  accounts      Account[]
+  announcements Announcement[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Player {
+  id            String   @id @default(cuid())
+  name          String
+  birthYear     Int
+  height        Int?
+  school        String
+  position      String?
+  parentName    String
+  parentPhone   String
+  parentEmail   String
+  photoUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+
+  registrations  Registration[]
+  matchRecords   MatchPlayerRecord[]
+  offersReceived RecruitmentOffer[] @relation("PlayerOffers")
+  scheduleRegs   ScheduleRegistration[]
+  votesGiven     PlayerVote[] @relation("VoterVotes")
+  votesReceived  PlayerVote[] @relation("ReceivedVotes")
+}
+
+model Season {
+  id          String   @id @default(cuid())
+  name        String
+  type        String
+  startDate   DateTime
+  endDate     DateTime
+  fee         Int
+  maxPlayers  Int
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  teams         Team[]
+  registrations Registration[]
+  matches       Match[]
+  schedules     MatchSchedule[]
+}
+
+model Team {
+  id       String @id @default(cuid())
+  name     String
+  color    String?
+  seasonId String
+  season   Season @relation(fields: [seasonId], references: [id])
+
+  registrations Registration[]
+  homeMatches   Match[]        @relation("HomeTeam")
+  awayMatches   Match[]        @relation("AwayTeam")
+}
+
+model Registration {
+  id        String   @id @default(cuid())
+  playerId  String
+  seasonId  String
+  teamId    String?
+  type      String
+  status    String   @default("PENDING")
+  paidAt    DateTime?
+  createdAt DateTime @default(now())
+
+  player Player @relation(fields: [playerId], references: [id])
+  season Season @relation(fields: [seasonId], references: [id])
+  team   Team?  @relation(fields: [teamId], references: [id])
+}
+
+model Match {
+  id          String   @id @default(cuid())
+  seasonId    String
+  homeTeamId  String
+  awayTeamId  String
+  homeScore   Int      @default(0)
+  awayScore   Int      @default(0)
+  playedAt    DateTime
+  location    String?
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  season      Season @relation(fields: [seasonId], references: [id])
+  homeTeam    Team   @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam    Team   @relation("AwayTeam", fields: [awayTeamId], references: [id])
+
+  playerRecords MatchPlayerRecord[]
+  videos        MatchVideo[]
+}
+
+model MatchVideo {
+  id        String   @id @default(cuid())
+  matchId   String
+  url       String
+  title     String?
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  match Match @relation(fields: [matchId], references: [id])
+}
+
+model MatchPlayerRecord {
+  id            String  @id @default(cuid())
+  matchId       String
+  playerId      String
+  goals         Int     @default(0)
+  assists       Int     @default(0)
+  minutesPlayed Int     @default(0)
+  rating        Float?
+  notes         String?
+
+  match  Match  @relation(fields: [matchId], references: [id])
+  player Player @relation(fields: [playerId], references: [id])
+
+  @@unique([matchId, playerId])
+}
+
+model MatchSchedule {
+  id               String   @id @default(cuid())
+  title            String
+  type             String   // SEASON | ONEDAY
+  gameFormat       String   @default("5v5")
+  description      String?
+  scheduledAt      DateTime
+  location         String?
+  maxPlayers       Int      @default(20)
+  maxGK            Int      @default(2)
+  level            String   @default("ALL")
+  gradeLevel       String   @default("ALL")
+  fee              Int
+  recruitmentStart DateTime?
+  recruitmentEnd   DateTime?
+  status           String   @default("RECRUITING")
+  cancelReason     String?
+  scoreHome        Int?
+  scoreAway        Int?
+  videoUrl         String?
+  videoTitle       String?
+  seasonId         String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  season        Season?                @relation(fields: [seasonId], references: [id])
+  registrations ScheduleRegistration[]
+  scheduleTeams ScheduleTeam[]
+  playerVotes   PlayerVote[]
+}
+
+model ScheduleTeam {
+  id         String @id @default(cuid())
+  scheduleId String
+  name       String
+  color      String @default("#4ade80")
+  maxPlayers Int    @default(10)
+  createdAt  DateTime @default(now())
+
+  schedule      MatchSchedule         @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  registrations ScheduleRegistration[]
+}
+
+model ScheduleRegistration {
+  id         String   @id @default(cuid())
+  scheduleId String
+  playerId   String
+  teamId     String?
+  isGK       Boolean  @default(false)
+  isMVP      Boolean  @default(false)
+  isFairplay Boolean  @default(false)
+  goals      Int      @default(0)
+  assists    Int      @default(0)
+  fee        Int      @default(0)
+  status     String   @default("PENDING")
+  paidAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  schedule MatchSchedule @relation(fields: [scheduleId], references: [id])
+  player   Player        @relation(fields: [playerId], references: [id])
+  team     ScheduleTeam? @relation(fields: [teamId], references: [id])
+
+  @@unique([scheduleId, playerId])
+}
+
+model RecruitmentOffer {
+  id        String   @id @default(cuid())
+  scoutId   String
+  playerId  String
+  message   String
+  clubName  String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  scout  User   @relation("ScoutOffers", fields: [scoutId], references: [id])
+  player Player @relation("PlayerOffers", fields: [playerId], references: [id])
+}
+
+model PlayerVote {
+  id         String   @id @default(cuid())
+  scheduleId String
+  voterId    String
+  targetId   String
+  voteType   String   // MVP | FAIRPLAY
+  createdAt  DateTime @default(now())
+
+  schedule MatchSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  voter    Player        @relation("VoterVotes", fields: [voterId], references: [id])
+  target   Player        @relation("ReceivedVotes", fields: [targetId], references: [id])
+
+  @@unique([scheduleId, voterId, voteType])
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  isPinned  Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
