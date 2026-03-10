@@ -449,9 +449,9 @@ export default function AdminPage() {
     await fetch(`/api/schedules/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "RECRUITING" }),
+      body: JSON.stringify({ status: "RECRUITING", recruitmentStart: null }),
     });
-    setSchedules(schedules.map((s) => s.id === id ? { ...s, status: "RECRUITING" } : s));
+    setSchedules(schedules.map((s) => s.id === id ? { ...s, status: "RECRUITING", recruitmentStart: null } : s));
   };
 
   const cancelSchedule = async (id: string, title: string) => {
@@ -732,10 +732,10 @@ export default function AdminPage() {
                             팀 관리
                           </button>
                         )}
-                        {s.status !== "RECRUITING" && s.status !== "COMPLETED" && s.status !== "CANCELLED" && (
+                        {(s.status !== "RECRUITING" || (s.recruitmentStart && new Date(s.recruitmentStart) > new Date())) && s.status !== "COMPLETED" && s.status !== "CANCELLED" && (
                           <button onClick={() => openSchedule(s.id)}
-                            className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-green-400/30 hover:text-green-400 transition-colors">
-                            모집 시작
+                            className="text-xs border border-green-400/30 text-green-400 px-2.5 py-1.5 rounded-lg hover:bg-green-400/10 transition-colors font-bold">
+                            모집 오픈
                           </button>
                         )}
                         {s.status === "RECRUITING" && (
