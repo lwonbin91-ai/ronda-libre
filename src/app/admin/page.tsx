@@ -760,12 +760,12 @@ export default function AdminPage() {
                               className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
                           </div>
                           <div>
-                            <label className="text-[10px] text-gray-500 mb-1 block">모집 시작</label>
+                            <label className="text-[10px] text-gray-500 mb-1 block">경기 시작 시간</label>
                             <input type="datetime-local" value={editSf.recruitmentStart} onChange={(e) => setEditSf({ ...editSf, recruitmentStart: e.target.value })}
                               className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
                           </div>
                           <div>
-                            <label className="text-[10px] text-gray-500 mb-1 block">모집 마감</label>
+                            <label className="text-[10px] text-gray-500 mb-1 block">경기 종료 시간</label>
                             <input type="datetime-local" value={editSf.recruitmentEnd} onChange={(e) => setEditSf({ ...editSf, recruitmentEnd: e.target.value })}
                               className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
                           </div>
