@@ -282,8 +282,11 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
               </div>
             </div>
           ))}
+        </div>
 
-          {/* MVP / 페어플레이 - 시즌 */}
+        {/* MVP / 페어플레이 뱃지 - 2줄 그리드 */}
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {/* 시즌 경기 행 */}
           <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${mvpCount > 0 ? "bg-yellow-400/10 border-yellow-400/25" : "bg-white/[0.02] border-white/8"}`}>
             <span className="text-xl">⭐</span>
             <div>
@@ -291,7 +294,6 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
               <div className="text-[10px] text-gray-600">시즌 경기</div>
             </div>
           </div>
-
           <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${fairplayCount > 0 ? "bg-blue-400/10 border-blue-400/25" : "bg-white/[0.02] border-white/8"}`}>
             <span className="text-xl">🤝</span>
             <div>
@@ -299,8 +301,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
               <div className="text-[10px] text-gray-600">시즌 경기</div>
             </div>
           </div>
-
-          {/* MVP / 페어플레이 - 오픈 매칭 */}
+          {/* 오픈 매칭 행 */}
           <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${openMvpCount > 0 ? "bg-orange-400/10 border-orange-400/25" : "bg-white/[0.02] border-white/8"}`}>
             <span className="text-xl">⭐</span>
             <div>
@@ -308,7 +309,6 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
               <div className="text-[10px] text-gray-600">오픈 매칭</div>
             </div>
           </div>
-
           <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${openFairplayCount > 0 ? "bg-purple-400/10 border-purple-400/25" : "bg-white/[0.02] border-white/8"}`}>
             <span className="text-xl">🤝</span>
             <div>
@@ -381,15 +381,65 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {/* 받은 제의 (본인만) */}
+      {/* 받은 입단 제의 */}
       {player.offersReceived && player.offersReceived.length > 0 && (
         <div className="bg-[#0d0d0d] border border-white/6 rounded-2xl p-6 mb-6">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-black">받은 입단 제의</h2>
-            <span className="text-sm font-bold text-green-400 bg-green-400/10 border border-green-400/20 px-3 py-0.5 rounded-full">
-              {player.offersReceived.length}건
-            </span>
-          </div>
+          {isOwner ? (
+            /* 본인: 상세 내용 모두 표시 */
+            <>
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-lg font-black">받은 입단 제의</h2>
+                <span className="text-sm font-bold text-green-400 bg-green-400/10 border border-green-400/20 px-3 py-0.5 rounded-full">
+                  {player.offersReceived.length}건
+                </span>
+              </div>
+              <div className="space-y-3">
+                {player.offersReceived.map((offer) => (
+                  <div key={offer.id} className="border border-white/8 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="font-bold text-sm">{offer.clubName}</p>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        offer.status === "ACCEPTED"
+                          ? "border-green-400/25 text-green-400 bg-green-400/5"
+                          : offer.status === "REJECTED"
+                          ? "border-red-400/25 text-red-400"
+                          : "border-yellow-400/25 text-yellow-400"
+                      }`}>
+                        {offer.status === "ACCEPTED" ? "수락" : offer.status === "REJECTED" ? "거절" : "대기 중"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">{offer.message}</p>
+                    {offer.status === "PENDING" && (
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={async () => {
+                            await fetch(`/api/offers/${offer.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "ACCEPTED" }) });
+                            setPlayer({ ...player, offersReceived: player.offersReceived!.map((o) => o.id === offer.id ? { ...o, status: "ACCEPTED" } : o) });
+                          }}
+                          className="text-xs bg-green-400/10 border border-green-400/25 text-green-400 px-3 py-1.5 rounded-lg hover:bg-green-400/20 transition-colors font-bold"
+                        >수락</button>
+                        <button
+                          onClick={async () => {
+                            await fetch(`/api/offers/${offer.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "REJECTED" }) });
+                            setPlayer({ ...player, offersReceived: player.offersReceived!.map((o) => o.id === offer.id ? { ...o, status: "REJECTED" } : o) });
+                          }}
+                          className="text-xs border border-white/10 text-gray-500 px-3 py-1.5 rounded-lg hover:border-red-400/25 hover:text-red-400 transition-colors"
+                        >거절</button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            /* 타인: 건수만 표시 */
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-black">받은 입단 제의</h2>
+              <span className="text-sm font-bold text-green-400 bg-green-400/10 border border-green-400/20 px-3 py-0.5 rounded-full">
+                {player.offersReceived.length}건
+              </span>
+            </div>
+          )}
         </div>
       )}
 
