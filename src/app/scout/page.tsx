@@ -36,7 +36,7 @@ export default function ScoutPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") { router.push("/login"); return; }
-    if (status === "authenticated" && user?.role !== "SCOUT" && user?.role !== "ADMIN") {
+    if (status === "authenticated" && user?.role !== "SCOUT" && user?.role !== "DIRECTOR" && user?.role !== "ADMIN") {
       router.push("/");
       return;
     }

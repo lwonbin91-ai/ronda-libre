@@ -33,8 +33,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   const user = session?.user as { id: string; role: string } | undefined;
-  if (!session || (user?.role !== "SCOUT" && user?.role !== "ADMIN")) {
-    return NextResponse.json({ error: "스카우터만 입단 제의 가능합니다." }, { status: 403 });
+  if (!session || (user?.role !== "SCOUT" && user?.role !== "DIRECTOR" && user?.role !== "ADMIN")) {
+    return NextResponse.json({ error: "스카우터 또는 감독만 입단 제의 가능합니다." }, { status: 403 });
   }
 
   try {

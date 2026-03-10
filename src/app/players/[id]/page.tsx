@@ -139,7 +139,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
   const totalAssists = confirmedRegs.reduce((acc, r) => acc + (r.assists || 0), 0);
   const mvpCount = confirmedRegs.filter((r) => r.isMVP).length;
   const fairplayCount = confirmedRegs.filter((r) => r.isFairplay).length;
-  const isScout = user?.role === "SCOUT" || user?.role === "ADMIN";
+  const isScout = user?.role === "SCOUT" || user?.role === "DIRECTOR" || user?.role === "ADMIN";
   const isOwner = player.isOwn;
   const allRegs = player.scheduleRegistrations;
   const seasonGrade = calcGrade(allRegs, "SEASON");

@@ -76,6 +76,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ...(data.description !== undefined && { description: data.description }),
         ...(data.location !== undefined && { location: data.location }),
         ...(data.maxPlayers && { maxPlayers: data.maxPlayers }),
+        ...(data.fee !== undefined && { fee: data.fee }),
+        ...(data.recruitmentStart !== undefined && {
+          recruitmentStart: data.recruitmentStart ? new Date(data.recruitmentStart) : null,
+        }),
+        ...(data.recruitmentEnd !== undefined && {
+          recruitmentEnd: data.recruitmentEnd ? new Date(data.recruitmentEnd) : null,
+        }),
       },
     });
     return NextResponse.json(schedule);

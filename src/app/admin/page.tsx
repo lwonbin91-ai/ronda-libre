@@ -70,6 +70,7 @@ interface Schedule {
   gameFormat: string;
   scheduledAt: string;
   location: string | null;
+  description: string | null;
   fee: number;
   maxPlayers: number;
   status: string;
@@ -152,6 +153,44 @@ export default function AdminPage() {
     maxPlayers: 20, fee: 25000, recruitmentStart: "", recruitmentEnd: "",
     level: "ALL", gameFormat: "5v5", gradeLevel: "ALL",
   });
+
+  /* schedule edit */
+  const [editingScheduleId, setEditingScheduleId] = useState<string | null>(null);
+  const [editSf, setEditSf] = useState({
+    title: "", description: "", location: "", maxPlayers: 20, fee: 0,
+    recruitmentStart: "", recruitmentEnd: "", status: "RECRUITING",
+  });
+
+  const startEditSchedule = (s: Schedule) => {
+    setEditingScheduleId(s.id);
+    setEditSf({
+      title: s.title,
+      description: s.description || "",
+      location: s.location || "",
+      maxPlayers: s.maxPlayers,
+      fee: s.fee,
+      recruitmentStart: s.recruitmentStart ? s.recruitmentStart.slice(0, 16) : "",
+      recruitmentEnd: s.recruitmentEnd ? s.recruitmentEnd.slice(0, 16) : "",
+      status: s.status,
+    });
+  };
+
+  const saveEditSchedule = async (id: string) => {
+    const res = await fetch(`/api/schedules/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...editSf,
+        maxPlayers: parseInt(String(editSf.maxPlayers)),
+        fee: parseInt(String(editSf.fee)),
+      }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setSchedules((prev) => prev.map((s) => s.id === id ? { ...s, ...updated } : s));
+      setEditingScheduleId(null);
+    }
+  };
 
   /* season dates - multiple dates for SEASON type */
   const [seasonDates, setSeasonDates] = useState<string[]>([""]);
@@ -656,6 +695,10 @@ export default function AdminPage() {
                           className="text-xs border border-white/10 text-gray-400 px-2.5 py-1.5 rounded-lg hover:border-green-400/30 hover:text-green-400 transition-colors">
                           참가자 ({s._count.registrations})
                         </button>
+                        <button onClick={() => startEditSchedule(s)}
+                          className="text-xs border border-white/10 text-gray-400 px-2.5 py-1.5 rounded-lg hover:border-blue-400/30 hover:text-blue-400 transition-colors">
+                          수정
+                        </button>
                         {s.type === "SEASON" && (
                           <button onClick={() => loadTeams(s.id)}
                             className={`text-xs border px-2.5 py-1.5 rounded-lg transition-colors ${
@@ -684,6 +727,70 @@ export default function AdminPage() {
                         </button>
                       </div>
                     </div>
+
+                    {/* 스케줄 수정 패널 */}
+                    {editingScheduleId === s.id && (
+                      <div className="mt-3 pt-3 border-t border-white/6">
+                        <p className="text-xs font-bold text-blue-400 mb-3">스케줄 수정</p>
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                          <div>
+                            <label className="text-[10px] text-gray-500 mb-1 block">제목</label>
+                            <input value={editSf.title} onChange={(e) => setEditSf({ ...editSf, title: e.target.value })}
+                              className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-gray-500 mb-1 block">장소</label>
+                            <input value={editSf.location} onChange={(e) => setEditSf({ ...editSf, location: e.target.value })}
+                              className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-gray-500 mb-1 block">최대 인원</label>
+                            <input type="number" value={editSf.maxPlayers} onChange={(e) => setEditSf({ ...editSf, maxPlayers: parseInt(e.target.value) })}
+                              className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-gray-500 mb-1 block">참가비 (원)</label>
+                            <input type="number" value={editSf.fee} onChange={(e) => setEditSf({ ...editSf, fee: parseInt(e.target.value) })}
+                              className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-gray-500 mb-1 block">모집 시작</label>
+                            <input type="datetime-local" value={editSf.recruitmentStart} onChange={(e) => setEditSf({ ...editSf, recruitmentStart: e.target.value })}
+                              className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-gray-500 mb-1 block">모집 마감</label>
+                            <input type="datetime-local" value={editSf.recruitmentEnd} onChange={(e) => setEditSf({ ...editSf, recruitmentEnd: e.target.value })}
+                              className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400" />
+                          </div>
+                        </div>
+                        <div className="mb-3">
+                          <label className="text-[10px] text-gray-500 mb-1 block">설명</label>
+                          <textarea value={editSf.description} onChange={(e) => setEditSf({ ...editSf, description: e.target.value })} rows={2}
+                            className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400 resize-none" />
+                        </div>
+                        <div className="mb-3">
+                          <label className="text-[10px] text-gray-500 mb-1 block">상태</label>
+                          <select value={editSf.status} onChange={(e) => setEditSf({ ...editSf, status: e.target.value })}
+                            className="bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400">
+                            <option value="RECRUITING">모집 중</option>
+                            <option value="CLOSED">마감</option>
+                            <option value="COMPLETED">완료</option>
+                            <option value="CANCELLED">취소</option>
+                          </select>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={() => saveEditSchedule(s.id)}
+                            className="text-xs bg-blue-500 text-white font-bold px-4 py-2 rounded-lg hover:bg-blue-400 transition-colors">
+                            저장
+                          </button>
+                          <button onClick={() => setEditingScheduleId(null)}
+                            className="text-xs border border-white/10 text-gray-500 px-4 py-2 rounded-lg hover:border-white/25">
+                            취소
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     {/* 팀 관리 패널 */}
                     {expandedTeamSchedule === s.id && (

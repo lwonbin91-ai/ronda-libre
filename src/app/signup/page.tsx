@@ -67,10 +67,11 @@ function SignupForm() {
 
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-2">가입 유형</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {[
                 { val: "PLAYER", label: "선수" },
-                { val: "SCOUT", label: "스카우터 / 감독" },
+                { val: "SCOUT", label: "스카우터" },
+                { val: "DIRECTOR", label: "감독" },
               ].map((r) => (
                 <button
                   key={r.val}
@@ -136,7 +137,7 @@ function SignupForm() {
             />
           </div>
 
-          {form.role === "SCOUT" && (
+          {(form.role === "SCOUT" || form.role === "DIRECTOR") && (
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">소속 구단 / 학교</label>
               <input
