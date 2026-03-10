@@ -300,12 +300,14 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
 
             {/* 레벨 안내 */}
             {schedule.level && schedule.level !== "ALL" && (
-              <div className="flex items-center gap-2 p-3 bg-blue-400/5 border border-blue-400/15 rounded-xl">
-                <span className="text-blue-400 text-sm">⚡</span>
-                <span className="text-xs text-blue-300 font-bold">
-                  {LEVEL_LABEL[schedule.level] || schedule.level} 신청 가능
-                </span>
-                <span className="text-xs text-gray-600 ml-1">(골키퍼 제외)</span>
+              <div className="flex items-start gap-2 p-3 bg-blue-400/5 border border-blue-400/15 rounded-xl">
+                <span className="text-blue-400 text-sm mt-0.5">⚡</span>
+                <div>
+                  <p className="text-xs text-blue-300 font-bold leading-snug">
+                    {LEVEL_LABEL[schedule.level] || schedule.level}<br />신청 가능
+                  </p>
+                  <p className="text-[10px] text-gray-600">(골키퍼 제외)</p>
+                </div>
               </div>
             )}
 
@@ -348,7 +350,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                 <p className="text-[11px] font-bold text-yellow-400 mb-1.5">⚠️ 오픈 베타 안내</p>
                 <ul className="text-[10px] text-gray-500 leading-relaxed space-y-0.5 list-none">
                   <li>· 신청 마감은 경기 하루 전입니다.</li>
-                  <li>· 16명 미달 시 해당 매칭은 취소됩니다.</li>
+                  <li>· 16명 이하 신청 매칭은 취소됩니다.</li>
                   <li>· 현재 문자 발송이 지원되지 않습니다.</li>
                   <li>· 매치 하루 전 웹사이트에서 확정 여부를 꼭 확인하세요.</li>
                 </ul>
