@@ -34,7 +34,7 @@ export default function RegisterPage() {
 
   const [step, setStep] = useState<"player" | "season">("player");
   const [seasons, setSeasons] = useState<Schedule[]>([]);
-  const [selectedType, setSelectedType] = useState<"SEASON" | "ONEDAY">("SEASON");
+  const [selectedType, setSelectedType] = useState<"SEASON" | "ONEDAY">("ONEDAY");
   const [playerId, setPlayerId] = useState<string | null>(null);
 
   const [playerForm, setPlayerForm] = useState({
@@ -315,21 +315,31 @@ export default function RegisterPage() {
             <label className="block text-sm font-medium text-gray-400 mb-3">참여 유형 선택</label>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { val: "SEASON", label: "시즌 리그", price: "89,000원/월" },
-                { val: "ONEDAY", label: "오픈 매칭", price: "25,000원/1회" },
+                { val: "SEASON", label: "시즌 리그", price: "금액 미정", badge: "오픈 준비중", disabled: true },
+                { val: "ONEDAY", label: "오픈 매칭", price: "금액 미정", badge: "베타 무료 참여", disabled: false },
               ].map((t) => (
                 <button
                   key={t.val}
                   type="button"
-                  onClick={() => setSelectedType(t.val as "SEASON" | "ONEDAY")}
+                  onClick={() => !t.disabled && setSelectedType(t.val as "SEASON" | "ONEDAY")}
+                  disabled={t.disabled}
                   className={`p-4 rounded-xl border text-left transition-colors ${
-                    selectedType === t.val
+                    t.disabled
+                      ? "border-white/5 opacity-50 cursor-not-allowed"
+                      : selectedType === t.val
                       ? "border-green-400 bg-green-400/10"
                       : "border-white/10 hover:border-white/30"
                   }`}
                 >
-                  <div className="font-bold text-sm">{t.label}</div>
-                  <div className="text-green-400 text-xs font-bold mt-1">{t.price}</div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="font-bold text-sm">{t.label}</div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      t.disabled
+                        ? "bg-gray-700 text-gray-500"
+                        : "bg-green-400/20 text-green-400"
+                    }`}>{t.badge}</span>
+                  </div>
+                  <div className="text-gray-500 text-xs font-bold mt-1">{t.price}</div>
                 </button>
               ))}
             </div>
