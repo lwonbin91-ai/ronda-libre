@@ -298,8 +298,8 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
           </div>
         </div>
 
-        {/* 스카우터 전용 연락처 */}
-        {isScout && (
+        {/* 스카우터 전용 연락처 (관리자만, 스카우터/감독 제외) */}
+        {user?.role === "ADMIN" && (
           <div className="mt-5 bg-green-400/5 border border-green-400/15 rounded-xl p-4">
             <p className="text-[10px] text-green-400/80 font-bold uppercase tracking-widest mb-3">보호자 연락처</p>
             <div className="grid sm:grid-cols-3 gap-4 text-sm">
