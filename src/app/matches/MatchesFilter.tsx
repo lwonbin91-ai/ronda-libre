@@ -71,6 +71,7 @@ export default function MatchesFilter({
             const state = isSoonOrOpen(s);
             const isFull = s._count.registrations >= s.maxPlayers;
             const date = new Date(s.scheduledAt);
+            const TZ = { timeZone: "Asia/Seoul" } as const;
 
             return (
               <Link
@@ -80,11 +81,13 @@ export default function MatchesFilter({
               >
                 <div className="shrink-0 w-14 text-center bg-black border border-white/8 rounded-xl p-3">
                   <div className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">
-                    {date.toLocaleDateString("ko-KR", { month: "short" })}
+                    {date.toLocaleDateString("ko-KR", { month: "short", ...TZ })}
                   </div>
-                  <div className="text-2xl font-black leading-none mt-0.5">{date.getDate()}</div>
+                  <div className="text-2xl font-black leading-none mt-0.5">
+                    {new Intl.DateTimeFormat("ko-KR", { day: "numeric", timeZone: "Asia/Seoul" }).format(date).replace("일", "")}
+                  </div>
                   <div className="text-[10px] text-gray-600 mt-0.5">
-                    {date.toLocaleDateString("ko-KR", { weekday: "short" })}
+                    {date.toLocaleDateString("ko-KR", { weekday: "short", ...TZ })}
                   </div>
                 </div>
 
@@ -118,7 +121,7 @@ export default function MatchesFilter({
                   </div>
                   <h3 className="font-black text-base group-hover:text-white transition-colors truncate">{s.title}</h3>
                   <p className="text-gray-600 text-sm mt-0.5">
-                    {date.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
+                    {date.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}
                     {s.location && ` · ${s.location}`}
                   </p>
                 </div>
