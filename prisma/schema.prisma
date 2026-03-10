@@ -68,6 +68,7 @@ model Player {
   height        Int?
   school        String
   position      String?
+  yearsExp      Int?
   parentName    String
   parentPhone   String
   parentEmail   String

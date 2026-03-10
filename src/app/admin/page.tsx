@@ -101,6 +101,7 @@ interface ScheduleReg {
   player: {
     id: string; name: string; school: string; birthYear: number;
     position: string | null; parentName: string; parentPhone: string; parentEmail: string;
+    yearsExp: number | null;
   };
 }
 
@@ -808,6 +809,9 @@ export default function AdminPage() {
                             <p className="text-xs text-gray-600">
                               {reg.player.birthYear}년생 · {reg.player.school}
                               {reg.player.position && ` · ${reg.player.position}`}
+                              {reg.player.yearsExp && (
+                                <span className="ml-1 text-green-400/70 font-bold">⚽ {reg.player.yearsExp}년차</span>
+                              )}
                             </p>
                             <p className="text-xs text-gray-700 mt-0.5">
                               보호자: {reg.player.parentName} · {reg.player.parentPhone} · {reg.player.parentEmail}

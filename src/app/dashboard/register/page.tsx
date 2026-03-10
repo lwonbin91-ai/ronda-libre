@@ -42,6 +42,7 @@ export default function RegisterPage() {
     height: "",
     school: "",
     position: "",
+    yearsExp: "",
     parentName: "",
     parentPhone: "",
     parentEmail: "",
@@ -211,6 +212,28 @@ export default function RegisterPage() {
                   }`}
                 >
                   {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">
+              축구를 시작한 지 얼마나 되셨나요? <span className="text-green-400">*</span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((y) => (
+                <button
+                  key={y}
+                  type="button"
+                  onClick={() => setPlayerForm({ ...playerForm, yearsExp: String(y) })}
+                  className={`text-xs px-3 py-1.5 rounded-full border font-bold transition-colors ${
+                    playerForm.yearsExp === String(y)
+                      ? "bg-green-400 text-black border-green-400"
+                      : "border-white/10 text-gray-500 hover:border-white/30"
+                  }`}
+                >
+                  {y}년
                 </button>
               ))}
             </div>

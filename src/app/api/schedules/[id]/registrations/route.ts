@@ -21,7 +21,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
         player: {
           select: {
             id: true, name: true, school: true, birthYear: true,
-            position: true, parentName: true, parentPhone: true, parentEmail: true,
+            position: true, parentName: true, parentPhone: true, parentEmail: true, yearsExp: true,
           },
         },
       },
