@@ -1,24 +1,14 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import AnnouncementList from "./AnnouncementList";
 
-interface Announcement {
-  id: string;
-  title: string;
-  content: string;
-  isPinned: boolean;
-  createdAt: string;
-  author: { name: string };
-}
+export const revalidate = 0;
 
-export default function AnnouncementsPage() {
-  const [list, setList] = useState<Announcement[]>([]);
-  const [selected, setSelected] = useState<Announcement | null>(null);
-
-  useEffect(() => {
-    fetch("/api/announcements").then((r) => r.json()).then((d) => setList(Array.isArray(d) ? d : []));
-  }, []);
+export default async function AnnouncementsPage() {
+  const list = await prisma.announcement.findMany({
+    include: { author: { select: { name: true } } },
+    orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
+  });
 
   return (
     <div className="min-h-screen bg-black text-white pt-24 pb-16">
@@ -32,35 +22,7 @@ export default function AnnouncementsPage() {
         {list.length === 0 ? (
           <div className="text-center py-20 text-gray-600">등록된 공지사항이 없습니다.</div>
         ) : (
-          <div className="space-y-3">
-            {list.map((a) => (
-              <button
-                key={a.id}
-                onClick={() => setSelected(selected?.id === a.id ? null : a)}
-                className="w-full text-left bg-[#0d0d0d] border border-white/6 rounded-2xl p-5 hover:border-green-400/20 transition-all"
-              >
-                <div className="flex items-start gap-3">
-                  {a.isPinned && (
-                    <span className="text-[10px] font-black text-green-400 border border-green-400/30 bg-green-400/10 px-2 py-0.5 rounded-full shrink-0 mt-0.5">
-                      공지
-                    </span>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm truncate">{a.title}</p>
-                    <p className="text-xs text-gray-600 mt-1">
-                      {new Date(a.createdAt).toLocaleDateString("ko-KR")} · {a.author.name}
-                    </p>
-                  </div>
-                  <span className="text-gray-600 text-sm shrink-0">{selected?.id === a.id ? "▲" : "▼"}</span>
-                </div>
-                {selected?.id === a.id && (
-                  <div className="mt-4 pt-4 border-t border-white/8 text-sm text-gray-400 leading-relaxed whitespace-pre-wrap">
-                    {a.content}
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
+          <AnnouncementList list={list} />
         )}
 
         <div className="mt-10 text-center">
