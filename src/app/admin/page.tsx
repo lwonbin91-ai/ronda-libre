@@ -228,6 +228,8 @@ export default function AdminPage() {
   }>>([]);
   const [af, setAf] = useState({ title: "", content: "", isPinned: false });
   const [savingAnnounce, setSavingAnnounce] = useState(false);
+  const [editingAnnounceId, setEditingAnnounceId] = useState<string | null>(null);
+  const [editAf, setEditAf] = useState({ title: "", content: "", isPinned: false });
 
   /* stats */
   const [statsData, setStatsData] = useState<{
@@ -1153,28 +1155,92 @@ export default function AdminPage() {
                 )}
                 {announcements.map((a) => (
                   <div key={a.id} className="bg-white/[0.02] border border-white/6 rounded-xl p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          {a.isPinned && (
-                            <span className="text-[10px] font-black text-green-400 border border-green-400/30 bg-green-400/10 px-2 py-0.5 rounded-full">공지</span>
-                          )}
-                          <p className="font-bold text-sm truncate">{a.title}</p>
+                    {editingAnnounceId === a.id ? (
+                      <div className="space-y-3">
+                        <input
+                          value={editAf.title}
+                          onChange={(e) => setEditAf({ ...editAf, title: e.target.value })}
+                          className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400"
+                          placeholder="제목"
+                        />
+                        <textarea
+                          value={editAf.content}
+                          onChange={(e) => setEditAf({ ...editAf, content: e.target.value })}
+                          rows={4}
+                          className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400 resize-none"
+                          placeholder="내용"
+                        />
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id={`pin-edit-${a.id}`}
+                            checked={editAf.isPinned}
+                            onChange={(e) => setEditAf({ ...editAf, isPinned: e.target.checked })}
+                            className="accent-green-400"
+                          />
+                          <label htmlFor={`pin-edit-${a.id}`} className="text-xs text-gray-400">상단 고정</label>
                         </div>
-                        <p className="text-xs text-gray-600">{new Date(a.createdAt).toLocaleDateString("ko-KR")}</p>
-                        <p className="text-xs text-gray-700 mt-1 line-clamp-2">{a.content}</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={async () => {
+                              const res = await fetch(`/api/announcements/${a.id}`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(editAf),
+                              });
+                              if (res.ok) {
+                                const updated = await res.json();
+                                setAnnouncements(announcements.map((x) => x.id === a.id ? { ...x, ...updated } : x));
+                                setEditingAnnounceId(null);
+                              }
+                            }}
+                            className="text-xs bg-blue-500/20 border border-blue-400/30 text-blue-400 px-3 py-1.5 rounded-lg hover:bg-blue-500/30 transition-colors font-bold"
+                          >
+                            저장
+                          </button>
+                          <button
+                            onClick={() => setEditingAnnounceId(null)}
+                            className="text-xs border border-white/10 text-gray-500 px-3 py-1.5 rounded-lg hover:text-white transition-colors"
+                          >
+                            취소
+                          </button>
+                        </div>
                       </div>
-                      <button
-                        onClick={async () => {
-                          if (!confirm("공지사항을 삭제하시겠습니까?")) return;
-                          await fetch(`/api/announcements/${a.id}`, { method: "DELETE" });
-                          setAnnouncements(announcements.filter((x) => x.id !== a.id));
-                        }}
-                        className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-red-400/30 hover:text-red-400 transition-colors shrink-0"
-                      >
-                        삭제
-                      </button>
-                    </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            {a.isPinned && (
+                              <span className="text-[10px] font-black text-green-400 border border-green-400/30 bg-green-400/10 px-2 py-0.5 rounded-full">공지</span>
+                            )}
+                            <p className="font-bold text-sm truncate">{a.title}</p>
+                          </div>
+                          <p className="text-xs text-gray-600">{new Date(a.createdAt).toLocaleDateString("ko-KR")}</p>
+                          <p className="text-xs text-gray-700 mt-1 line-clamp-2">{a.content}</p>
+                        </div>
+                        <div className="flex gap-1.5 shrink-0">
+                          <button
+                            onClick={() => {
+                              setEditingAnnounceId(a.id);
+                              setEditAf({ title: a.title, content: a.content, isPinned: a.isPinned });
+                            }}
+                            className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-blue-400/30 hover:text-blue-400 transition-colors"
+                          >
+                            수정
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (!confirm("공지사항을 삭제하시겠습니까?")) return;
+                              await fetch(`/api/announcements/${a.id}`, { method: "DELETE" });
+                              setAnnouncements(announcements.filter((x) => x.id !== a.id));
+                            }}
+                            className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-red-400/30 hover:text-red-400 transition-colors"
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
