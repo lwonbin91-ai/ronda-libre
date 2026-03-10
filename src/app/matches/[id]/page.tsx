@@ -184,7 +184,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
       <div className="border-b border-white/5 bg-black/40">
         <div className="max-w-3xl mx-auto px-6 py-12">
           <div className="flex items-center gap-2 mb-4 flex-wrap">
-            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap ${
               schedule.type === "SEASON"
                 ? "border-green-400/25 text-green-400 bg-green-400/5"
                 : "border-orange-500/30 text-orange-400 bg-orange-500/10"
@@ -192,12 +192,12 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               {schedule.type === "SEASON" ? "시즌 리그" : "오픈 매칭"}
             </span>
             {schedule.level && schedule.level !== "ALL" && (
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-400/25 text-blue-400 bg-blue-400/5">
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-400/25 text-blue-400 bg-blue-400/5 whitespace-nowrap">
                 {LEVEL_LABEL[schedule.level] || schedule.level}
               </span>
             )}
             {schedule.gameFormat && (
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-400/20 text-blue-400/80 bg-blue-400/5">
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-400/20 text-blue-400/80 bg-blue-400/5 whitespace-nowrap">
                 {schedule.gameFormat.replace("v", " vs ")} 축구
               </span>
             )}
@@ -344,13 +344,14 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
 
             {/* 베타 알림 */}
             {schedule.type === "ONEDAY" && schedule.fee === 0 && (
-              <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-xl p-3 space-y-1.5">
-                <p className="text-[11px] font-bold text-yellow-400">⚠️ 오픈 베타 안내</p>
-                <p className="text-[10px] text-gray-500 leading-relaxed">
-                  · 신청 마감은 경기 하루 전입니다.<br />
-                  · 16명 미달 시 해당 매칭은 취소됩니다.<br />
-                  · 현재 문자 발송이 지원되지 않습니다. 매치 하루 전 웹사이트에서 매치 확정 여부를 꼭 확인해주세요.
-                </p>
+              <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-xl p-3">
+                <p className="text-[11px] font-bold text-yellow-400 mb-1.5">⚠️ 오픈 베타 안내</p>
+                <ul className="text-[10px] text-gray-500 leading-relaxed space-y-0.5 list-none">
+                  <li>· 신청 마감은 경기 하루 전입니다.</li>
+                  <li>· 16명 미달 시 해당 매칭은 취소됩니다.</li>
+                  <li>· 현재 문자 발송이 지원되지 않습니다.</li>
+                  <li>· 매치 하루 전 웹사이트에서 확정 여부를 꼭 확인하세요.</li>
+                </ul>
               </div>
             )}
 

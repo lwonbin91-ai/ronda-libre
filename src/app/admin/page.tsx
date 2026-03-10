@@ -184,11 +184,15 @@ export default function AdminPage() {
     });
   };
 
+  const toKST = (dtLocal: string) => dtLocal ? dtLocal + ":00+09:00" : "";
+
   const saveEditSchedule = async (id: string) => {
     const body = {
       ...editSf,
       maxPlayers: parseInt(String(editSf.maxPlayers)),
       fee: parseInt(String(editSf.fee)),
+      recruitmentStart: editSf.recruitmentStart ? toKST(editSf.recruitmentStart) : null,
+      recruitmentEnd: editSf.recruitmentEnd ? toKST(editSf.recruitmentEnd) : null,
     };
     const res = await fetch(`/api/schedules/${id}`, {
       method: "PATCH",

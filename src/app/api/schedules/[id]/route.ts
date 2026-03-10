@@ -79,6 +79,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ...(data.fee !== undefined && { fee: data.fee }),
         ...(data.recruitmentStart !== undefined && {
           recruitmentStart: data.recruitmentStart ? new Date(data.recruitmentStart) : null,
+          ...(data.recruitmentStart && { scheduledAt: new Date(data.recruitmentStart) }),
         }),
         ...(data.recruitmentEnd !== undefined && {
           recruitmentEnd: data.recruitmentEnd ? new Date(data.recruitmentEnd) : null,
