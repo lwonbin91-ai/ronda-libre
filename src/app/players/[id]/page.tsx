@@ -139,6 +139,9 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
   const totalAssists = confirmedRegs.reduce((acc, r) => acc + (r.assists || 0), 0);
   const mvpCount = confirmedRegs.filter((r) => r.isMVP).length;
   const fairplayCount = confirmedRegs.filter((r) => r.isFairplay).length;
+  const openRegs = player.scheduleRegistrations.filter((r) => r.schedule.type === "ONEDAY" && r.status === "CONFIRMED");
+  const openMvpCount = openRegs.filter((r) => r.isMVP).length;
+  const openFairplayCount = openRegs.filter((r) => r.isFairplay).length;
   const isScout = user?.role === "SCOUT" || user?.role === "DIRECTOR" || user?.role === "ADMIN";
   const isOwner = player.isOwn;
   const allRegs = player.scheduleRegistrations;
@@ -280,7 +283,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
             </div>
           ))}
 
-          {/* MVP / 페어플레이 수신 */}
+          {/* MVP / 페어플레이 - 시즌 */}
           <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${mvpCount > 0 ? "bg-yellow-400/10 border-yellow-400/25" : "bg-white/[0.02] border-white/8"}`}>
             <span className="text-xl">⭐</span>
             <div>
@@ -294,6 +297,23 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
             <div>
               <div className={`font-black text-sm ${fairplayCount > 0 ? "text-blue-300" : "text-gray-600"}`}>페어플레이 {fairplayCount}회</div>
               <div className="text-[10px] text-gray-600">시즌 경기</div>
+            </div>
+          </div>
+
+          {/* MVP / 페어플레이 - 오픈 매칭 */}
+          <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${openMvpCount > 0 ? "bg-orange-400/10 border-orange-400/25" : "bg-white/[0.02] border-white/8"}`}>
+            <span className="text-xl">⭐</span>
+            <div>
+              <div className={`font-black text-sm ${openMvpCount > 0 ? "text-orange-300" : "text-gray-600"}`}>MVP {openMvpCount}회</div>
+              <div className="text-[10px] text-gray-600">오픈 매칭</div>
+            </div>
+          </div>
+
+          <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${openFairplayCount > 0 ? "bg-purple-400/10 border-purple-400/25" : "bg-white/[0.02] border-white/8"}`}>
+            <span className="text-xl">🤝</span>
+            <div>
+              <div className={`font-black text-sm ${openFairplayCount > 0 ? "text-purple-300" : "text-gray-600"}`}>페어플레이 {openFairplayCount}회</div>
+              <div className="text-[10px] text-gray-600">오픈 매칭</div>
             </div>
           </div>
         </div>
