@@ -95,6 +95,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const updateData: Record<string, unknown> = {};
     if (data.height !== undefined) updateData.height = data.height;
     if (data.position !== undefined) updateData.position = data.position;
+    if (data.preferredFoot !== undefined) updateData.preferredFoot = data.preferredFoot;
 
     const player = await prisma.player.update({ where: { id }, data: updateData });
     return NextResponse.json(player);

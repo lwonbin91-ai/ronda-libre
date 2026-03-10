@@ -102,6 +102,7 @@ export async function POST(req: NextRequest) {
         height: data.height ? parseInt(data.height) : null,
         school: data.school,
         position: data.position || null,
+        preferredFoot: data.preferredFoot || null,
         yearsExp: data.yearsExp ? parseInt(data.yearsExp) : null,
         parentName: data.parentName,
         parentPhone: data.parentPhone,

@@ -25,7 +25,8 @@ const GRADE_LABELS: Record<string, string> = {
   ALL: "전체 학년", G12: "초등 1~2학년", G34: "초등 3~4학년", G56: "초등 5~6학년", M1: "중학교 1학년",
 };
 
-const POSITIONS = ["GK", "CB", "LB", "RB", "CDM", "CM", "CAM", "LW", "RW", "ST"];
+const POSITIONS = ["골키퍼", "수비수", "미드필더", "공격수"];
+const FEET = ["오른발", "왼발", "양발"];
 
 export default function RegisterPage() {
   const { data: session, status } = useSession();
@@ -42,6 +43,7 @@ export default function RegisterPage() {
     height: "",
     school: "",
     position: "",
+    preferredFoot: "",
     yearsExp: "",
     parentName: "",
     parentPhone: "",
@@ -212,6 +214,26 @@ export default function RegisterPage() {
                   }`}
                 >
                   {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-400 mb-2">주사용발</label>
+            <div className="flex flex-wrap gap-2">
+              {FEET.map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  onClick={() => setPlayerForm({ ...playerForm, preferredFoot: playerForm.preferredFoot === f ? "" : f })}
+                  className={`text-xs px-3 py-1.5 rounded-full border font-bold transition-colors ${
+                    playerForm.preferredFoot === f
+                      ? "bg-green-400 text-black border-green-400"
+                      : "border-white/10 text-gray-500 hover:border-white/30"
+                  }`}
+                >
+                  {f}
                 </button>
               ))}
             </div>
