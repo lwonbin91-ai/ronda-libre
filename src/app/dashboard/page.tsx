@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import DashboardClient from "./DashboardClient";
+import ScoutDashboard from "./ScoutDashboard";
 
 export const revalidate = 0;
 
@@ -13,8 +14,16 @@ export default async function DashboardPage() {
   const user = session.user as { id: string; role: string; name: string };
   if (user.role === "ADMIN") redirect("/admin");
 
-  const currentYear = new Date().getFullYear();
+  if (user.role === "SCOUT" || user.role === "DIRECTOR") {
+    const offers = await prisma.recruitmentOffer.findMany({
+      where: { scoutId: user.id },
+      include: { player: { select: { id: true, name: true, school: true, position: true, birthYear: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+    return <ScoutDashboard userName={user.name} role={user.role} offers={JSON.parse(JSON.stringify(offers))} />;
+  }
 
+  const currentYear = new Date().getFullYear();
   const players = await prisma.player.findMany({
     where: { userId: user.id },
     include: {

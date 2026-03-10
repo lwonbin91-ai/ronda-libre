@@ -6,6 +6,21 @@ import { use } from "react";
 import { useRouter } from "next/navigation";
 import { getVideoEmbed } from "@/lib/video";
 
+const GRADE_LABEL: Record<string, string> = {
+  ALL: "", G12: "초등 1~2학년", G34: "초등 3~4학년", G45: "초등 4~5학년",
+  G56: "초등 5~6학년", M1: "중학교 1학년",
+};
+
+function getGradeBirthRange(gradeLevel: string): string {
+  const y = new Date().getFullYear();
+  const ranges: Record<string, [number, number]> = {
+    G12: [y - 8, y - 7], G34: [y - 10, y - 9], G45: [y - 11, y - 10],
+    G56: [y - 12, y - 11], M1: [y - 13, y - 13],
+  };
+  const r = ranges[gradeLevel];
+  return r ? `${r[0]}~${r[1]}년생` : "";
+}
+
 const LEVEL_LABEL: Record<string, string> = {
   ALL: "레벨 무관",
   U1: "1년차까지", U2: "2년차까지", U3: "3년차까지", U4: "4년차까지", U5: "5년차까지",
@@ -18,6 +33,7 @@ interface Schedule {
   title: string;
   type: string;
   level: string;
+  gradeLevel: string;
   gameFormat: string;
   description: string | null;
   scheduledAt: string;
@@ -111,6 +127,8 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
 
   const now = new Date();
   const schedDate = new Date(schedule.scheduledAt);
+  const dateStr = schedDate.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long", timeZone: "Asia/Seoul" });
+  const timeStr = schedDate.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" });
   const recStart = schedule.recruitmentStart ? new Date(schedule.recruitmentStart) : null;
   const recEnd = schedule.recruitmentEnd ? new Date(schedule.recruitmentEnd) : null;
   const isFull = schedule._count.registrations >= schedule.maxPlayers;
@@ -180,7 +198,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
             )}
             {schedule.gameFormat && (
               <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-400/20 text-blue-400/80 bg-blue-400/5">
-                {schedule.gameFormat.replace("v", " vs ")}
+                {schedule.gameFormat.replace("v", " vs ")} 축구
               </span>
             )}
             {schedule.season && (
@@ -190,8 +208,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-3">{schedule.title}</h1>
           <div className="flex flex-wrap gap-4 text-sm text-gray-500">
             <span>
-              {schedDate.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" })}
-              {" "}{schedDate.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
+              {dateStr} {timeStr}
             </span>
             {schedule.location && <span>📍 {schedule.location}</span>}
           </div>
@@ -266,6 +283,21 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               ? "bg-[#1a0f00] border-orange-500/25"
               : "bg-white/[0.02] border-white/8"
           }`}>
+            {/* 학년 안내 */}
+            {schedule.gradeLevel && schedule.gradeLevel !== "ALL" && (
+              <div className="flex items-center gap-2 p-3 bg-purple-400/5 border border-purple-400/15 rounded-xl">
+                <span className="text-purple-400 text-sm">🎓</span>
+                <div>
+                  <span className="text-xs text-purple-300 font-bold">
+                    {GRADE_LABEL[schedule.gradeLevel]} 대상
+                  </span>
+                  <span className="text-xs text-gray-600 ml-2">
+                    {getGradeBirthRange(schedule.gradeLevel)}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* 레벨 안내 */}
             {schedule.level && schedule.level !== "ALL" && (
               <div className="flex items-center gap-2 p-3 bg-blue-400/5 border border-blue-400/15 rounded-xl">

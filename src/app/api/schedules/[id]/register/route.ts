@@ -25,7 +25,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           scheduleTeams: { select: { id: true, maxPlayers: true, _count: { select: { registrations: true } } } },
         },
       }),
-      prisma.player.findUnique({ where: { id: playerId }, select: { position: true, yearsExp: true } }),
+      prisma.player.findUnique({ where: { id: playerId }, select: { position: true, yearsExp: true, birthYear: true } }),
     ]);
 
     if (!schedule) return NextResponse.json({ error: "스케줄 없음" }, { status: 404 });
@@ -63,6 +63,35 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         if (playerYears > maxYears) {
           return NextResponse.json(
             { error: `이 경기는 ${maxYears}년차까지 신청 가능합니다. (현재 ${playerYears}년차)` },
+            { status: 409 }
+          );
+        }
+      }
+    }
+
+    // 학년 제한 (GK 포함 전체 적용)
+    if (schedule.gradeLevel && schedule.gradeLevel !== "ALL" && player?.birthYear) {
+      const currentYear = new Date().getFullYear();
+      // 학년별 출생연도 범위: 매년 자동 계산 (currentYear 기준 초등학교 학년)
+      // 초1=만6세=currentYear-7, 초6=만11세=currentYear-12
+      // 예) 2026년: 초5,6 → 2014,2015년생 = currentYear-12 ~ currentYear-11
+      const gradeRanges: Record<string, [number, number]> = {
+        G12: [currentYear - 8, currentYear - 7],   // 1~2학년
+        G34: [currentYear - 10, currentYear - 9],  // 3~4학년
+        G45: [currentYear - 11, currentYear - 10], // 4~5학년
+        G56: [currentYear - 12, currentYear - 11], // 5~6학년
+        M1:  [currentYear - 13, currentYear - 13], // 중1
+      };
+      const range = gradeRanges[schedule.gradeLevel];
+      if (range) {
+        const [minYear, maxYear] = range;
+        if (player.birthYear < minYear || player.birthYear > maxYear) {
+          const gradeNames: Record<string, string> = {
+            G12: "초등 1~2학년", G34: "초등 3~4학년", G45: "초등 4~5학년",
+            G56: "초등 5~6학년", M1: "중학교 1학년",
+          };
+          return NextResponse.json(
+            { error: `이 경기는 ${gradeNames[schedule.gradeLevel]} 대상입니다. (해당 학년 ${minYear}~${maxYear}년생)` },
             { status: 409 }
           );
         }
