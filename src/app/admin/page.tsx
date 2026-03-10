@@ -113,10 +113,16 @@ const labelCls = "block text-xs text-gray-600 mb-1.5 font-medium";
 
 const LEVEL_OPTS = [
   { value: "ALL", label: "전체 (레벨 무관)" },
-  { value: "U1", label: "1년 미만" },
-  { value: "U3", label: "3년 미만" },
-  { value: "U5", label: "5년 미만" },
-  { value: "U6P", label: "6년 이상" },
+  { value: "U1", label: "1년차까지" },
+  { value: "U2", label: "2년차까지" },
+  { value: "U3", label: "3년차까지" },
+  { value: "U4", label: "4년차까지" },
+  { value: "U5", label: "5년차까지" },
+  { value: "U6", label: "6년차까지" },
+  { value: "U7", label: "7년차까지" },
+  { value: "U8", label: "8년차까지" },
+  { value: "U9", label: "9년차까지" },
+  { value: "U10", label: "10년차까지" },
 ];
 
 const GRADE_OPTS = [

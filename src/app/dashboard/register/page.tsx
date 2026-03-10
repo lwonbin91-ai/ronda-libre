@@ -91,8 +91,7 @@ export default function RegisterPage() {
     if (!res.ok) {
       setError(data.error || "오류 발생");
     } else {
-      setPlayerId(data.id);
-      setStep("season");
+      router.push("/dashboard");
     }
   };
 
@@ -255,7 +254,7 @@ export default function RegisterPage() {
                       : "border-white/10 text-gray-500 hover:border-white/30"
                   }`}
                 >
-                  {y}년
+                  {y}년차
                 </button>
               ))}
             </div>

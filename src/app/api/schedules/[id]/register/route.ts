@@ -25,7 +25,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           scheduleTeams: { select: { id: true, maxPlayers: true, _count: { select: { registrations: true } } } },
         },
       }),
-      prisma.player.findUnique({ where: { id: playerId }, select: { position: true } }),
+      prisma.player.findUnique({ where: { id: playerId }, select: { position: true, yearsExp: true } }),
     ]);
 
     if (!schedule) return NextResponse.json({ error: "스케줄 없음" }, { status: 404 });
@@ -49,9 +49,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     });
     if (existing) return NextResponse.json({ error: "이미 신청되었습니다." }, { status: 409 });
 
-    const isGK = player?.position === "GK";
+    const isGK = player?.position === "GK" || player?.position === "골키퍼";
     if (isGK && schedule.registrations.filter((r) => r.isGK).length >= schedule.maxGK) {
       return NextResponse.json({ error: `GK 자리가 마감되었습니다. (최대 ${schedule.maxGK}명)` }, { status: 409 });
+    }
+
+    // 년차 제한 (GK는 제외, 다른 포지션만 적용)
+    if (!isGK && schedule.level && schedule.level !== "ALL") {
+      const playerYears = player?.yearsExp ?? null;
+      const limitMatch = schedule.level.match(/^U(\d+)$/);
+      if (limitMatch && playerYears !== null) {
+        const maxYears = parseInt(limitMatch[1]);
+        if (playerYears > maxYears) {
+          return NextResponse.json(
+            { error: `이 경기는 ${maxYears}년차까지 신청 가능합니다. (현재 ${playerYears}년차)` },
+            { status: 409 }
+          );
+        }
+      }
     }
 
     // 포지션별 자리 제한 (GK 제외)

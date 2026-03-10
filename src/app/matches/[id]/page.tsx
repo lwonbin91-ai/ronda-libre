@@ -313,19 +313,19 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                     return (
                       <div
                         key={pos}
-                        className={`rounded-xl p-3 text-center border ${
+                        className={`rounded-xl p-3 flex flex-col items-center justify-center border ${
                           isFull
                             ? "border-red-400/20 bg-red-400/5"
                             : "border-green-400/15 bg-green-400/5"
                         }`}
                       >
                         <div className="text-base mb-1">{icon}</div>
-                        <div className="text-[11px] font-black text-white">{pos}</div>
-                        <div className="text-[9px] text-gray-500">{label}</div>
+                        <div className="text-[11px] font-black text-white leading-none">{pos}</div>
+                        <div className="text-[9px] text-gray-500 mt-0.5 text-center leading-tight">{label}</div>
                         {isFull ? (
-                          <div className="text-[11px] font-black text-red-400 mt-1">마감</div>
+                          <div className="text-[11px] font-black text-red-400 mt-1.5">마감</div>
                         ) : (
-                          <div className="text-[11px] font-black text-green-400 mt-1">
+                          <div className="text-[11px] font-black text-green-400 mt-1.5">
                             {remaining}<span className="text-[9px] text-gray-500 font-normal">자리</span>
                           </div>
                         )}
