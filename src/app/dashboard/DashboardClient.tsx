@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 interface Player {
   id: string;
@@ -88,6 +89,15 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
       setEditingId(null);
     }
     setEditLoading(false);
+  };
+
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    const res = await fetch("/api/users/me", { method: "DELETE" });
+    if (res.ok) {
+      await signOut({ callbackUrl: "/" });
+    }
   };
 
   const handleOfferResponse = async (offerId: string, status: "ACCEPTED" | "DECLINED") => {
@@ -321,6 +331,31 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
           })}
         </div>
       )}
+
+      {/* 회원 탈퇴 */}
+      <div className="mt-16 pt-8 border-t border-white/5">
+        {!deleteConfirm ? (
+          <button onClick={() => setDeleteConfirm(true)}
+            className="text-xs text-gray-700 hover:text-red-400 transition-colors">
+            회원 탈퇴
+          </button>
+        ) : (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-5">
+            <p className="text-sm font-bold text-red-400 mb-1">정말 탈퇴하시겠습니까?</p>
+            <p className="text-xs text-gray-500 mb-4">계정과 모든 프로필 정보가 삭제되며 복구할 수 없습니다.</p>
+            <div className="flex gap-3">
+              <button onClick={handleDeleteAccount}
+                className="text-xs bg-red-500 text-white font-bold px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                탈퇴 확인
+              </button>
+              <button onClick={() => setDeleteConfirm(false)}
+                className="text-xs border border-white/10 text-gray-500 px-4 py-2 rounded-lg hover:border-white/25">
+                취소
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

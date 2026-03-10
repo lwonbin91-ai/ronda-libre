@@ -5,7 +5,11 @@ import MatchesFilter from "./MatchesFilter";
 export const revalidate = 0;
 
 const TYPE_LABEL: Record<string, string> = { SEASON: "시즌 리그", ONEDAY: "오픈 매칭" };
-const LEVEL_LABEL: Record<string, string> = { ALL: "레벨 무관", U1: "1년 미만", U3: "3년 미만", U5: "5년 미만", U6P: "6년 이상" };
+const LEVEL_LABEL: Record<string, string> = {
+  ALL: "레벨 무관",
+  U1: "1년차까지", U2: "2년차까지", U3: "3년차까지", U4: "4년차까지", U5: "5년차까지",
+  U6: "6년차까지", U7: "7년차까지", U8: "8년차까지", U9: "9년차까지", U10: "10년차까지",
+};
 const GRADE_LABEL: Record<string, string> = { ALL: "전체 학년", G12: "초등 1~2학년", G34: "초등 3~4학년", G45: "초등 4~5학년", G56: "초등 5~6학년", M1: "중학교 1학년" };
 
 export interface Schedule {

@@ -6,10 +6,18 @@ import { use } from "react";
 import { useRouter } from "next/navigation";
 import { getVideoEmbed } from "@/lib/video";
 
+const LEVEL_LABEL: Record<string, string> = {
+  ALL: "레벨 무관",
+  U1: "1년차까지", U2: "2년차까지", U3: "3년차까지", U4: "4년차까지", U5: "5년차까지",
+  U6: "6년차까지", U7: "7년차까지", U8: "8년차까지", U9: "9년차까지", U10: "10년차까지",
+  U6P: "6년 이상",
+};
+
 interface Schedule {
   id: string;
   title: string;
   type: string;
+  level: string;
   gameFormat: string;
   description: string | null;
   scheduledAt: string;
@@ -165,6 +173,11 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
             }`}>
               {schedule.type === "SEASON" ? "시즌 리그" : "오픈 매칭"}
             </span>
+            {schedule.level && schedule.level !== "ALL" && (
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-400/25 text-blue-400 bg-blue-400/5">
+                {LEVEL_LABEL[schedule.level] || schedule.level}
+              </span>
+            )}
             {schedule.gameFormat && (
               <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-400/20 text-blue-400/80 bg-blue-400/5">
                 {schedule.gameFormat.replace("v", " vs ")}
@@ -253,6 +266,17 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               ? "bg-[#1a0f00] border-orange-500/25"
               : "bg-white/[0.02] border-white/8"
           }`}>
+            {/* 레벨 안내 */}
+            {schedule.level && schedule.level !== "ALL" && (
+              <div className="flex items-center gap-2 p-3 bg-blue-400/5 border border-blue-400/15 rounded-xl">
+                <span className="text-blue-400 text-sm">⚡</span>
+                <span className="text-xs text-blue-300 font-bold">
+                  {LEVEL_LABEL[schedule.level] || schedule.level} 신청 가능
+                </span>
+                <span className="text-xs text-gray-600 ml-1">(골키퍼 제외)</span>
+              </div>
+            )}
+
             {/* 가격 */}
             <div>
               <div className="flex items-end gap-2">
