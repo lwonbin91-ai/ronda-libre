@@ -255,7 +255,16 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
           }`}>
             {/* 가격 */}
             <div>
-              <div className="text-2xl font-black">{schedule.fee.toLocaleString()}원</div>
+              <div className="flex items-end gap-2">
+                <div className="text-2xl font-black">
+                  {schedule.fee === 0 ? "무료" : `${schedule.fee.toLocaleString()}원`}
+                </div>
+                {schedule.fee === 0 && schedule.type === "ONEDAY" && (
+                  <span className="text-[10px] font-bold bg-green-400/15 text-green-400 border border-green-400/25 px-2 py-0.5 rounded-full mb-1">
+                    베타 무료
+                  </span>
+                )}
+              </div>
               <div className="flex items-center justify-between text-xs text-gray-600 mt-1">
                 <span>{schedule._count.registrations}/{schedule.maxPlayers}명</span>
                 <span className={`font-bold ${
@@ -310,13 +319,15 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                             : "border-green-400/15 bg-green-400/5"
                         }`}
                       >
-                        <div className="text-lg mb-1">{icon}</div>
-                        <div className="text-[10px] text-gray-500 font-bold">{pos}</div>
-                        <div className="text-[10px] text-gray-600">{label}</div>
+                        <div className="text-base mb-1">{icon}</div>
+                        <div className="text-[11px] font-black text-white">{pos}</div>
+                        <div className="text-[9px] text-gray-500">{label}</div>
                         {isFull ? (
-                          <div className="text-[10px] font-black text-red-400 mt-1">마감</div>
+                          <div className="text-[11px] font-black text-red-400 mt-1">마감</div>
                         ) : (
-                          <div className="text-[10px] font-black text-green-400 mt-1">{remaining}자리</div>
+                          <div className="text-[11px] font-black text-green-400 mt-1">
+                            {remaining}<span className="text-[9px] text-gray-500 font-normal">자리</span>
+                          </div>
                         )}
                         {s && (
                           <div className="text-[9px] text-gray-700 mt-0.5">{s.current}/{s.max}</div>
