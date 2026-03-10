@@ -185,18 +185,23 @@ export default function AdminPage() {
   };
 
   const saveEditSchedule = async (id: string) => {
+    const body = {
+      ...editSf,
+      maxPlayers: parseInt(String(editSf.maxPlayers)),
+      fee: parseInt(String(editSf.fee)),
+    };
     const res = await fetch(`/api/schedules/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...editSf,
-        maxPlayers: parseInt(String(editSf.maxPlayers)),
-        fee: parseInt(String(editSf.fee)),
-      }),
+      body: JSON.stringify(body),
     });
     if (res.ok) {
       const updated = await res.json();
-      setSchedules((prev) => prev.map((s) => s.id === id ? { ...s, ...updated } : s));
+      setSchedules((prev) => prev.map((s) =>
+        s.id === id
+          ? { ...s, ...updated, level: updated.level ?? body.level, gameFormat: updated.gameFormat ?? body.gameFormat }
+          : s
+      ));
       setEditingScheduleId(null);
     }
   };
