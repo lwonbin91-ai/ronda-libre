@@ -139,32 +139,32 @@ export default function Home() {
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
-            <div className="relative rounded-3xl border border-green-400/20 p-8 sm:p-10 overflow-hidden"
+            <div className="relative rounded-3xl border border-green-400/10 p-8 sm:p-10 overflow-hidden opacity-70"
               style={{ background: "linear-gradient(145deg, #071d0f 0%, #050505 60%)" }}>
               <div className="absolute top-0 right-0 w-56 h-56 bg-green-400/5 rounded-full blur-3xl" />
               <div className="relative z-10 flex flex-col h-full">
                 <div className="flex items-center justify-between mb-8">
                   <span className="text-[10px] font-bold text-green-400/80 tracking-[0.2em] uppercase border border-green-400/20 px-3 py-1 rounded-full">시즌형</span>
-                  <span className="text-[10px] font-bold text-black bg-green-400 px-2.5 py-1 rounded-full">인기</span>
+                  <span className="text-[10px] font-bold text-black bg-green-400/60 px-2.5 py-1 rounded-full">오픈 대기중</span>
                 </div>
                 <h3 className="text-2xl font-black tracking-tight mb-3">시즌 리그</h3>
                 <p className="text-gray-500 text-sm leading-relaxed mb-7">임의 편성된 팀에 개인 신청.<br />6–8주 동안 매주 1~2회 리그(리그당 25분씩 3-4경기).<br />아이들이 직접 팀을 운영합니다.</p>
                 <ul className="space-y-2.5 mb-8 flex-1">
                   {["2개월간 최소 8경기 보장", "개인 기록 & 영상", "스카우터 공개 프로필", "GK 무료 참가"].map((t) => (
-                    <li key={t} className="flex items-center gap-2.5 text-sm text-gray-500">
-                      <svg className="w-3.5 h-3.5 text-green-400 shrink-0" fill="none" viewBox="0 0 16 16"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <li key={t} className="flex items-center gap-2.5 text-sm text-gray-600">
+                      <svg className="w-3.5 h-3.5 text-green-400/40 shrink-0" fill="none" viewBox="0 0 16 16"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       {t}
                     </li>
                   ))}
                 </ul>
                 <div className="pt-6 border-t border-white/6">
                   <div className="flex items-baseline gap-1 mb-4">
-                    <span className="text-3xl font-black">89,000</span>
-                    <span className="text-gray-600 text-sm">원 / 월</span>
+                    <span className="text-3xl font-black text-gray-500">89,000</span>
+                    <span className="text-gray-700 text-sm">원 / 월</span>
                   </div>
-                  <Link href="/matches" className="block w-full bg-green-400 text-black text-center py-3 rounded-xl font-black text-sm hover:bg-green-300 transition-colors">
-                    시즌 신청하기
-                  </Link>
+                  <div className="block w-full bg-white/5 text-gray-600 text-center py-3 rounded-xl font-black text-sm cursor-not-allowed border border-white/5">
+                    준비 중입니다
+                  </div>
                 </div>
               </div>
             </div>
@@ -172,6 +172,7 @@ export default function Home() {
             <div className="relative rounded-3xl border border-orange-500/20 p-8 sm:p-10 flex flex-col" style={{ background: "linear-gradient(135deg, #1a0a00 0%, #080808 70%)" }}>
               <div className="flex items-center justify-between mb-8">
                 <span className="text-[10px] font-bold text-orange-400/70 tracking-[0.2em] uppercase border border-orange-500/20 px-3 py-1 rounded-full">1회성</span>
+                <span className="text-[10px] font-bold text-orange-400 bg-orange-500/15 border border-orange-500/30 px-2.5 py-1 rounded-full">🎉 베타 무료</span>
               </div>
               <h3 className="text-2xl font-black tracking-tight mb-3">오픈 매칭</h3>
               <p className="text-gray-500 text-sm leading-relaxed mb-7">이번주 경기가 부족했다면.<br />개인 신청 후 자동 팀 배정.<br />2시간 25분씩 3–4경기.</p>
@@ -184,10 +185,12 @@ export default function Home() {
                 ))}
               </ul>
               <div className="pt-6 border-t border-orange-500/30">
-                <div className="flex items-baseline gap-1 mb-4">
-                  <span className="text-3xl font-black">25,000</span>
-                  <span className="text-gray-600 text-sm">원 / 1회</span>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-3xl font-black text-orange-400">0</span>
+                  <span className="text-gray-600 text-sm">원</span>
+                  <span className="text-xs line-through text-gray-700 ml-1">25,000원</span>
                 </div>
+                <p className="text-[11px] text-orange-400/60 mb-4">베타 서비스 기간 한정 무료</p>
                 <Link href="/matches" className="block w-full bg-orange-500 text-white text-center py-3 rounded-xl font-black text-sm hover:bg-orange-400 transition-colors">
                   매칭 신청하기
                 </Link>

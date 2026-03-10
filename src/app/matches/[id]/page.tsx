@@ -66,8 +66,16 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
     }
   }, [id, session]);
 
+  const [showInsuranceModal, setShowInsuranceModal] = useState(false);
+  const [insuranceAgreed, setInsuranceAgreed] = useState(false);
+
   const handleRegister = async () => {
     if (!selectedPlayer) return;
+    // 오픈 매칭이면 보험 동의 팝업 먼저
+    if (schedule?.type === "ONEDAY" && !insuranceAgreed) {
+      setShowInsuranceModal(true);
+      return;
+    }
     setSubmitting(true);
     setError("");
 
@@ -105,6 +113,48 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="min-h-screen">
+
+      {/* ── 보험 동의 팝업 ── */}
+      {showInsuranceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
+          <div className="bg-[#111] border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 className="font-black text-lg mb-1">부상 및 보험 안내</h3>
+            <p className="text-xs text-orange-400 font-bold mb-4">경기 참여 전 반드시 확인해주세요</p>
+            <div className="bg-white/[0.03] border border-white/8 rounded-xl p-4 text-xs text-gray-400 leading-relaxed space-y-2 mb-5">
+              <p>• 본 경기는 <strong className="text-white">개인 스포츠 활동</strong>으로 진행됩니다.</p>
+              <p>• 경기 중 발생하는 부상은 <strong className="text-white">개인 보험(실손보험 등)</strong>으로 처리해야 합니다.</p>
+              <p>• Ronda Libre는 경기 중 발생한 부상에 대해 별도의 단체 보험을 제공하지 않습니다.</p>
+              <p>• 참가 전 개인 상해보험 가입 여부를 확인하시고, 건강 상태가 좋지 않을 경우 참여를 자제해 주세요.</p>
+              <p>• 경기 참가 신청 시 위 내용에 동의한 것으로 간주됩니다.</p>
+            </div>
+            <label className="flex items-start gap-2 cursor-pointer mb-5">
+              <input
+                type="checkbox"
+                checked={insuranceAgreed}
+                onChange={(e) => setInsuranceAgreed(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-orange-400 shrink-0"
+              />
+              <span className="text-sm text-gray-300 leading-snug">위 내용을 모두 확인하였으며, 부상 발생 시 개인 보험으로 처리됨에 동의합니다.</span>
+            </label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setShowInsuranceModal(false); setInsuranceAgreed(false); }}
+                className="flex-1 border border-white/10 text-gray-400 py-2.5 rounded-xl text-sm font-bold hover:border-white/20 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                disabled={!insuranceAgreed}
+                onClick={() => { setShowInsuranceModal(false); handleRegister(); }}
+                className="flex-1 bg-orange-500 text-white py-2.5 rounded-xl text-sm font-black hover:bg-orange-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                동의 후 신청
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="border-b border-white/5 bg-black/40">
         <div className="max-w-3xl mx-auto px-6 py-12">
           <div className="flex items-center gap-2 mb-4 flex-wrap">
