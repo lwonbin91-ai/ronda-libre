@@ -524,7 +524,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                     >
                       {submitting ? "신청 중..." : myPlayers.find((p) => p.id === selectedPlayer)?.position === "GK" ? "무료 신청하기" : `${schedule.fee.toLocaleString()}원 신청하기`}
                     </button>
-                    <p className="text-[10px] text-gray-700 text-center">GK 외 선수는 신청 후 계좌이체 결제</p>
+
                   </>
                 ) : (
                   <a href="/dashboard/register"
