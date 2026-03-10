@@ -174,7 +174,7 @@ export default function RegisterPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">학교명 *</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">학교/클럽명 *</label>
               <input
                 required
                 value={playerForm.school}
