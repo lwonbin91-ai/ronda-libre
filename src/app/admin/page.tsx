@@ -168,6 +168,13 @@ export default function AdminPage() {
     level: "ALL", gameFormat: "5v5",
   });
 
+  const toLocalInput = (utcStr: string | null) => {
+    if (!utcStr) return "";
+    const d = new Date(utcStr);
+    const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+    return kst.toISOString().slice(0, 16);
+  };
+
   const startEditSchedule = (s: Schedule) => {
     setEditingScheduleId(s.id);
     setEditSf({
@@ -176,8 +183,8 @@ export default function AdminPage() {
       location: s.location || "",
       maxPlayers: s.maxPlayers,
       fee: s.fee,
-      recruitmentStart: s.recruitmentStart ? s.recruitmentStart.slice(0, 16) : "",
-      recruitmentEnd: s.recruitmentEnd ? s.recruitmentEnd.slice(0, 16) : "",
+      recruitmentStart: toLocalInput(s.recruitmentStart),
+      recruitmentEnd: toLocalInput(s.recruitmentEnd),
       status: s.status,
       level: s.level || "ALL",
       gameFormat: s.gameFormat || "5v5",
