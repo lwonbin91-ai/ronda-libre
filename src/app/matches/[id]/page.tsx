@@ -342,6 +342,18 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               />
             </div>
 
+            {/* 베타 알림 */}
+            {schedule.type === "ONEDAY" && schedule.fee === 0 && (
+              <div className="bg-yellow-400/5 border border-yellow-400/20 rounded-xl p-3 space-y-1.5">
+                <p className="text-[11px] font-bold text-yellow-400">⚠️ 오픈 베타 안내</p>
+                <p className="text-[10px] text-gray-500 leading-relaxed">
+                  · 신청 마감은 경기 하루 전입니다.<br />
+                  · 16명 미달 시 해당 매칭은 취소됩니다.<br />
+                  · 현재 문자 발송이 지원되지 않습니다. 매치 하루 전 웹사이트에서 매치 확정 여부를 꼭 확인해주세요.
+                </p>
+              </div>
+            )}
+
             {/* GK 무료 안내 */}
             <div className="bg-green-400/5 border border-green-400/15 rounded-xl p-3">
               <p className="text-xs font-bold text-green-400 mb-1">🧤 GK 무료 참가</p>

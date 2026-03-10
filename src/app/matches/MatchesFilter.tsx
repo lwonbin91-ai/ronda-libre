@@ -9,6 +9,7 @@ interface Schedule {
   type: string;
   level: string;
   gradeLevel: string;
+  gameFormat: string | null;
   description: string | null;
   scheduledAt: string;
   location: string | null;
@@ -104,6 +105,11 @@ export default function MatchesFilter({
                     {s.gradeLevel && s.gradeLevel !== "ALL" && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-400/20 text-purple-400/80 bg-purple-400/5">
                         {gradeLabel[s.gradeLevel] || s.gradeLevel}
+                      </span>
+                    )}
+                    {s.gameFormat && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-gray-400/20 text-gray-400/80 bg-gray-400/5">
+                        {s.gameFormat.replace("v", " vs ")}
                       </span>
                     )}
                     {s.season && (

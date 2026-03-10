@@ -165,6 +165,7 @@ export default function AdminPage() {
   const [editSf, setEditSf] = useState({
     title: "", description: "", location: "", maxPlayers: 20, fee: 0,
     recruitmentStart: "", recruitmentEnd: "", status: "RECRUITING",
+    level: "ALL", gameFormat: "5v5",
   });
 
   const startEditSchedule = (s: Schedule) => {
@@ -178,6 +179,8 @@ export default function AdminPage() {
       recruitmentStart: s.recruitmentStart ? s.recruitmentStart.slice(0, 16) : "",
       recruitmentEnd: s.recruitmentEnd ? s.recruitmentEnd.slice(0, 16) : "",
       status: s.status,
+      level: s.level || "ALL",
+      gameFormat: s.gameFormat || "5v5",
     });
   };
 
@@ -435,6 +438,15 @@ export default function AdminPage() {
       body: JSON.stringify({ status: "CLOSED" }),
     });
     setSchedules(schedules.map((s) => s.id === id ? { ...s, status: "CLOSED" } : s));
+  };
+
+  const openSchedule = async (id: string) => {
+    await fetch(`/api/schedules/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "RECRUITING" }),
+    });
+    setSchedules(schedules.map((s) => s.id === id ? { ...s, status: "RECRUITING" } : s));
   };
 
   const cancelSchedule = async (id: string, title: string) => {
@@ -715,6 +727,12 @@ export default function AdminPage() {
                             팀 관리
                           </button>
                         )}
+                        {s.status !== "RECRUITING" && s.status !== "COMPLETED" && s.status !== "CANCELLED" && (
+                          <button onClick={() => openSchedule(s.id)}
+                            className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-green-400/30 hover:text-green-400 transition-colors">
+                            모집 시작
+                          </button>
+                        )}
                         {s.status === "RECRUITING" && (
                           <button onClick={() => closeSchedule(s.id)}
                             className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-yellow-400/30 hover:text-yellow-400 transition-colors">
@@ -784,6 +802,33 @@ export default function AdminPage() {
                             <option value="COMPLETED">완료</option>
                             <option value="CANCELLED">취소</option>
                           </select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                          <div>
+                            <label className="text-[10px] text-gray-500 mb-1 block">레벨</label>
+                            <select value={editSf.level} onChange={(e) => setEditSf({ ...editSf, level: e.target.value })}
+                              className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400">
+                              <option value="ALL">레벨 무관</option>
+                              <option value="U1">1년차까지</option>
+                              <option value="U2">2년차까지</option>
+                              <option value="U3">3년차까지</option>
+                              <option value="U4">4년차까지</option>
+                              <option value="U5">5년차까지</option>
+                              <option value="U6">6년차까지</option>
+                              <option value="U7">7년차까지</option>
+                              <option value="U8">8년차까지</option>
+                              <option value="U9">9년차까지</option>
+                              <option value="U10">10년차까지</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-gray-500 mb-1 block">경기 방식</label>
+                            <select value={editSf.gameFormat} onChange={(e) => setEditSf({ ...editSf, gameFormat: e.target.value })}
+                              className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400">
+                              <option value="5v5">5 vs 5 풋살</option>
+                              <option value="8v8">8 vs 8 축구</option>
+                            </select>
+                          </div>
                         </div>
                         <div className="flex gap-2">
                           <button onClick={() => saveEditSchedule(s.id)}

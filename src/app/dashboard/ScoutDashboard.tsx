@@ -10,7 +10,7 @@ interface Offer {
   message: string;
   status: string;
   createdAt: string;
-  player: { id: string; name: string; school: string; position: string | null; birthYear: number };
+  player: { id: string; name: string; school: string; position: string | null; birthYear: number; parentPhone: string };
 }
 
 export default function ScoutDashboard({
@@ -24,6 +24,7 @@ export default function ScoutDashboard({
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [revealedPhone, setRevealedPhone] = useState<Record<string, boolean>>({});
 
   const sendOffer = async () => {
     if (!offerForm.playerId || !offerForm.clubName || !offerForm.message) {
@@ -140,9 +141,18 @@ export default function ScoutDashboard({
                   <p className="text-xs text-gray-600 mt-1 truncate">{o.message}</p>
                   <p className="text-[10px] text-gray-700 mt-1">{new Date(o.createdAt).toLocaleDateString("ko-KR")}</p>
                 </div>
-                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 ${statusColor[o.status]}`}>
-                  {statusLabel[o.status]}
-                </span>
+                <div className="flex items-start gap-2 flex-col">
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 ${statusColor[o.status]}`}>
+                    {statusLabel[o.status]}
+                  </span>
+                  {o.status === "ACCEPTED" && (
+                    <button
+                      onClick={() => setRevealedPhone((prev) => ({ ...prev, [o.id]: !prev[o.id] }))}
+                      className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-400/25 text-blue-400 bg-blue-400/5 hover:bg-blue-400/15 transition-colors">
+                      {revealedPhone[o.id] ? o.player.parentPhone : "정보 보기"}
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

@@ -17,7 +17,7 @@ export default async function DashboardPage() {
   if (user.role === "SCOUT" || user.role === "DIRECTOR") {
     const offers = await prisma.recruitmentOffer.findMany({
       where: { scoutId: user.id },
-      include: { player: { select: { id: true, name: true, school: true, position: true, birthYear: true } } },
+      include: { player: { select: { id: true, name: true, school: true, position: true, birthYear: true, parentPhone: true } } },
       orderBy: { createdAt: "desc" },
     });
     return <ScoutDashboard userName={user.name} role={user.role} offers={JSON.parse(JSON.stringify(offers))} />;
