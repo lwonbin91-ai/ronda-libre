@@ -159,8 +159,7 @@ export default function Home() {
                 </ul>
                 <div className="pt-6 border-t border-white/6">
                   <div className="flex items-baseline gap-1 mb-4">
-                    <span className="text-3xl font-black text-gray-500">89,000</span>
-                    <span className="text-gray-700 text-sm">원 / 월</span>
+                    <span className="text-2xl font-black text-gray-400">금액 미정</span>
                   </div>
                   <div className="block w-full bg-white/5 text-gray-600 text-center py-3 rounded-xl font-black text-sm cursor-not-allowed border border-white/5">
                     준비 중입니다
@@ -186,9 +185,7 @@ export default function Home() {
               </ul>
               <div className="pt-6 border-t border-orange-500/30">
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-3xl font-black text-orange-400">0</span>
-                  <span className="text-gray-600 text-sm">원</span>
-                  <span className="text-xs line-through text-gray-700 ml-1">25,000원</span>
+                  <span className="text-2xl font-black text-orange-400">금액 미정</span>
                 </div>
                 <p className="text-[11px] text-orange-400/60 mb-4">베타 서비스 기간 한정 무료</p>
                 <Link href="/matches" className="block w-full bg-orange-500 text-white text-center py-3 rounded-xl font-black text-sm hover:bg-orange-400 transition-colors">
