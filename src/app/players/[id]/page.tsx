@@ -364,25 +364,11 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
       {/* 받은 제의 (본인만) */}
       {player.offersReceived && player.offersReceived.length > 0 && (
         <div className="bg-[#0d0d0d] border border-white/6 rounded-2xl p-6 mb-6">
-          <h2 className="text-lg font-black mb-4">받은 입단 제의</h2>
-          <div className="space-y-3">
-            {player.offersReceived.map((offer) => (
-              <div key={offer.id} className="border border-white/8 rounded-xl p-4">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="font-bold text-sm">{offer.clubName}</p>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    offer.status === "ACCEPTED"
-                      ? "border-green-400/25 text-green-400 bg-green-400/5"
-                      : offer.status === "REJECTED"
-                      ? "border-red-400/25 text-red-400"
-                      : "border-yellow-400/25 text-yellow-400"
-                  }`}>
-                    {offer.status === "ACCEPTED" ? "수락" : offer.status === "REJECTED" ? "거절" : "대기 중"}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-600">{offer.scout.name} · {offer.scout.organization}</p>
-              </div>
-            ))}
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-black">받은 입단 제의</h2>
+            <span className="text-sm font-bold text-green-400 bg-green-400/10 border border-green-400/20 px-3 py-0.5 rounded-full">
+              {player.offersReceived.length}건
+            </span>
           </div>
         </div>
       )}
