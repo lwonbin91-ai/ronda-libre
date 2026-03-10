@@ -93,6 +93,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const data = await req.json();
     const updateData: Record<string, unknown> = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.birthYear !== undefined) updateData.birthYear = data.birthYear;
+    if (data.school !== undefined) updateData.school = data.school;
     if (data.height !== undefined) updateData.height = data.height;
     if (data.position !== undefined) updateData.position = data.position;
     if (data.preferredFoot !== undefined) updateData.preferredFoot = data.preferredFoot;

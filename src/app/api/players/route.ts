@@ -95,6 +95,9 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await req.json();
+    const yearsExpVal = data.yearsExp ? parseInt(data.yearsExp) : null;
+    const currentYear = new Date().getFullYear();
+    const yearsExpStartYear = yearsExpVal ? currentYear - yearsExpVal : null;
     const player = await prisma.player.create({
       data: {
         name: data.name,
@@ -103,7 +106,8 @@ export async function POST(req: NextRequest) {
         school: data.school,
         position: data.position || null,
         preferredFoot: data.preferredFoot || null,
-        yearsExp: data.yearsExp ? parseInt(data.yearsExp) : null,
+        yearsExp: yearsExpVal,
+        yearsExpStartYear,
         parentName: data.parentName,
         parentPhone: data.parentPhone,
         parentEmail: data.parentEmail,

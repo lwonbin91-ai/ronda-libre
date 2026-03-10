@@ -70,6 +70,7 @@ model Player {
   position      String?
   preferredFoot String?
   yearsExp      Int?
+  yearsExpStartYear Int?
   parentName    String
   parentPhone   String
   parentEmail   String
