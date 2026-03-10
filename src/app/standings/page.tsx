@@ -3,26 +3,26 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-interface TeamStat {
-  teamId: string;
-  teamName: string;
-  color: string;
-  scheduleTitle: string;
-  players: number;
-  goals: number;
-  assists: number;
+interface PlayerStat {
+  id: string;
+  name: string;
+  position: string | null;
+  school: string;
+  birthYear: number;
   mvp: number;
   fairplay: number;
+  games: number;
+  score: number;
 }
 
 export default function StandingsPage() {
-  const [teams, setTeams] = useState<TeamStat[]>([]);
+  const [players, setPlayers] = useState<PlayerStat[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/standings")
       .then((r) => r.json())
-      .then((d) => { setTeams(Array.isArray(d) ? d : []); setLoading(false); });
+      .then((d) => { setPlayers(Array.isArray(d) ? d : []); setLoading(false); });
   }, []);
 
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center text-gray-500">로딩 중...</div>;
@@ -33,39 +33,65 @@ export default function StandingsPage() {
         <div className="mb-10">
           <p className="text-green-400 text-xs font-bold tracking-[0.2em] uppercase mb-3">STANDINGS</p>
           <h1 className="text-4xl font-black">시즌 순위표</h1>
-          <p className="text-gray-500 text-sm mt-2">시즌 리그 팀별 골·어시스트·MVP 현황</p>
+          <p className="text-gray-500 text-sm mt-2">MVP·페어플레이를 가장 많이 받은 선수 순위입니다.</p>
         </div>
 
-        {teams.length === 0 ? (
+        {/* 범례 */}
+        <div className="flex items-center gap-4 mb-6 text-xs text-gray-600">
+          <span className="flex items-center gap-1.5"><span className="text-yellow-400 font-black">★</span> MVP 1회 = 2점</span>
+          <span className="flex items-center gap-1.5"><span className="text-blue-400 font-black">♥</span> 페어플레이 1회 = 1점</span>
+        </div>
+
+        {players.length === 0 ? (
           <div className="text-center py-20 text-gray-600">집계된 순위 데이터가 없습니다.</div>
         ) : (
-          <div className="space-y-4">
-            {teams.map((t, i) => (
-              <div key={t.teamId} className="bg-[#0d0d0d] border border-white/6 rounded-2xl p-5 flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0 ${
-                  i === 0 ? "bg-yellow-400 text-black" : i === 1 ? "bg-gray-300 text-black" : i === 2 ? "bg-orange-400 text-black" : "bg-white/8 text-gray-400"
+          <div className="space-y-3">
+            {players.map((p, i) => (
+              <Link key={p.id} href={`/players/${p.id}`}>
+                <div className={`border rounded-2xl p-4 flex items-center gap-4 hover:border-green-400/20 transition-all cursor-pointer ${
+                  i === 0 ? "bg-yellow-400/5 border-yellow-400/20" :
+                  i === 1 ? "bg-gray-400/5 border-gray-400/15" :
+                  i === 2 ? "bg-orange-400/5 border-orange-400/15" :
+                  "bg-[#0d0d0d] border-white/6"
                 }`}>
-                  {i + 1}
-                </div>
-                <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: t.color }} />
-                <div className="flex-1 min-w-0">
-                  <p className="font-black text-base">{t.teamName}</p>
-                  <p className="text-xs text-gray-600 truncate">{t.scheduleTitle}</p>
-                </div>
-                <div className="grid grid-cols-4 gap-4 text-center shrink-0">
-                  {[
-                    { label: "선수", value: t.players },
-                    { label: "골", value: t.goals },
-                    { label: "도움", value: t.assists },
-                    { label: "MVP", value: t.mvp },
-                  ].map((s) => (
-                    <div key={s.label}>
-                      <div className="text-xl font-black text-green-400">{s.value}</div>
-                      <div className="text-[10px] text-gray-600">{s.label}</div>
+                  {/* 순위 */}
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-sm shrink-0 ${
+                    i === 0 ? "bg-yellow-400 text-black" :
+                    i === 1 ? "bg-gray-300 text-black" :
+                    i === 2 ? "bg-orange-400 text-black" :
+                    "bg-white/8 text-gray-400"
+                  }`}>
+                    {i + 1}
+                  </div>
+
+                  {/* 선수 정보 */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-black text-sm">{p.name}</p>
+                      {p.position && (
+                        <span className="text-[10px] border border-white/10 text-gray-500 px-1.5 py-0.5 rounded">{p.position}</span>
+                      )}
                     </div>
-                  ))}
+                    <p className="text-xs text-gray-600 mt-0.5">{p.school} · {p.birthYear}년생 · {p.games}경기</p>
+                  </div>
+
+                  {/* 스탯 */}
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="text-center">
+                      <div className="text-lg font-black text-yellow-400">{p.mvp}</div>
+                      <div className="text-[10px] text-gray-600">MVP</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-black text-blue-400">{p.fairplay}</div>
+                      <div className="text-[10px] text-gray-600">페어플레이</div>
+                    </div>
+                    <div className="text-center min-w-[36px]">
+                      <div className="text-lg font-black text-green-400">{p.score}</div>
+                      <div className="text-[10px] text-gray-600">점수</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

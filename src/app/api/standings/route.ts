@@ -5,30 +5,51 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const teams = await prisma.scheduleTeam.findMany({
-      include: {
-        schedule: { select: { title: true, type: true } },
-        registrations: {
-          where: { status: "CONFIRMED" },
-          select: { goals: true, assists: true, isMVP: true, isFairplay: true },
+    const players = await prisma.player.findMany({
+      where: {
+        scheduleRegs: {
+          some: { schedule: { type: "SEASON" }, status: "CONFIRMED" },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        position: true,
+        school: true,
+        birthYear: true,
+        scheduleRegs: {
+          where: { schedule: { type: "SEASON" }, status: "CONFIRMED" },
+          select: { isMVP: true, isFairplay: true },
+        },
+        votesReceived: {
+          select: { voteType: true },
         },
       },
     });
 
-    const result = teams
-      .filter((t) => t.schedule.type === "SEASON")
-      .map((t) => ({
-        teamId: t.id,
-        teamName: t.name,
-        color: t.color,
-        scheduleTitle: t.schedule.title,
-        players: t.registrations.length,
-        goals: t.registrations.reduce((acc, r) => acc + (r.goals || 0), 0),
-        assists: t.registrations.reduce((acc, r) => acc + (r.assists || 0), 0),
-        mvp: t.registrations.filter((r) => r.isMVP).length,
-        fairplay: t.registrations.filter((r) => r.isFairplay).length,
-      }))
-      .sort((a, b) => b.goals + b.assists - (a.goals + a.assists));
+    const result = players
+      .map((p) => {
+        const mvpVotes = p.votesReceived.filter((v) => v.voteType === "MVP").length;
+        const fairplayVotes = p.votesReceived.filter((v) => v.voteType === "FAIRPLAY").length;
+        const mvpAward = p.scheduleRegs.filter((r) => r.isMVP).length;
+        const fairplayAward = p.scheduleRegs.filter((r) => r.isFairplay).length;
+        const totalMVP = mvpVotes + mvpAward;
+        const totalFairplay = fairplayVotes + fairplayAward;
+        const totalGames = p.scheduleRegs.length;
+        return {
+          id: p.id,
+          name: p.name,
+          position: p.position,
+          school: p.school,
+          birthYear: p.birthYear,
+          mvp: totalMVP,
+          fairplay: totalFairplay,
+          games: totalGames,
+          score: totalMVP * 2 + totalFairplay,
+        };
+      })
+      .filter((p) => p.games > 0)
+      .sort((a, b) => b.score - a.score || b.mvp - a.mvp || b.fairplay - a.fairplay);
 
     return NextResponse.json(result);
   } catch (e) {
