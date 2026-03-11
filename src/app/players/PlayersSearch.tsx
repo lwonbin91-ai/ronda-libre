@@ -36,9 +36,18 @@ export default function PlayersSearch({ players }: { players: Player[] }) {
       (p.position || "").includes(search)
   )
   .sort((a, b) => {
-    const countA = a.scheduleRegs.filter((r) => r.status === "CONFIRMED").length;
-    const countB = b.scheduleRegs.filter((r) => r.status === "CONFIRMED").length;
-    return countB - countA;
+    const calcScore = (p: Player) => {
+      const confirmed = p.scheduleRegs.filter((r) => r.status === "CONFIRMED");
+      const mvp = confirmed.filter((r) => r.isMVP).length;
+      const fp = confirmed.filter((r) => r.isFairplay).length;
+      return confirmed.length + mvp * 3 + fp * 2;
+    };
+    const scoreA = calcScore(a);
+    const scoreB = calcScore(b);
+    if (scoreB !== scoreA) return scoreB - scoreA;
+    const matchA = a.scheduleRegs.filter((r) => r.status === "CONFIRMED").length;
+    const matchB = b.scheduleRegs.filter((r) => r.status === "CONFIRMED").length;
+    return matchB - matchA;
   });
 
   return (
