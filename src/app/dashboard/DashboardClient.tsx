@@ -120,6 +120,10 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
           const res = await fetch(`/api/schedules/${scheduleId}/vote?t=${Date.now()}`, { cache: "no-store" });
           if (!res.ok) continue;
           const data = await res.json();
+          // 다른 참가자가 2명 미만이면 MVP+페어플레이 둘 다 투표 불가 → 스킵
+          const myPlayerId = data.myPlayerId;
+          const others = (data.participants || []).filter((p: { id: string }) => p.id !== myPlayerId);
+          if (others.length < 2) continue;
           const myVotes: Array<{ voteType: string }> = data.myVotes || [];
           const hasMvp = myVotes.some((v) => v.voteType === "MVP");
           const hasFp = myVotes.some((v) => v.voteType === "FAIRPLAY");
