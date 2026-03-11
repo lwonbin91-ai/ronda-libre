@@ -20,7 +20,7 @@ interface Player {
     isGK: boolean;
     teamLabel?: string | null;
     jerseyNumber?: string | null;
-    schedule: { id: string; title: string; type: string; scheduledAt: string; location?: string | null };
+    schedule: { id: string; title: string; type: string; scheduledAt: string; location?: string | null; status: string };
     team: { name: string; color: string | null } | null;
   }>;
   offersReceived: Array<{
@@ -471,7 +471,7 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
                         }`}>
                           {reg.schedule.title.slice(0, 14)} {reg.team ? `· ${reg.team.name}` : ""} ({reg.status === "CONFIRMED" ? "확정" : "대기"})
                         </span>
-                        {reg.status === "CONFIRMED" && (
+                        {reg.schedule.status === "ENDED" && (
                           <Link href={`/dashboard/vote/${reg.schedule.id}`}
                             className="text-[10px] font-bold text-purple-400 border border-purple-400/20 bg-purple-400/5 px-2.5 py-1 rounded-full hover:bg-purple-400/10 transition-colors whitespace-nowrap shrink-0">
                             투표하기

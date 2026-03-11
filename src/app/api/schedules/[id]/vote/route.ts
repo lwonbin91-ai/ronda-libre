@@ -13,6 +13,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const user = session.user as { id: string };
 
   try {
+    const schedule = await prisma.matchSchedule.findUnique({ where: { id: scheduleId }, select: { id: true, status: true, title: true } });
+    if (!schedule) return NextResponse.json({ error: "경기를 찾을 수 없습니다." }, { status: 404 });
+    if (schedule.status !== "ENDED") return NextResponse.json({ error: "경기가 종료된 후에만 투표할 수 있습니다." }, { status: 403 });
+
     const myPlayer = await prisma.player.findFirst({ where: { userId: user.id } });
     if (!myPlayer) {
       return NextResponse.json({ myPlayerId: null, participants: [], myVotes: [] });
@@ -51,6 +55,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     if (!["MVP", "FAIRPLAY"].includes(voteType)) {
       return NextResponse.json({ error: "유효하지 않은 투표 유형" }, { status: 400 });
+    }
+
+    const schedule = await prisma.matchSchedule.findUnique({ where: { id: scheduleId }, select: { status: true } });
+    if (!schedule || schedule.status !== "ENDED") {
+      return NextResponse.json({ error: "경기가 종료된 후에만 투표할 수 있습니다." }, { status: 403 });
     }
 
     const myPlayer = await prisma.player.findFirst({ where: { userId: user.id } });

@@ -494,6 +494,16 @@ export default function AdminPage() {
     setSchedules(schedules.map((s) => s.id === id ? { ...s, status: "RECRUITING", recruitmentStart: null } : s));
   };
 
+  const endSchedule = async (id: string, title: string) => {
+    if (!confirm(`"${title}" 경기를 경기끝 상태로 변경하면 참가 선수들이 MVP/페어플레이 투표를 진행할 수 있습니다. 계속하시겠습니까?`)) return;
+    await fetch(`/api/schedules/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "ENDED" }),
+    });
+    setSchedules(schedules.map((s) => s.id === id ? { ...s, status: "ENDED" } : s));
+  };
+
   const cancelSchedule = async (id: string, title: string) => {
     const reason = prompt(`"${title}" 경기를 취소하는 이유를 입력하세요:`);
     if (reason === null) return;
@@ -732,9 +742,11 @@ export default function AdminPage() {
                               ? "border-green-400/25 text-green-400 bg-green-400/5"
                               : s.status === "CANCELLED"
                               ? "border-red-400/25 text-red-400 bg-red-400/5"
+                              : s.status === "ENDED"
+                              ? "border-purple-400/25 text-purple-400 bg-purple-400/5"
                               : "border-white/8 text-gray-600"
                           }`}>
-                            {s.status === "RECRUITING" ? "모집 중" : s.status === "CLOSED" ? "마감" : s.status === "CANCELLED" ? "취소됨" : "완료"}
+                            {s.status === "RECRUITING" ? "모집 중" : s.status === "CLOSED" ? "마감" : s.status === "CANCELLED" ? "취소됨" : s.status === "ENDED" ? "경기끝" : "완료"}
                           </span>
                           <span className="text-[10px] text-gray-700">{s.type === "SEASON" ? "시즌" : "오픈"}</span>
                           {s.gameFormat && (
@@ -782,6 +794,12 @@ export default function AdminPage() {
                           <button onClick={() => closeSchedule(s.id)}
                             className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-yellow-400/30 hover:text-yellow-400 transition-colors">
                             마감
+                          </button>
+                        )}
+                        {(s.status === "CLOSED" || s.status === "RECRUITING") && s.status !== "ENDED" && s.status !== "CANCELLED" && (
+                          <button onClick={() => endSchedule(s.id, s.title)}
+                            className="text-xs border border-purple-400/30 text-purple-400 px-2.5 py-1.5 rounded-lg hover:bg-purple-400/10 transition-colors font-bold">
+                            경기끝
                           </button>
                         )}
                         {s.status !== "CANCELLED" && (

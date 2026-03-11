@@ -43,7 +43,7 @@ export default async function DashboardPage() {
           isGK: true,
           teamLabel: true,
           jerseyNumber: true,
-          schedule: { select: { id: true, title: true, type: true, scheduledAt: true, location: true } },
+          schedule: { select: { id: true, title: true, type: true, scheduledAt: true, location: true, status: true } },
           team: { select: { name: true, color: true } },
         },
         orderBy: { createdAt: "desc" },
