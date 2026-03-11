@@ -248,12 +248,17 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
                     {r.schedule.status === "ENDED" && (() => {
                       const votesDone = (players[0]?.votesGiven || []).filter((v) => v.scheduleId === r.schedule.id);
                       const fullyVoted = votesDone.some((v) => v.voteType === "MVP") && votesDone.some((v) => v.voteType === "FAIRPLAY");
-                      return !fullyVoted ? (
+                      return fullyVoted ? (
+                        <Link href={`/dashboard/vote/${r.schedule.id}`}
+                          className="text-[10px] font-bold text-green-400 border border-green-400/20 bg-green-400/5 px-2.5 py-1.5 rounded-full whitespace-nowrap shrink-0">
+                          ✓ 투표완료
+                        </Link>
+                      ) : (
                         <Link href={`/dashboard/vote/${r.schedule.id}`}
                           className="text-[10px] font-bold text-purple-400 border border-purple-400/20 bg-purple-400/5 px-2.5 py-1.5 rounded-full hover:bg-purple-400/10 transition-colors whitespace-nowrap shrink-0">
                           투표하기
                         </Link>
-                      ) : null;
+                      );
                     })()}
                   </Link>
                 );
