@@ -99,10 +99,19 @@ export default function StandingsTabs({
           ))}
         </div>
 
-        <div className="flex items-center gap-4 mb-6 text-xs text-gray-600 flex-wrap">
+        <div className="flex items-center gap-4 mb-4 text-xs text-gray-600 flex-wrap">
           <span className="flex items-center gap-1.5"><span className="text-yellow-400 font-black">★</span> MVP 1회 = 3점</span>
           <span className="flex items-center gap-1.5"><span className="text-blue-400 font-black">♥</span> 페어플레이 1회 = 2점</span>
           <span className="flex items-center gap-1.5"><span className="text-orange-400 font-black">●</span> 매칭 참여 1회 = 1점</span>
+        </div>
+        <div className="mb-6 bg-white/[0.03] border border-white/8 rounded-xl px-4 py-3 text-xs text-gray-500 leading-relaxed">
+          <p className="font-bold text-gray-400 mb-1.5">🏆 MVP · 페어플레이 부여 방식</p>
+          <p>팀 내에서 가장 많은 투표를 받은 선수에게 MVP 또는 페어플레이가 부여됩니다.</p>
+          <p className="mt-1.5 text-gray-600">
+            예시) 선수A: 3표 · 선수B: 2표 · 선수C: 1표 · 선수D: 2표
+            → 가장 많은 표를 받은 <span className="text-yellow-400 font-bold">선수A</span>에게 MVP 부여
+          </p>
+          <p className="mt-1 text-gray-600">동률인 경우 해당 선수 모두에게 부여됩니다.</p>
         </div>
 
         {tab === "season"
