@@ -98,52 +98,12 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
   const [votePopupScheduleId, setVotePopupScheduleId] = useState<string | null>(null);
 
   useEffect(() => {
-    // 마운트 시 항상 DB에서 직접 투표 상태 확인 (캐시 우회)
-    const allRegs = initialPlayers.flatMap((p) => p.scheduleRegs || []);
-    const seenIds = new Set<string>();
-    const endedScheduleIds: string[] = [];
-    allRegs.forEach((r) => {
-      if (r.schedule.status === "ENDED" && !seenIds.has(r.schedule.id)) {
-        seenIds.add(r.schedule.id);
-        endedScheduleIds.push(r.schedule.id);
-      }
-    });
-
-    if (endedScheduleIds.length === 0) {
-      setVotePopupScheduleId(null);
-      return;
-    }
-
-    const checkVotes = async () => {
-      for (const scheduleId of endedScheduleIds) {
-        // sessionStorage에 이미 완료로 저장된 경기는 스킵
-        if (typeof window !== "undefined" && sessionStorage.getItem(`voted_${scheduleId}`) === "done") continue;
-        try {
-          const res = await fetch(`/api/schedules/${scheduleId}/vote?t=${Date.now()}`, { cache: "no-store" });
-          if (!res.ok) continue;
-          const data = await res.json();
-          // 다른 참가자가 2명 미만이면 MVP+페어플레이 둘 다 투표 불가 → 스킵
-          const myPlayerId = data.myPlayerId;
-          const others = (data.participants || []).filter((p: { id: string }) => p.id !== myPlayerId);
-          if (others.length < 2) continue;
-          const myVotes: Array<{ voteType: string }> = data.myVotes || [];
-          const hasMvp = myVotes.some((v) => v.voteType === "MVP");
-          const hasFp = myVotes.some((v) => v.voteType === "FAIRPLAY");
-          if (hasMvp && hasFp) {
-            // 완료 → sessionStorage에 저장
-            if (typeof window !== "undefined") sessionStorage.setItem(`voted_${scheduleId}`, "done");
-            continue;
-          }
-          setVotePopupScheduleId(scheduleId);
-          return;
-        } catch {
-          // 무시
-        }
-      }
-      setVotePopupScheduleId(null);
-    };
-
-    checkVotes();
+    fetch("/api/dashboard/vote-check", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data) => {
+        setVotePopupScheduleId(data.scheduleId ?? null);
+      })
+      .catch(() => setVotePopupScheduleId(null));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDeleteAccount = async () => {
