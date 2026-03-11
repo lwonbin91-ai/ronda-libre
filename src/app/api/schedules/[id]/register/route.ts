@@ -125,6 +125,28 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     const fee = isGK ? 0 : schedule.fee;
 
+    // 포지션 자리 확인 (GK 제외)
+    if (!isGK) {
+      const posMap: Record<string, string> = { 골키퍼: "GK", 수비수: "DF", 미드필더: "MF", 공격수: "FW" };
+      const posCode = player.position ? (posMap[player.position] ?? player.position.toUpperCase()) : null;
+      if (posCode && posCode !== "GK") {
+        const posMax: Record<string, Record<number, number>> = {
+          DF: { 16: 6, 24: 9 },
+          MF: { 16: 4, 24: 6 },
+          FW: { 16: 4, 24: 6 },
+        };
+        const maxPlayers = schedule.maxPlayers || 24;
+        const closestKey = maxPlayers <= 16 ? 16 : 24;
+        const limit = posMax[posCode]?.[closestKey] ?? (closestKey === 16 ? 4 : 6);
+        const currentCount = await prisma.scheduleRegistration.count({
+          where: { scheduleId, status: { not: "CANCELLED" }, player: { position: player.position } },
+        });
+        if (currentCount >= limit) {
+          return NextResponse.json({ error: `${player.position}(${posCode}) 포지션 자리가 모두 찼습니다.` }, { status: 400 });
+        }
+      }
+    }
+
     const reg = await prisma.scheduleRegistration.create({
       data: { scheduleId, playerId, teamId: teamId || null, isGK, fee, status: (isGK || fee === 0) ? "CONFIRMED" : "PENDING" },
     });
