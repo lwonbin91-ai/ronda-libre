@@ -125,8 +125,8 @@ export default function MatchesFilter({
                   </div>
                   <h3 className="font-black text-base group-hover:text-white transition-colors truncate">{s.title}</h3>
                   <p className="text-gray-600 text-sm mt-0.5">
-                    {date.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}
-                    {s.location && ` · ${s.location}`}
+                    <span className="block">{date.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}</span>
+                    {s.location && <span className="block">{s.location}</span>}
                   </p>
                 </div>
 
