@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -42,9 +42,10 @@ interface EditForm {
 const POSITIONS = ["골키퍼", "수비수", "미드필더", "공격수"];
 const FEET = ["오른발", "왼발", "양발"];
 
-export default function DashboardClient({ userName, players: initialPlayers }: {
+export default function DashboardClient({ userName, players: initialPlayers, initialPendingVotes }: {
   userName: string;
   players: Player[];
+  initialPendingVotes: { scheduleId: string; title: string }[];
 }) {
   const router = useRouter();
   const [players, setPlayers] = useState<Player[]>(initialPlayers);
@@ -96,14 +97,7 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
   };
 
   const [deleteConfirm, setDeleteConfirm] = useState(false);
-  const [pendingVotes, setPendingVotes] = useState<{ scheduleId: string; title: string }[]>([]);
-
-  useEffect(() => {
-    fetch("/api/dashboard/vote-check", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((data) => setPendingVotes(data.pending ?? []))
-      .catch(() => setPendingVotes([]));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const [pendingVotes, setPendingVotes] = useState<{ scheduleId: string; title: string }[]>(initialPendingVotes);
 
   const handleDeleteAccount = async () => {
     const res = await fetch("/api/users/me", { method: "DELETE" });
