@@ -42,11 +42,25 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       });
     }
 
+    // 받은 투표 집계 (시즌 / 오픈매칭 구분)
+    const votesReceived = await prisma.playerVote.findMany({
+      where: { targetId: player.id },
+      include: { schedule: { select: { type: true } } },
+    });
+    const seasonMvp = votesReceived.filter((v) => v.voteType === "MVP" && v.schedule.type === "SEASON").length;
+    const seasonFairplay = votesReceived.filter((v) => v.voteType === "FAIRPLAY" && v.schedule.type === "SEASON").length;
+    const openMvp = votesReceived.filter((v) => v.voteType === "MVP" && v.schedule.type !== "SEASON").length;
+    const openFairplay = votesReceived.filter((v) => v.voteType === "FAIRPLAY" && v.schedule.type !== "SEASON").length;
+
     return NextResponse.json({
       ...player,
       scheduleRegistrations: player.scheduleRegs,
       isOwn,
       votesGiven,
+      seasonMvp,
+      seasonFairplay,
+      openMvp,
+      openFairplay,
     });
   } catch (e) {
     console.error(e);

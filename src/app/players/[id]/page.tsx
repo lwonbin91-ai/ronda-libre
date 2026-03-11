@@ -49,6 +49,10 @@ interface Player {
   parentEmail: string;
   isOwn: boolean;
   votesGiven?: Array<{ scheduleId: string; voteType: string }>;
+  seasonMvp?: number;
+  seasonFairplay?: number;
+  openMvp?: number;
+  openFairplay?: number;
   scheduleRegistrations: ScheduleReg[];
   offersReceived: Array<{
     id: string; status: string; clubName: string; message: string;
@@ -143,11 +147,11 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
   const openMatchRegs = player.scheduleRegistrations.filter((r) => r.schedule.type === "ONEDAY" && r.status === "CONFIRMED");
   const totalGoals = confirmedRegs.reduce((acc, r) => acc + (r.goals || 0), 0);
   const totalAssists = confirmedRegs.reduce((acc, r) => acc + (r.assists || 0), 0);
-  const mvpCount = confirmedRegs.filter((r) => r.isMVP).length;
-  const fairplayCount = confirmedRegs.filter((r) => r.isFairplay).length;
-  const openRegs = player.scheduleRegistrations.filter((r) => r.schedule.type === "ONEDAY" && r.status === "CONFIRMED");
-  const openMvpCount = openRegs.filter((r) => r.isMVP).length;
-  const openFairplayCount = openRegs.filter((r) => r.isFairplay).length;
+  const openRegs = player.scheduleRegistrations.filter((r) => r.schedule.type === "ONEDAY" && r.status !== "CANCELLED");
+  const mvpCount = player.seasonMvp ?? confirmedRegs.filter((r) => r.isMVP).length;
+  const fairplayCount = player.seasonFairplay ?? confirmedRegs.filter((r) => r.isFairplay).length;
+  const openMvpCount = player.openMvp ?? openRegs.filter((r) => r.isMVP).length;
+  const openFairplayCount = player.openFairplay ?? openRegs.filter((r) => r.isFairplay).length;
   const isScout = user?.role === "SCOUT" || user?.role === "DIRECTOR" || user?.role === "ADMIN";
   const isOwner = player.isOwn;
   const votesGiven: Array<{ scheduleId: string; voteType: string }> = player.votesGiven || [];
