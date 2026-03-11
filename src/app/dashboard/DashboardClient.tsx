@@ -498,7 +498,9 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-1 mb-0.5">
                               <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-blue-400 border-blue-400/25 bg-blue-400/8">오픈 매칭</span>
-                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border text-green-400 border-green-400/20 bg-green-400/8">확정</span>
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${reg.schedule.status === "ENDED" ? "text-purple-400 border-purple-400/20 bg-purple-400/8" : "text-green-400 border-green-400/20 bg-green-400/8"}`}>
+                                {reg.schedule.status === "ENDED" ? "경기끝" : "확정"}
+                              </span>
                               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${reg.teamLabel ? "text-orange-300 border-orange-400/30" : "text-gray-600 border-white/10"}`}>
                                 {reg.teamLabel || "미배정"}
                               </span>
@@ -509,6 +511,13 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
                             <p className="text-xs font-bold truncate">{reg.schedule.title}</p>
                             <p className="text-[10px] text-gray-600">{d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}</p>
                           </div>
+                          {reg.schedule.status === "ENDED" && (
+                            <Link href={`/dashboard/vote/${reg.schedule.id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-[10px] font-bold text-purple-400 border border-purple-400/20 bg-purple-400/5 px-2.5 py-1 rounded-full hover:bg-purple-400/10 transition-colors whitespace-nowrap shrink-0">
+                              투표하기
+                            </Link>
+                          )}
                         </Link>
                       );
                     })}
