@@ -285,8 +285,8 @@ export default function DashboardClient({ userName, players: initialPlayers, ini
                       </div>
                       <p className="font-bold text-sm truncate">{r.schedule.title}</p>
                       <p className="text-xs text-gray-600 mt-0.5">
-                        {d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}
-                        {r.schedule.location && ` · ${r.schedule.location}`}
+                        <span className="block">{d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}</span>
+                        {r.schedule.location && <span className="block">{r.schedule.location}</span>}
                       </p>
                     </div>
                     {r.schedule.status === "ENDED" && (() => {
