@@ -100,7 +100,7 @@ export default function DashboardClient({ userName, players: initialPlayers, ini
   const [pendingVotes, setPendingVotes] = useState<{ scheduleId: string; title: string }[]>(initialPendingVotes ?? []);
 
   const handleDeleteAccount = async () => {
-    const res = await fetch("/api/users/me", { method: "DELETE" });
+    const res = await fetch("/api/users/me", { method: "DELETE", credentials: "include" });
     if (res.ok) {
       await signOut({ callbackUrl: "/" });
     } else {
