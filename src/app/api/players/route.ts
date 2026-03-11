@@ -5,14 +5,19 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-const scheduleRegInclude = {
-  schedule: {
+const playerListSelect = {
+  id: true, name: true, birthYear: true, height: true, school: true,
+  position: true, preferredFoot: true, yearsExp: true,
+  scheduleRegs: {
+    where: { status: { not: "CANCELLED" } },
     select: {
-      id: true, title: true, scheduledAt: true, gameFormat: true,
-      videoUrl: true, videoTitle: true, type: true, status: true, location: true,
+      id: true, status: true, isMVP: true, isFairplay: true, goals: true, assists: true,
+      teamLabel: true, jerseyNumber: true,
+      schedule: { select: { id: true, title: true, scheduledAt: true, gameFormat: true, videoUrl: true, videoTitle: true, type: true, status: true, location: true } },
+      team: { select: { id: true, name: true, color: true } },
     },
+    orderBy: { createdAt: "desc" as const },
   },
-  team: { select: { id: true, name: true, color: true } },
 };
 
 export async function GET(req: NextRequest) {
@@ -20,21 +25,11 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const publicOnly = searchParams.get("public") === "true";
 
-  // 비로그인도 public 조회 허용 - 시즌제 참가 선수만
+  // 비로그인도 public 조회 허용 - 전체 선수
   if (publicOnly || !session) {
     try {
-    const players = await prisma.player.findMany({
-        where: {
-          scheduleRegs: {
-            some: { schedule: { type: "SEASON" }, status: { in: ["PENDING", "CONFIRMED"] } },
-          },
-        },
-        include: {
-          scheduleRegs: {
-            include: scheduleRegInclude,
-            orderBy: { createdAt: "desc" },
-          },
-        },
+      const players = await prisma.player.findMany({
+        select: playerListSelect,
         orderBy: { name: "asc" },
       });
       return NextResponse.json(players.map((p) => ({ ...p, scheduleRegistrations: p.scheduleRegs })));
@@ -49,13 +44,10 @@ export async function GET(req: NextRequest) {
   try {
     if (user.role === "SCOUT" || user.role === "ADMIN") {
       const players = await prisma.player.findMany({
-        include: {
-          scheduleRegs: {
-            include: scheduleRegInclude,
-            orderBy: { createdAt: "desc" },
-          },
+        select: {
+          ...playerListSelect,
           offersReceived: {
-            include: { scout: { select: { name: true, organization: true } } },
+            select: { id: true, status: true, clubName: true, scout: { select: { name: true, organization: true } } },
           },
         },
         orderBy: { name: "asc" },
@@ -65,13 +57,10 @@ export async function GET(req: NextRequest) {
 
     const players = await prisma.player.findMany({
       where: { userId: user.id },
-      include: {
-        scheduleRegs: {
-          include: scheduleRegInclude,
-          orderBy: { createdAt: "desc" },
-        },
+      select: {
+        ...playerListSelect,
         offersReceived: {
-          include: { scout: { select: { name: true, organization: true } } },
+          select: { id: true, status: true, clubName: true, message: true, scout: { select: { name: true, organization: true } } },
         },
         votesGiven: { select: { scheduleId: true, voteType: true } },
       },

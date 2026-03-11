@@ -40,6 +40,7 @@ export default async function DashboardPage() {
       yearsExp: true,
       yearsExpStartYear: true,
       scheduleRegs: {
+        where: { status: { not: "CANCELLED" } },
         select: {
           id: true,
           status: true,
@@ -63,37 +64,21 @@ export default async function DashboardPage() {
     },
   });
 
-  // myPlayerIds 계산
   const myPlayerIds = players.map((p) => p.id);
   let pendingVotes: { scheduleId: string; title: string }[] = [];
 
-  try {
-    if (myPlayerIds.length > 0) {
-      const myRegs = await prisma.scheduleRegistration.findMany({
-        where: { playerId: { in: myPlayerIds }, status: "CONFIRMED", schedule: { status: "ENDED" } },
-        select: { scheduleId: true, schedule: { select: { title: true } } },
-      });
+  if (myPlayerIds.length > 0) {
+    try {
+      const endedRegs = players
+        .flatMap((p) => p.scheduleRegs)
+        .filter((r) => r.status === "CONFIRMED" && r.schedule.status === "ENDED");
 
       const seen = new Map<string, string>();
-      for (const r of myRegs) seen.set(r.scheduleId, r.schedule.title);
+      for (const r of endedRegs) seen.set(r.schedule.id, r.schedule.title);
       const scheduleIds = [...seen.keys()];
 
       if (scheduleIds.length > 0) {
-        // N+1 제거: 두 쿼리를 병렬로 한 번에 실행
-        const [allOtherRegs, allMyVotes] = await Promise.all([
-          prisma.scheduleRegistration.findMany({
-            where: { scheduleId: { in: scheduleIds }, status: { not: "CANCELLED" }, playerId: { notIn: myPlayerIds } },
-            select: { scheduleId: true },
-          }),
-          prisma.playerVote.findMany({
-            where: { scheduleId: { in: scheduleIds }, voterId: { in: myPlayerIds } },
-            select: { scheduleId: true, voteType: true },
-          }),
-        ]);
-
-        const otherCountMap = new Map<string, number>();
-        for (const r of allOtherRegs) otherCountMap.set(r.scheduleId, (otherCountMap.get(r.scheduleId) ?? 0) + 1);
-
+        const allMyVotes = players.flatMap((p) => p.votesGiven).filter((v) => scheduleIds.includes(v.scheduleId));
         const voteMap = new Map<string, { mvp: boolean; fp: boolean }>();
         for (const v of allMyVotes) {
           const e = voteMap.get(v.scheduleId) ?? { mvp: false, fp: false };
@@ -102,15 +87,22 @@ export default async function DashboardPage() {
           voteMap.set(v.scheduleId, e);
         }
 
+        const otherRegs = await prisma.scheduleRegistration.findMany({
+          where: { scheduleId: { in: scheduleIds }, status: { not: "CANCELLED" }, playerId: { notIn: myPlayerIds } },
+          select: { scheduleId: true },
+        });
+        const otherCountMap = new Map<string, number>();
+        for (const r of otherRegs) otherCountMap.set(r.scheduleId, (otherCountMap.get(r.scheduleId) ?? 0) + 1);
+
         for (const [scheduleId, title] of seen.entries()) {
           if ((otherCountMap.get(scheduleId) ?? 0) < 2) continue;
           const v = voteMap.get(scheduleId) ?? { mvp: false, fp: false };
           if (!v.mvp || !v.fp) pendingVotes.push({ scheduleId, title });
         }
       }
+    } catch {
+      pendingVotes = [];
     }
-  } catch {
-    pendingVotes = [];
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

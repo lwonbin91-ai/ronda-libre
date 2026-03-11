@@ -1,9 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { getVideoEmbed } from "@/lib/video";
-
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+
+
+
 
 const LEVEL_LABEL: Record<string, string> = {
   ALL: "", U1: "1년 미만", U3: "3년 미만", U5: "5년 미만", U6P: "6년 이상",

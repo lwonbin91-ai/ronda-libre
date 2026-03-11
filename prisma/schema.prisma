@@ -87,6 +87,8 @@ model Player {
   scheduleRegs   ScheduleRegistration[]
   votesGiven     PlayerVote[] @relation("VoterVotes")
   votesReceived  PlayerVote[] @relation("ReceivedVotes")
+
+  @@index([userId])
 }
 
 model Season {
@@ -246,6 +248,9 @@ model ScheduleRegistration {
   team     ScheduleTeam? @relation(fields: [teamId], references: [id])
 
   @@unique([scheduleId, playerId])
+  @@index([scheduleId])
+  @@index([playerId])
+  @@index([status])
 }
 
 model RecruitmentOffer {
@@ -275,6 +280,9 @@ model PlayerVote {
   target   Player        @relation("ReceivedVotes", fields: [targetId], references: [id])
 
   @@unique([scheduleId, voterId, voteType])
+  @@index([scheduleId])
+  @@index([voterId])
+  @@index([targetId])
 }
 
 model Announcement {

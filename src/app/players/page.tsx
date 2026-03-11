@@ -14,15 +14,11 @@ export default async function PlayersPage() {
       school: true,
       position: true,
       scheduleRegs: {
+        where: { status: { not: "CANCELLED" } },
         select: {
-          id: true,
-          status: true,
           isMVP: true,
           isFairplay: true,
-          goals: true,
-          assists: true,
-          schedule: { select: { id: true, type: true } },
-          team: { select: { id: true, name: true, color: true } },
+          schedule: { select: { type: true } },
         },
       },
     },
