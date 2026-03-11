@@ -95,6 +95,7 @@ interface ScheduleReg {
   isGK: boolean;
   isMVP: boolean;
   isFairplay: boolean;
+  teamLabel?: string;
   goals: number;
   assists: number;
   fee: number;
@@ -225,6 +226,18 @@ export default function AdminPage() {
   const [expandedTeamSchedule, setExpandedTeamSchedule] = useState<string | null>(null);
   const [newTeam, setNewTeam] = useState({ name: "", color: "#4ade80", maxPlayers: 10 });
   const [loadingTeams, setLoadingTeams] = useState(false);
+  const [assigningTeam, setAssigningTeam] = useState<Record<string, string>>({});
+
+  const assignTeam = async (regId: string, scheduleId: string, teamLabel: string) => {
+    setAssigningTeam((prev) => ({ ...prev, [regId]: teamLabel }));
+    await fetch(`/api/registrations/${regId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ teamLabel }),
+    });
+    setRegs((prev) => prev.map((r) => r.id === regId ? { ...r, teamLabel } : r));
+    setAssigningTeam((prev) => { const n = { ...prev }; delete n[regId]; return n; });
+  };
 
   /* video form */
   const [vf, setVf] = useState({ scheduleId: "", videoUrl: "", videoTitle: "" });
@@ -1006,19 +1019,27 @@ export default function AdminPage() {
                           )}
                         </div>
                         {reg.status === "CONFIRMED" && (
-                          <div className="flex gap-2 mt-3 pt-3 border-t border-white/5">
-                            <button
-                              onClick={() => toggleRegAward(reg.id, selectedSchedule.id, "isMVP", reg.isMVP)}
-                              className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-colors ${reg.isMVP ? "bg-yellow-400/15 border-yellow-400/30 text-yellow-300" : "bg-white/[0.02] border-white/8 text-gray-600 hover:text-gray-400"}`}
-                            >
-                              ⭐ MVP
-                            </button>
-                            <button
-                              onClick={() => toggleRegAward(reg.id, selectedSchedule.id, "isFairplay", reg.isFairplay)}
-                              className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-colors ${reg.isFairplay ? "bg-blue-400/15 border-blue-400/30 text-blue-300" : "bg-white/[0.02] border-white/8 text-gray-600 hover:text-gray-400"}`}
-                            >
-                              🤝 페어플레이
-                            </button>
+                          <div className="mt-3 pt-3 border-t border-white/5 space-y-3">
+                            {/* 팀 배정 */}
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[10px] text-gray-500 font-bold">팀 배정:</span>
+                              {["A팀", "B팀", "C팀", "D팀", "미배정"].map((label) => (
+                                <button
+                                  key={label}
+                                  disabled={!!assigningTeam[reg.id]}
+                                  onClick={() => assignTeam(reg.id, selectedSchedule.id, label === "미배정" ? "" : label)}
+                                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-colors ${
+                                    (reg.teamLabel || "") === (label === "미배정" ? "" : label)
+                                      ? "bg-green-400/20 border-green-400/40 text-green-300"
+                                      : "border-white/10 text-gray-600 hover:border-white/25 hover:text-gray-400"
+                                  }`}
+                                >
+                                  {label}
+                                </button>
+                              ))}
+                            </div>
+                            {/* MVP/페어플레이 안내 */}
+                            <p className="text-[10px] text-gray-700">⭐ MVP · 🤝 페어플레이는 경기 후 선수 투표로 진행됩니다.</p>
                           </div>
                         )}
                         {reg.status === "CONFIRMED" && (

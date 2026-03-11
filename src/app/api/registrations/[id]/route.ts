@@ -14,11 +14,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   try {
-    const { status } = await req.json();
-    const reg = await prisma.registration.update({
-      where: { id },
-      data: { status, paidAt: status === "CONFIRMED" ? new Date() : null },
-    });
+    const body = await req.json();
+    const data: Record<string, unknown> = {};
+    if (body.status !== undefined) {
+      data.status = body.status;
+      data.paidAt = body.status === "CONFIRMED" ? new Date() : null;
+    }
+    if (body.teamLabel !== undefined) data.teamLabel = body.teamLabel || null;
+    const reg = await prisma.registration.update({ where: { id }, data });
     return NextResponse.json(reg);
   } catch {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
