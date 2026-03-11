@@ -126,7 +126,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const fee = isGK ? 0 : schedule.fee;
 
     // 포지션 자리 확인 (GK 제외)
-    if (!isGK) {
+    if (!isGK && player) {
       const posMap: Record<string, string> = { 골키퍼: "GK", 수비수: "DF", 미드필더: "MF", 공격수: "FW" };
       const posCode = player.position ? (posMap[player.position] ?? player.position.toUpperCase()) : null;
       if (posCode && posCode !== "GK") {

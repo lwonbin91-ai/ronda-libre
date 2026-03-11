@@ -3,6 +3,7 @@ import Link from "next/link";
 import AnnouncementList from "./AnnouncementList";
 
 export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 export default async function AnnouncementsPage() {
   const list = await prisma.announcement.findMany({

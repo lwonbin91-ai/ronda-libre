@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { getVideoEmbed } from "@/lib/video";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const LEVEL_LABEL: Record<string, string> = {

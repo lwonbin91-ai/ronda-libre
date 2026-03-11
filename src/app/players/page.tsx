@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import PlayersSearch from "./PlayersSearch";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function PlayersPage() {
   const players = await prisma.player.findMany({
