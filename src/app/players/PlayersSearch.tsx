@@ -63,9 +63,10 @@ export default function PlayersSearch({ players }: { players: Player[] }) {
             const regs = player.scheduleRegs;
             const seasonRegs = regs.filter((r) => r.schedule?.type === "SEASON");
             const confirmedRegs = seasonRegs.filter((r) => r.status === "CONFIRMED");
-            const confirmedCount = confirmedRegs.length;
-            const totalGoals = confirmedRegs.reduce((acc, r) => acc + (r.goals || 0), 0);
-            const totalAssists = confirmedRegs.reduce((acc, r) => acc + (r.assists || 0), 0);
+            const openRegs = regs.filter((r) => r.schedule?.type !== "SEASON" && r.status === "CONFIRMED");
+            const matchCount = confirmedRegs.length + openRegs.length;
+            const totalGoals = [...confirmedRegs, ...openRegs].reduce((acc, r) => acc + (r.goals || 0), 0);
+            const totalAssists = [...confirmedRegs, ...openRegs].reduce((acc, r) => acc + (r.assists || 0), 0);
             const team = seasonRegs[0]?.team;
             const seasonGrade = calcGrade(regs, "SEASON");
             const openGrade = calcGrade(regs, "OPEN");
@@ -112,10 +113,9 @@ export default function PlayersSearch({ players }: { players: Player[] }) {
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-4 gap-2 text-center">
+                <div className="grid grid-cols-3 gap-2 text-center">
                   {[
-                    { label: "경기", value: confirmedCount },
-                    { label: "총 신청", value: seasonRegs.length },
+                    { label: "매칭 수", value: matchCount },
                     { label: "골", value: totalGoals },
                     { label: "도움", value: totalAssists },
                   ].map((s) => (
