@@ -128,7 +128,11 @@ export default function MatchesFilter({
 
                 <div className="shrink-0 text-right">
                   <div className={`text-xs font-bold px-3 py-1 rounded-full mb-2 ${
-                    s.status === "COMPLETED"
+                    s.status === "CANCELLED"
+                      ? "bg-red-400/10 text-red-400 border border-red-400/20"
+                      : s.status === "ENDED"
+                      ? "bg-purple-400/10 text-purple-400 border border-purple-400/20"
+                      : s.status === "COMPLETED" || s.status === "CLOSED"
                       ? "bg-white/5 text-gray-600"
                       : isFull
                       ? "bg-red-500/10 text-red-400 border border-red-500/20"
@@ -138,7 +142,12 @@ export default function MatchesFilter({
                       ? "bg-green-400/10 text-green-400 border border-green-400/20"
                       : "bg-white/5 text-gray-600"
                   }`}>
-                    {s.status === "COMPLETED" ? "완료" : isFull ? "마감" : state === "soon" ? "오픈 예정" : "모집 중"}
+                    {s.status === "CANCELLED" ? "취소됨"
+                      : s.status === "ENDED" ? "경기끝"
+                      : s.status === "COMPLETED" || s.status === "CLOSED" ? "마감"
+                      : isFull ? "마감"
+                      : state === "soon" ? "오픈 예정"
+                      : "모집 중"}
                   </div>
                   <div className="text-xs text-gray-600">{s._count.registrations}/{s.maxPlayers}명</div>
                   <div className="text-sm font-black text-white mt-1">{s.fee.toLocaleString()}원</div>
