@@ -61,6 +61,9 @@ interface Player {
   }>;
 }
 
+const POS_CODE: Record<string, string> = { 골키퍼: "GK", 수비수: "DF", 미드필더: "MF", 공격수: "FW" };
+const posCode = (p: string | null) => (p && POS_CODE[p]) ? POS_CODE[p] : (p || "-");
+
 export default function PlayerProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { data: session } = useSession();
@@ -175,7 +178,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight">{player.name}</h1>
               {player.position && (
                 <span className="bg-green-400/10 text-green-400 border border-green-400/20 text-xs px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
-                  {player.position}
+                  {posCode(player.position)}
                 </span>
               )}
             </div>
@@ -292,11 +295,11 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
           {[
             { label: "골", value: totalGoals },
             { label: "어시스트", value: totalAssists },
-            { label: "포지션", value: player.position || "-" },
+            { label: "포지션", value: posCode(player.position) },
             { label: "팀", value: seasonRegs[0]?.team?.name || "-" },
           ].map((s) => (
             <div key={s.label} className="bg-black/40 border border-white/5 rounded-xl p-4 text-center">
-              <div className={`font-black text-green-400 ${s.label === "포지션" ? "text-sm leading-tight" : "text-2xl"}`}>{s.value}</div>
+              <div className="text-2xl font-black text-green-400">{s.value}</div>
               <div className="text-xs text-gray-600 mt-1">{s.label}</div>
             </div>
           ))}
@@ -388,7 +391,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
         )}
 
         {/* 등급 뱃지 */}
-        <div className="flex flex-wrap gap-3 mt-4">
+        <div className="flex gap-3 mt-4 flex-wrap">
           {[
             { label: "시즌 리그", ...seasonGrade },
             { label: "오픈 매칭", ...openGrade },
