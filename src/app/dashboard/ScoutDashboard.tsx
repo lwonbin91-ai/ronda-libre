@@ -25,6 +25,17 @@ export default function ScoutDashboard({
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [revealedPhone, setRevealedPhone] = useState<Record<string, boolean>>({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    const res = await fetch("/api/users/me", { method: "DELETE", credentials: "include" });
+    if (res.ok) {
+      await signOut({ callbackUrl: "/" });
+    } else {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "탈퇴 처리 중 오류가 발생했습니다.");
+    }
+  };
 
   const sendOffer = async () => {
     if (!offerForm.playerId || !offerForm.clubName || !offerForm.message) {
@@ -157,6 +168,31 @@ export default function ScoutDashboard({
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      {/* 회원 탈퇴 */}
+      <div className="mt-10 border-t border-white/5 pt-6">
+        {!showDeleteConfirm ? (
+          <button onClick={() => setShowDeleteConfirm(true)}
+            className="text-xs text-red-400/60 hover:text-red-400 transition-colors">
+            회원 탈퇴
+          </button>
+        ) : (
+          <div className="bg-red-400/5 border border-red-400/20 rounded-xl p-4">
+            <p className="text-sm font-bold text-red-400 mb-1">정말 탈퇴하시겠습니까?</p>
+            <p className="text-xs text-gray-500 mb-3">탈퇴 시 계정 정보가 삭제됩니다.</p>
+            <div className="flex gap-2">
+              <button onClick={handleDeleteAccount}
+                className="text-xs bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-lg transition-colors">
+                탈퇴 확인
+              </button>
+              <button onClick={() => setShowDeleteConfirm(false)}
+                className="text-xs border border-white/10 text-gray-400 hover:text-white px-4 py-1.5 rounded-lg transition-colors">
+                취소
+              </button>
+            </div>
           </div>
         )}
       </div>

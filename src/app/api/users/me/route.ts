@@ -26,12 +26,14 @@ export async function DELETE() {
     const playerIds = players.map(p => p.id);
 
     if (playerIds.length > 0) {
-      await prisma.playerVote.deleteMany({ where: { voterId: { in: playerIds } } });
-      await prisma.playerVote.deleteMany({ where: { targetId: { in: playerIds } } });
+      // 선수 이름을 "(탈퇴)"로 변경 → 투표 기록 유지, 투표 화면에서 이름으로 식별 불가
+      await prisma.player.updateMany({
+        where: { id: { in: playerIds } },
+        data: { name: "(탈퇴한 회원)", parentPhone: "", parentEmail: "", photoUrl: null },
+      });
       await prisma.scheduleRegistration.deleteMany({ where: { playerId: { in: playerIds } } });
       await prisma.recruitmentOffer.deleteMany({ where: { playerId: { in: playerIds } } });
       await prisma.matchPlayerRecord.deleteMany({ where: { playerId: { in: playerIds } } });
-      await prisma.player.deleteMany({ where: { id: { in: playerIds } } });
     }
 
     await prisma.recruitmentOffer.deleteMany({ where: { scoutId: dbUser.id } });

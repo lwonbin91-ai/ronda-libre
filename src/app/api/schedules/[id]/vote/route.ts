@@ -38,6 +38,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const teamGroups: Record<string, { id: string; name: string; position: string | null; school: string; jerseyNumber: string | null; teamLabel: string | null }[]> = {};
 
     for (const r of allRegs) {
+      if (r.player.name === "(탈퇴한 회원)") continue; // 탈퇴 선수 투표 대상 제외
       const key = r.teamLabel || "미배정";
       if (!teamGroups[key]) teamGroups[key] = [];
       teamGroups[key].push({
