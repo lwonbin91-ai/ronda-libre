@@ -15,10 +15,22 @@ export async function DELETE() {
 
     if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    await prisma.scheduleRegistration.deleteMany({ where: { player: { userId: dbUser.id } } });
-    await prisma.playerVote.deleteMany({ where: { voterId: dbUser.id } });
+    // 플레이어 ID 목록
+    const players = await prisma.player.findMany({ where: { userId: dbUser.id }, select: { id: true } });
+    const playerIds = players.map(p => p.id);
+
+    if (playerIds.length > 0) {
+      await prisma.playerVote.deleteMany({ where: { voterId: { in: playerIds } } });
+      await prisma.playerVote.deleteMany({ where: { targetId: { in: playerIds } } });
+      await prisma.scheduleRegistration.deleteMany({ where: { playerId: { in: playerIds } } });
+      await prisma.recruitmentOffer.deleteMany({ where: { playerId: { in: playerIds } } });
+      await prisma.matchPlayerRecord.deleteMany({ where: { playerId: { in: playerIds } } });
+      await prisma.player.deleteMany({ where: { id: { in: playerIds } } });
+    }
+
     await prisma.recruitmentOffer.deleteMany({ where: { scoutId: dbUser.id } });
-    await prisma.player.deleteMany({ where: { userId: dbUser.id } });
+    await prisma.account.deleteMany({ where: { userId: dbUser.id } });
+    await prisma.session.deleteMany({ where: { userId: dbUser.id } });
     await prisma.user.delete({ where: { id: dbUser.id } });
 
     return NextResponse.json({ ok: true });
