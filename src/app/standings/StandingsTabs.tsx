@@ -49,6 +49,10 @@ function RankList({ ranking, emptyMsg }: { ranking: RankEntry[]; emptyMsg: strin
                 <div className="text-lg font-black text-blue-400">{p.fairplay}</div>
                 <div className="text-[10px] text-gray-600">페어플레이</div>
               </div>
+              <div className="text-center">
+                <div className="text-lg font-black text-orange-400">{p.games}</div>
+                <div className="text-[10px] text-gray-600">참여</div>
+              </div>
               <div className="text-center min-w-[36px]">
                 <div className="text-lg font-black text-green-400">{p.score}</div>
                 <div className="text-[10px] text-gray-600">점수</div>
@@ -75,7 +79,7 @@ export default function StandingsTabs({
         <div className="mb-8">
           <p className="text-green-400 text-xs font-bold tracking-[0.2em] uppercase mb-3">STANDINGS</p>
           <h1 className="text-4xl font-black">순위표</h1>
-          <p className="text-gray-500 text-sm mt-2">MVP·페어플레이를 가장 많이 받은 선수 순위입니다.</p>
+          <p className="text-gray-500 text-sm mt-2">MVP·페어플레이·참여 점수를 합산한 선수 순위입니다.</p>
         </div>
 
         {/* 탭 */}
@@ -95,9 +99,10 @@ export default function StandingsTabs({
           ))}
         </div>
 
-        <div className="flex items-center gap-4 mb-6 text-xs text-gray-600">
-          <span className="flex items-center gap-1.5"><span className="text-yellow-400 font-black">★</span> MVP 1회 = 2점</span>
-          <span className="flex items-center gap-1.5"><span className="text-blue-400 font-black">♥</span> 페어플레이 1회 = 1점</span>
+        <div className="flex items-center gap-4 mb-6 text-xs text-gray-600 flex-wrap">
+          <span className="flex items-center gap-1.5"><span className="text-yellow-400 font-black">★</span> MVP 1회 = 3점</span>
+          <span className="flex items-center gap-1.5"><span className="text-blue-400 font-black">♥</span> 페어플레이 1회 = 2점</span>
+          <span className="flex items-center gap-1.5"><span className="text-orange-400 font-black">●</span> 매칭 참여 1회 = 1점</span>
         </div>
 
         {tab === "season"
