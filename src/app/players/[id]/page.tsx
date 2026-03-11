@@ -296,7 +296,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
             { label: "팀", value: seasonRegs[0]?.team?.name || "-" },
           ].map((s) => (
             <div key={s.label} className="bg-black/40 border border-white/5 rounded-xl p-4 text-center">
-              <div className="text-2xl font-black text-green-400">{s.value}</div>
+              <div className={`font-black text-green-400 ${s.label === "포지션" ? "text-sm leading-tight" : "text-2xl"}`}>{s.value}</div>
               <div className="text-xs text-gray-600 mt-1">{s.label}</div>
             </div>
           ))}
