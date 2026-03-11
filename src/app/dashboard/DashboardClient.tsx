@@ -349,7 +349,7 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
       ) : (
         <div className="space-y-6">
           {players.map((player) => {
-            const offers = (player.offersReceived || []).filter((o) => o.status === "PENDING");
+            const offers = (player.offersReceived || []);
             const isEditing = editingId === player.id;
 
             return (
@@ -521,19 +521,29 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
                     {offers.length === 0 ? (
                       <p className="text-xs text-gray-600">받은 입단 제의가 없습니다.</p>
                     ) : offers.map((offer) => (
-                      <div key={offer.id} className="bg-green-400/10 border border-green-400/20 rounded-xl p-4">
+                      <div key={offer.id} className={`border rounded-xl p-4 ${
+                        offer.status === "ACCEPTED" ? "bg-green-400/5 border-green-400/15" :
+                        offer.status === "DECLINED" ? "bg-white/[0.02] border-white/6 opacity-50" :
+                        "bg-green-400/10 border-green-400/20"
+                      }`}>
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="font-bold text-green-400">{offer.clubName}</p>
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <p className="font-bold text-green-400">{offer.clubName}</p>
+                              {offer.status === "ACCEPTED" && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-400/15 text-green-400 border border-green-400/20">수락됨</span>}
+                              {offer.status === "DECLINED" && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/5 text-gray-500 border border-white/10">거절됨</span>}
+                            </div>
                             <p className="text-sm text-gray-400">{offer.scout.name} ({offer.scout.organization})</p>
                             <p className="text-sm text-gray-300 mt-2">{offer.message}</p>
                           </div>
-                          <div className="flex gap-2 ml-4">
-                            <button onClick={() => handleOfferResponse(offer.id, "ACCEPTED")}
-                              className="text-xs bg-green-400 text-black px-3 py-1.5 rounded-full font-bold hover:bg-green-300">수락</button>
-                            <button onClick={() => handleOfferResponse(offer.id, "DECLINED")}
-                              className="text-xs border border-white/20 text-gray-400 px-3 py-1.5 rounded-full font-bold hover:border-red-400 hover:text-red-400">거절</button>
-                          </div>
+                          {offer.status === "PENDING" && (
+                            <div className="flex gap-2 ml-4 shrink-0">
+                              <button onClick={() => handleOfferResponse(offer.id, "ACCEPTED")}
+                                className="text-xs bg-green-400 text-black px-3 py-1.5 rounded-full font-bold hover:bg-green-300">수락</button>
+                              <button onClick={() => handleOfferResponse(offer.id, "DECLINED")}
+                                className="text-xs border border-white/20 text-gray-400 px-3 py-1.5 rounded-full font-bold hover:border-red-400 hover:text-red-400">거절</button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
