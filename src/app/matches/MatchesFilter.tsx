@@ -93,7 +93,7 @@ export default function MatchesFilter({
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-nowrap overflow-x-auto mb-1 pb-0.5 scrollbar-hide">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${
                       s.type === "SEASON"
                         ? "border-green-400/25 text-green-400/80 bg-green-400/5"
                         : "border-white/10 text-gray-500"
@@ -101,22 +101,22 @@ export default function MatchesFilter({
                       {typeLabel[s.type]}
                     </span>
                     {s.level && s.level !== "ALL" && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-400/20 text-blue-400/80 bg-blue-400/5">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-400/20 text-blue-400/80 bg-blue-400/5 whitespace-nowrap shrink-0">
                         {levelLabel[s.level] || s.level}
                       </span>
                     )}
                     {s.gradeLevel && s.gradeLevel !== "ALL" && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-400/20 text-purple-400/80 bg-purple-400/5">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-400/20 text-purple-400/80 bg-purple-400/5 whitespace-nowrap shrink-0">
                         {gradeLabel[s.gradeLevel] || s.gradeLevel}
                       </span>
                     )}
                     {s.gameFormat && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-gray-400/20 text-gray-400/80 bg-gray-400/5">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-gray-400/20 text-gray-400/80 bg-gray-400/5 whitespace-nowrap shrink-0">
                         {s.gameFormat.replace("v", " vs ")}
                       </span>
                     )}
                     {s.season && (
-                      <span className="text-[10px] text-gray-700">{s.season.name}</span>
+                      <span className="text-[10px] text-gray-700 whitespace-nowrap shrink-0">{s.season.name}</span>
                     )}
                   </div>
                   <h3 className="font-black text-base group-hover:text-white transition-colors truncate">{s.title}</h3>
