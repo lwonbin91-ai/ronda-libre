@@ -178,15 +178,15 @@ export default function DashboardClient({ userName, players: initialPlayers, ini
       </div>
 
       {/* 요약 통계 */}
-      <div className="grid grid-cols-4 gap-4 mb-10">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
         {/* 프로필 카드 */}
         {players.length > 0 ? (
-          <Link href={`/players/${players[0].id}`} className="bg-gray-900 rounded-2xl p-6 text-center hover:bg-gray-800 hover:ring-1 hover:ring-green-400/30 transition-all">
+          <Link href={`/players/${players[0].id}`} className="bg-gray-900 rounded-2xl p-4 sm:p-6 text-center hover:bg-gray-800 hover:ring-1 hover:ring-green-400/30 transition-all">
             <div className="text-3xl font-black text-green-400">👤</div>
             <div className="text-sm text-gray-500 mt-1">프로필</div>
           </Link>
         ) : (
-          <div className="bg-gray-900 rounded-2xl p-6 text-center opacity-50">
+          <div className="bg-gray-900 rounded-2xl p-4 sm:p-6 text-center opacity-50">
             <div className="text-3xl font-black text-green-400">👤</div>
             <div className="text-sm text-gray-500 mt-1">프로필</div>
           </div>
@@ -197,7 +197,7 @@ export default function DashboardClient({ userName, players: initialPlayers, ini
           { label: "입단 제의", value: pendingOffers, panel: "offers" as const },
         ].map((s) => (
           <button key={s.label} onClick={() => togglePanel(s.panel)}
-            className={`bg-gray-900 rounded-2xl p-6 text-center w-full hover:bg-gray-800 hover:ring-1 hover:ring-green-400/30 transition-all ${activePanel === s.panel ? "ring-1 ring-green-400/40" : ""}`}>
+            className={`bg-gray-900 rounded-2xl p-4 sm:p-6 text-center w-full hover:bg-gray-800 hover:ring-1 hover:ring-green-400/30 transition-all ${activePanel === s.panel ? "ring-1 ring-green-400/40" : ""}`}>
             <div className="text-3xl font-black text-green-400">{s.value}</div>
             <div className="text-sm text-gray-500 mt-1">{s.label}</div>
           </button>
