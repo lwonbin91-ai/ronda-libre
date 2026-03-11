@@ -77,11 +77,13 @@ export default function ScoutDashboard({
           <div className="font-bold text-sm group-hover:text-green-400 transition-colors">경기 영상</div>
           <div className="text-xs text-gray-600 mt-0.5">경기 영상 확인</div>
         </Link>
-        <div className="bg-[#0d0d0d] border border-white/8 rounded-2xl p-5 text-center">
+        <button
+          onClick={() => document.getElementById("offers-section")?.scrollIntoView({ behavior: "smooth" })}
+          className="bg-[#0d0d0d] border border-white/8 rounded-2xl p-5 text-center hover:border-green-400/20 transition-all group cursor-pointer w-full">
           <div className="text-2xl mb-2">📨</div>
-          <div className="font-bold text-sm">입단 제의</div>
+          <div className="font-bold text-sm group-hover:text-green-400 transition-colors">입단 제의</div>
           <div className="text-xs text-gray-600 mt-0.5">총 {offers.length}건</div>
-        </div>
+        </button>
       </div>
 
       {/* 입단 제의 보내기 */}
@@ -122,7 +124,7 @@ export default function ScoutDashboard({
       </div>
 
       {/* 제안한 입단 요청 목록 */}
-      <div className="bg-[#0d0d0d] border border-white/8 rounded-2xl p-6">
+      <div id="offers-section" className="bg-[#0d0d0d] border border-white/8 rounded-2xl p-6">
         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">제안한 입단 요청</p>
         {offers.length === 0 ? (
           <p className="text-sm text-gray-600 text-center py-6">아직 제의한 선수가 없습니다.</p>
