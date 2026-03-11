@@ -42,15 +42,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       });
     }
 
-    // 받은 투표 집계 (시즌 / 오픈매칭 구분)
-    const votesReceived = await prisma.playerVote.findMany({
-      where: { targetId: player.id },
-      include: { schedule: { select: { type: true } } },
-    });
-    const seasonMvp = votesReceived.filter((v) => v.voteType === "MVP" && v.schedule.type === "SEASON").length;
-    const seasonFairplay = votesReceived.filter((v) => v.voteType === "FAIRPLAY" && v.schedule.type === "SEASON").length;
-    const openMvp = votesReceived.filter((v) => v.voteType === "MVP" && v.schedule.type !== "SEASON").length;
-    const openFairplay = votesReceived.filter((v) => v.voteType === "FAIRPLAY" && v.schedule.type !== "SEASON").length;
+    // isMVP/isFairplay 플래그 기준 집계 (순위표와 동일한 방식)
+    const seasonMvp = player.scheduleRegs.filter((r) => r.schedule.type === "SEASON" && r.status !== "CANCELLED" && r.isMVP).length;
+    const seasonFairplay = player.scheduleRegs.filter((r) => r.schedule.type === "SEASON" && r.status !== "CANCELLED" && r.isFairplay).length;
+    const openMvp = player.scheduleRegs.filter((r) => r.schedule.type !== "SEASON" && r.status !== "CANCELLED" && r.isMVP).length;
+    const openFairplay = player.scheduleRegs.filter((r) => r.schedule.type !== "SEASON" && r.status !== "CANCELLED" && r.isFairplay).length;
 
     return NextResponse.json({
       ...player,
