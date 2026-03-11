@@ -92,7 +92,8 @@ export default function MatchesFilter({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 flex-nowrap overflow-x-auto mb-1 pb-0.5 scrollbar-hide">
+                  <div className="flex flex-col gap-1 mb-1">
+                    <div className="flex items-center gap-1.5">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${
                       s.type === "SEASON"
                         ? "border-green-400/25 text-green-400/80 bg-green-400/5"
@@ -105,6 +106,8 @@ export default function MatchesFilter({
                         {levelLabel[s.level] || s.level}
                       </span>
                     )}
+                    </div>
+                    <div className="flex items-center gap-1.5">
                     {s.gradeLevel && s.gradeLevel !== "ALL" && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-400/20 text-purple-400/80 bg-purple-400/5 whitespace-nowrap shrink-0">
                         {gradeLabel[s.gradeLevel] || s.gradeLevel}
@@ -118,6 +121,7 @@ export default function MatchesFilter({
                     {s.season && (
                       <span className="text-[10px] text-gray-700 whitespace-nowrap shrink-0">{s.season.name}</span>
                     )}
+                    </div>
                   </div>
                   <h3 className="font-black text-base group-hover:text-white transition-colors truncate">{s.title}</h3>
                   <p className="text-gray-600 text-sm mt-0.5">
