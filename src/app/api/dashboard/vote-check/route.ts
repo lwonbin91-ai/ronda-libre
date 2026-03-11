@@ -7,22 +7,24 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ scheduleId: null });
+  if (!session) return NextResponse.json({ pending: [] });
 
   const user = session.user as { id: string };
 
   const myPlayer = await prisma.player.findFirst({ where: { userId: user.id } });
-  if (!myPlayer) return NextResponse.json({ scheduleId: null });
+  if (!myPlayer) return NextResponse.json({ pending: [] });
 
   // 내가 참여한 ENDED 경기 목록 (CONFIRMED만)
   const myRegs = await prisma.scheduleRegistration.findMany({
     where: { playerId: myPlayer.id, status: "CONFIRMED", schedule: { status: "ENDED" } },
-    select: { scheduleId: true },
+    select: { scheduleId: true, schedule: { select: { title: true } } },
   });
 
-  const scheduleIds = [...new Set(myRegs.map((r) => r.scheduleId))];
+  const scheduleIds = [...new Map(myRegs.map((r) => [r.scheduleId, r.schedule.title])).entries()];
 
-  for (const scheduleId of scheduleIds) {
+  const pending: { scheduleId: string; title: string }[] = [];
+
+  for (const [scheduleId, title] of scheduleIds) {
     // 나 외 다른 참가자 수 확인 (2명 미만이면 MVP+페어플레이 불가)
     const otherCount = await prisma.scheduleRegistration.count({
       where: { scheduleId, status: { not: "CANCELLED" }, playerId: { not: myPlayer.id } },
@@ -37,9 +39,9 @@ export async function GET() {
     const hasFp = myVotes.some((v) => v.voteType === "FAIRPLAY");
 
     if (!hasMvp || !hasFp) {
-      return NextResponse.json({ scheduleId });
+      pending.push({ scheduleId, title });
     }
   }
 
-  return NextResponse.json({ scheduleId: null });
+  return NextResponse.json({ pending });
 }

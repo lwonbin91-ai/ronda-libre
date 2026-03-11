@@ -96,15 +96,13 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
   };
 
   const [deleteConfirm, setDeleteConfirm] = useState(false);
-  const [votePopupScheduleId, setVotePopupScheduleId] = useState<string | null>(null);
+  const [pendingVotes, setPendingVotes] = useState<{ scheduleId: string; title: string }[]>([]);
 
   useEffect(() => {
     fetch("/api/dashboard/vote-check", { cache: "no-store" })
       .then((r) => r.json())
-      .then((data) => {
-        setVotePopupScheduleId(data.scheduleId ?? null);
-      })
-      .catch(() => setVotePopupScheduleId(null));
+      .then((data) => setPendingVotes(data.pending ?? []))
+      .catch(() => setPendingVotes([]));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDeleteAccount = async () => {
@@ -142,30 +140,32 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
     <div className="max-w-5xl mx-auto px-6 py-12">
 
       {/* 미투표 알림 팝업 */}
-      {votePopupScheduleId && (
+      {pendingVotes.length > 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
           <div className="bg-[#111] border border-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center">
             <div className="text-4xl mb-4">🏆</div>
             <h3 className="font-black text-lg mb-2">경기가 종료되었습니다.</h3>
-            <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              MVP와 페어플레이 투표를 아직 완료하지 않았습니다.<br />
-              지금 투표를 진행해주세요.
+            <p className="text-gray-400 text-sm leading-relaxed mb-4">
+              아래 경기의 MVP와 페어플레이 투표를 완료해주세요.
             </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setVotePopupScheduleId(null)}
-                className="flex-1 border border-white/10 text-gray-500 py-2.5 rounded-xl text-sm font-bold hover:border-white/20 transition-colors"
-              >
-                나중에
-              </button>
-              <Link
-                href={`/dashboard/vote/${votePopupScheduleId}`}
-                onClick={() => setVotePopupScheduleId(null)}
-                className="flex-1 bg-purple-500 text-white py-2.5 rounded-xl text-sm font-black hover:bg-purple-400 transition-colors"
-              >
-                투표하기
-              </Link>
+            <div className="flex flex-col gap-2 mb-6">
+              {pendingVotes.map((v) => (
+                <Link
+                  key={v.scheduleId}
+                  href={`/dashboard/vote/${v.scheduleId}`}
+                  onClick={() => setPendingVotes((prev) => prev.filter((p) => p.scheduleId !== v.scheduleId))}
+                  className="w-full bg-purple-500 text-white py-2.5 rounded-xl text-sm font-black hover:bg-purple-400 transition-colors"
+                >
+                  {v.title} 투표하기
+                </Link>
+              ))}
             </div>
+            <button
+              onClick={() => setPendingVotes([])}
+              className="w-full border border-white/10 text-gray-500 py-2.5 rounded-xl text-sm font-bold hover:border-white/20 transition-colors"
+            >
+              나중에
+            </button>
           </div>
         </div>
       )}
