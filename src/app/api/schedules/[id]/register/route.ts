@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateTag } from "next/cache";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: scheduleId } = await params;
@@ -150,6 +151,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const reg = await prisma.scheduleRegistration.create({
       data: { scheduleId, playerId, teamId: teamId || null, isGK, fee, status: (isGK || fee === 0) ? "CONFIRMED" : "PENDING" },
     });
+    revalidateTag("schedules-list");
+    revalidateTag("players-list");
 
     return NextResponse.json({ ...reg, isGKFree: isGK });
   } catch {

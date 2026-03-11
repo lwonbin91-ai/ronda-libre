@@ -1,36 +1,13 @@
-import { prisma } from "@/lib/prisma";
+import { getCachedStandingsPlayers } from "@/lib/dataCache";
 import StandingsTabs from "./StandingsTabs";
 import { finalizeExpiredMatches } from "@/lib/voteAggregation";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default async function StandingsPage() {
-  // 24시간 경과 경기 자동 처리 (백그라운드)
   finalizeExpiredMatches().catch(() => {});
 
-  const [seasonPlayers, openPlayers] = await Promise.all([
-    prisma.player.findMany({
-      where: { scheduleRegs: { some: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } } } },
-      select: {
-        id: true, name: true, position: true, school: true, birthYear: true,
-        scheduleRegs: {
-          where: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } },
-          select: { isMVP: true, isFairplay: true },
-        },
-      },
-    }),
-    prisma.player.findMany({
-      where: { scheduleRegs: { some: { schedule: { type: "ONEDAY" }, status: { not: "CANCELLED" } } } },
-      select: {
-        id: true, name: true, position: true, school: true, birthYear: true,
-        scheduleRegs: {
-          where: { schedule: { type: "ONEDAY" }, status: { not: "CANCELLED" } },
-          select: { isMVP: true, isFairplay: true },
-        },
-      },
-    }),
-  ]);
+  const { season: seasonPlayers, open: openPlayers } = await getCachedStandingsPlayers();
 
   const buildRanking = (players: typeof seasonPlayers) =>
     players.map((p) => {

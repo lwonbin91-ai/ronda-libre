@@ -1,15 +1,11 @@
-import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import AnnouncementList from "./AnnouncementList";
+import { getCachedAnnouncements } from "@/lib/dataCache";
 
-export const revalidate = 30;
 export const dynamic = "force-dynamic";
 
 export default async function AnnouncementsPage() {
-  const list = await prisma.announcement.findMany({
-    include: { author: { select: { name: true } } },
-    orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
-  });
+  const list = await getCachedAnnouncements();
 
   return (
     <div className="min-h-screen bg-black text-white pt-24 pb-16">

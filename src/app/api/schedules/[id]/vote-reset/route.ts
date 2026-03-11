@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateTag } from "next/cache";
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: scheduleId } = await params;
@@ -22,6 +23,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       }),
     ]);
 
+    revalidateTag("standings");
+    revalidateTag("players-list");
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error(e);

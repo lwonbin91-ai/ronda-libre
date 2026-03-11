@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateTag } from "next/cache";
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -104,6 +105,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ...(data.gradeLevel !== undefined && { gradeLevel: data.gradeLevel }),
       },
     });
+    revalidateTag("schedules-list");
     return NextResponse.json(schedule);
   } catch {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
@@ -120,6 +122,7 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
   try {
     await prisma.scheduleRegistration.deleteMany({ where: { scheduleId: id } });
     await prisma.matchSchedule.delete({ where: { id } });
+    revalidateTag("schedules-list");
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });

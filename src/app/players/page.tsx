@@ -1,33 +1,10 @@
-import { prisma } from "@/lib/prisma";
+import { getCachedPlayers } from "@/lib/dataCache";
 import PlayersSearch from "./PlayersSearch";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default async function PlayersPage() {
-  const players = await prisma.player.findMany({
-    select: {
-      id: true,
-      name: true,
-      birthYear: true,
-      height: true,
-      school: true,
-      position: true,
-      scheduleRegs: {
-        where: { status: { not: "CANCELLED" } },
-        select: {
-          status: true,
-          isMVP: true,
-          isFairplay: true,
-          goals: true,
-          assists: true,
-          schedule: { select: { type: true } },
-        },
-      },
-    },
-    orderBy: { name: "asc" },
-  });
-
+  const players = await getCachedPlayers();
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
       <div className="mb-12">

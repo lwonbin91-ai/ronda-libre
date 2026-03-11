@@ -1,4 +1,5 @@
 import { tryAggregateVotes } from "@/lib/voteAggregation";
+import { revalidateTag } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
@@ -112,6 +113,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // 전원 투표 완료 여부 확인 후 조건 충족 시에만 집계
     await tryAggregateVotes(scheduleId);
+    revalidateTag("standings");
+    revalidateTag("players-list");
 
     return NextResponse.json(vote);
   } catch (e) {

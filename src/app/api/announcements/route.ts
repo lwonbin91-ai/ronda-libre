@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateTag } from "next/cache";
 
 export async function GET() {
   const announcements = await prisma.announcement.findMany({
@@ -23,5 +24,6 @@ export async function POST(req: NextRequest) {
     data: { title, content, isPinned: !!isPinned, authorId: user.id },
     include: { author: { select: { name: true } } },
   });
+  revalidateTag("announcements");
   return NextResponse.json(a);
 }

@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
       },
       include: { _count: { select: { registrations: true } } },
     });
+    revalidateTag("schedules-list");
     return NextResponse.json(schedule);
   } catch {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });

@@ -1,9 +1,21 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import MatchesFilter from "./MatchesFilter";
+import { unstable_cache } from "next/cache";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+
+const getSchedules = unstable_cache(
+  () => prisma.matchSchedule.findMany({
+    include: {
+      season: { select: { name: true } },
+      _count: { select: { registrations: true } },
+    },
+    orderBy: { scheduledAt: "asc" },
+  }),
+  ["schedules-list"],
+  { tags: ["schedules-list"], revalidate: 30 }
+);
 
 const TYPE_LABEL: Record<string, string> = { SEASON: "시즌 리그", ONEDAY: "오픈 매칭" };
 const LEVEL_LABEL: Record<string, string> = {
@@ -32,13 +44,7 @@ export interface Schedule {
 }
 
 export default async function MatchesPage() {
-  const schedules = await prisma.matchSchedule.findMany({
-    include: {
-      season: { select: { name: true } },
-      _count: { select: { registrations: true } },
-    },
-    orderBy: { scheduledAt: "asc" },
-  });
+  const schedules = await getSchedules();
 
   return (
     <div className="min-h-screen">
