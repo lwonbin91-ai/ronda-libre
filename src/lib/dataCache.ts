@@ -9,7 +9,7 @@ export const getCachedPlayers = unstable_cache(
         id: true, name: true, birthYear: true, height: true, school: true,
         position: true,
         scheduleRegs: {
-          where: { status: { not: "CANCELLED" } },
+          where: { status: "CONFIRMED", schedule: { status: "ENDED" } },
           select: { status: true, isMVP: true, isFairplay: true, goals: true, assists: true, schedule: { select: { type: true } } },
         },
       },
@@ -62,21 +62,22 @@ export const getCachedVideos = unstable_cache(
 );
 
 // ── 순위표 ─────────────────────────────────────────────
+// 참여 점수는 status=CONFIRMED + schedule.status=ENDED 인 경기만 카운트
 export const getCachedStandingsPlayers = unstable_cache(
   async () => {
     const [season, open] = await Promise.all([
       prisma.player.findMany({
-        where: { scheduleRegs: { some: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } } } },
+        where: { scheduleRegs: { some: { schedule: { type: "SEASON", status: "ENDED" }, status: "CONFIRMED" } } },
         select: {
           id: true, name: true, position: true, school: true, birthYear: true,
-          scheduleRegs: { where: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } }, select: { isMVP: true, isFairplay: true } },
+          scheduleRegs: { where: { schedule: { type: "SEASON", status: "ENDED" }, status: "CONFIRMED" }, select: { isMVP: true, isFairplay: true } },
         },
       }),
       prisma.player.findMany({
-        where: { scheduleRegs: { some: { schedule: { type: "ONEDAY" }, status: { not: "CANCELLED" } } } },
+        where: { scheduleRegs: { some: { schedule: { type: "ONEDAY", status: "ENDED" }, status: "CONFIRMED" } } },
         select: {
           id: true, name: true, position: true, school: true, birthYear: true,
-          scheduleRegs: { where: { schedule: { type: "ONEDAY" }, status: { not: "CANCELLED" } }, select: { isMVP: true, isFairplay: true } },
+          scheduleRegs: { where: { schedule: { type: "ONEDAY", status: "ENDED" }, status: "CONFIRMED" }, select: { isMVP: true, isFairplay: true } },
         },
       }),
     ]);
