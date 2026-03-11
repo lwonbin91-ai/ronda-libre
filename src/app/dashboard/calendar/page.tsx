@@ -95,7 +95,7 @@ export default function CalendarPage() {
                     ? "text-blue-300 border-blue-400/30 bg-blue-400/8"
                     : "text-gray-500 border-white/10"
                 }`}>
-                  {reg.jerseyNumber ? `#${reg.jerseyNumber}` : "번호미배정"}
+                  {reg.jerseyNumber ? `등번호 : ${reg.jerseyNumber}` : "번호미배정"}
                 </span>
               </div>
             )}

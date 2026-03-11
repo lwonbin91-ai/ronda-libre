@@ -18,6 +18,8 @@ interface Player {
     id: string;
     status: string;
     isGK: boolean;
+    teamLabel?: string | null;
+    jerseyNumber?: string | null;
     schedule: { id: string; title: string; type: string; scheduledAt: string; location?: string | null };
     team: { name: string; color: string | null } | null;
   }>;
@@ -195,13 +197,22 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full border text-blue-400 border-blue-400/25 bg-blue-400/8">오픈 매칭</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border text-green-400 border-green-400/20 bg-green-400/8">확정</span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${r.teamLabel ? "text-orange-300 border-orange-400/30 bg-orange-400/8" : "text-gray-500 border-white/10"}`}>
+                          {r.teamLabel || "미배정"}
+                        </span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${r.jerseyNumber ? "text-blue-300 border-blue-400/30 bg-blue-400/8" : "text-gray-500 border-white/10"}`}>
+                          {r.jerseyNumber ? `등번호 : ${r.jerseyNumber}` : "번호미배정"}
+                        </span>
+                      </div>
                       <p className="font-bold text-sm truncate">{r.schedule.title}</p>
                       <p className="text-xs text-gray-600 mt-0.5">
                         {d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}
                         {r.schedule.location && ` · ${r.schedule.location}`}
                       </p>
                     </div>
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-400/25 text-green-400 bg-green-400/5 shrink-0">확정</span>
                   </Link>
                 );
               })}
@@ -485,10 +496,19 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
                             {new Intl.DateTimeFormat("ko-KR", { day: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("일", "")}일
                           </div>
                           <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-1 mb-0.5">
+                              <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-blue-400 border-blue-400/25 bg-blue-400/8">오픈 매칭</span>
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border text-green-400 border-green-400/20 bg-green-400/8">확정</span>
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${reg.teamLabel ? "text-orange-300 border-orange-400/30" : "text-gray-600 border-white/10"}`}>
+                                {reg.teamLabel || "미배정"}
+                              </span>
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${reg.jerseyNumber ? "text-blue-300 border-blue-400/30" : "text-gray-600 border-white/10"}`}>
+                                {reg.jerseyNumber ? `등번호 : ${reg.jerseyNumber}` : "번호미배정"}
+                              </span>
+                            </div>
                             <p className="text-xs font-bold truncate">{reg.schedule.title}</p>
                             <p className="text-[10px] text-gray-600">{d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}</p>
                           </div>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-orange-500/30 text-orange-400 bg-orange-500/10 shrink-0">매칭</span>
                         </Link>
                       );
                     })}
