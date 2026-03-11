@@ -178,7 +178,7 @@ export default function AdminPage() {
   };
 
   const toKST = (localStr: string) => {
-    if (!localStr) return undefined;
+    if (!localStr) return "";
     return localStr.length === 16 ? `${localStr}:00+09:00` : localStr;
   };
 
@@ -198,8 +198,6 @@ export default function AdminPage() {
       gradeGroup: s.gradeLevel || "ALL",
     });
   };
-
-  const toKST = (dtLocal: string) => dtLocal ? dtLocal + ":00+09:00" : "";
 
   const saveEditSchedule = async (id: string) => {
     const body = {
