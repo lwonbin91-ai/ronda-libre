@@ -26,16 +26,33 @@ export default async function DashboardPage() {
   const currentYear = new Date().getFullYear();
   const players = await prisma.player.findMany({
     where: { userId: user.id },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      birthYear: true,
+      school: true,
+      position: true,
+      preferredFoot: true,
+      height: true,
+      yearsExp: true,
+      yearsExpStartYear: true,
       scheduleRegs: {
-        include: {
-          schedule: { select: { id: true, title: true, type: true, scheduledAt: true } },
+        select: {
+          id: true,
+          status: true,
+          isGK: true,
+          teamLabel: true,
+          jerseyNumber: true,
+          schedule: { select: { id: true, title: true, type: true, scheduledAt: true, location: true } },
           team: { select: { name: true, color: true } },
         },
         orderBy: { createdAt: "desc" },
       },
       offersReceived: {
-        include: { scout: { select: { name: true, organization: true } } },
+        select: {
+          id: true, status: true, clubName: true, message: true,
+          scout: { select: { name: true, organization: true } },
+        },
       },
     },
   });

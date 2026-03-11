@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import AnnouncementList from "./AnnouncementList";
 
-export const revalidate = 0;
+export const revalidate = 30;
 
 export default async function AnnouncementsPage() {
   const list = await prisma.announcement.findMany({
