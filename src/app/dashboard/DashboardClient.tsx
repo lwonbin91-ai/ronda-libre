@@ -103,6 +103,9 @@ export default function DashboardClient({ userName, players: initialPlayers, ini
     const res = await fetch("/api/users/me", { method: "DELETE" });
     if (res.ok) {
       await signOut({ callbackUrl: "/" });
+    } else {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "탈퇴 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
   };
 
