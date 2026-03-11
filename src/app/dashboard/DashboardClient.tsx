@@ -126,8 +126,19 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
 
       {/* 요약 통계 */}
       <div className="grid grid-cols-4 gap-4 mb-10">
+        {/* 등록 선수 - 프로필 링크 */}
+        {players.length > 0 ? (
+          <Link href={`/players/${players[0].id}`} className="bg-gray-900 rounded-2xl p-6 text-center hover:bg-gray-800 hover:ring-1 hover:ring-green-400/30 transition-all">
+            <div className="text-3xl font-black text-green-400">{players.length}</div>
+            <div className="text-sm text-gray-500 mt-1">등록 선수</div>
+          </Link>
+        ) : (
+          <div className="bg-gray-900 rounded-2xl p-6 text-center">
+            <div className="text-3xl font-black text-green-400">0</div>
+            <div className="text-sm text-gray-500 mt-1">등록 선수</div>
+          </div>
+        )}
         {[
-          { label: "등록 선수", value: players.length },
           { label: "시즌 확정", value: seasonConfirmed },
           { label: "오픈 확정", value: openConfirmed },
           { label: "입단 제의", value: pendingOffers },
