@@ -54,6 +54,9 @@ export default async function DashboardPage() {
           scout: { select: { name: true, organization: true } },
         },
       },
+      votesGiven: {
+        select: { scheduleId: true, voteType: true },
+      },
     },
   });
 
