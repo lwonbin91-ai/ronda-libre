@@ -315,20 +315,22 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
               return (
                 <Link key={r.id} href={`/matches/${r.schedule.id}`}
                   className="flex items-center gap-3 p-3 bg-white/[0.02] border border-white/6 rounded-xl hover:border-orange-400/25 transition-colors">
-                  <div className="text-sm font-black text-orange-400 w-10 text-center">
+                  <div className="text-sm font-black text-orange-400 w-10 text-center shrink-0">
                     {new Intl.DateTimeFormat("ko-KR", { day: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("일", "")}일
                   </div>
                   <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-1 mb-0.5">
+                      <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-blue-400 border-blue-400/25 bg-blue-400/8">오픈 매칭</span>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border text-green-400 border-green-400/20 bg-green-400/8">확정</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${r.teamLabel ? "text-orange-300 border-orange-400/30" : "text-gray-600 border-white/10"}`}>
+                        {r.teamLabel || "미배정"}
+                      </span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${r.jerseyNumber ? "text-blue-300 border-blue-400/30" : "text-gray-600 border-white/10"}`}>
+                        {r.jerseyNumber ? `등번호 : ${r.jerseyNumber}` : "번호미배정"}
+                      </span>
+                    </div>
                     <p className="text-sm font-bold truncate">{r.schedule.title}</p>
                     <p className="text-xs text-gray-600">{d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}</p>
-                  </div>
-                  <div className="flex gap-1.5 shrink-0">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${r.teamLabel ? "text-orange-300 border-orange-400/30" : "text-gray-600 border-white/10"}`}>
-                      {r.teamLabel || "미배정"}
-                    </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${r.jerseyNumber ? "text-blue-300 border-blue-400/30" : "text-gray-600 border-white/10"}`}>
-                      {r.jerseyNumber ? `#${r.jerseyNumber}` : "번호-"}
-                    </span>
                   </div>
                 </Link>
               );
