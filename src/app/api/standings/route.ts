@@ -45,7 +45,7 @@ export async function GET() {
           mvp: totalMVP,
           fairplay: totalFairplay,
           games: totalGames,
-          score: totalMVP * 2 + totalFairplay,
+          score: totalMVP * 3 + totalFairplay * 2 + totalGames,
         };
       })
       .filter((p) => p.games > 0)

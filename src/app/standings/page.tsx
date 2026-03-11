@@ -46,7 +46,7 @@ export default async function StandingsPage() {
       return {
         id: p.id, name: p.name, position: p.position, school: p.school, birthYear: p.birthYear,
         mvp: totalMVP, fairplay: totalFairplay, games: p.scheduleRegs.length,
-        score: totalMVP * 2 + totalFairplay,
+        score: totalMVP * 3 + totalFairplay * 2 + p.scheduleRegs.length,
       };
     })
     .filter((p) => p.games > 0)
