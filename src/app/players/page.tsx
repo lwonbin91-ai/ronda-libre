@@ -16,8 +16,11 @@ export default async function PlayersPage() {
       scheduleRegs: {
         where: { status: { not: "CANCELLED" } },
         select: {
+          status: true,
           isMVP: true,
           isFairplay: true,
+          goals: true,
+          assists: true,
           schedule: { select: { type: true } },
         },
       },
