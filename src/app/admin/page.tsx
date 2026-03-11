@@ -873,7 +873,7 @@ export default function AdminPage() {
                             <option value="CANCELLED">취소</option>
                           </select>
                         </div>
-                        <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div className="grid grid-cols-3 gap-3 mb-3">
                           <div>
                             <label className="text-[10px] text-gray-500 mb-1 block">레벨</label>
                             <select value={editSf.level} onChange={(e) => setEditSf({ ...editSf, level: e.target.value })}
@@ -899,18 +899,18 @@ export default function AdminPage() {
                               <option value="8v8">8 vs 8 축구</option>
                             </select>
                           </div>
-                        </div>
-                        <div className="mb-3">
-                          <label className="text-[10px] text-gray-500 mb-1 block">학년</label>
-                          <select value={editSf.gradeGroup} onChange={(e) => setEditSf({ ...editSf, gradeGroup: e.target.value })}
-                            className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400">
-                            <option value="ALL">전체 학년</option>
-                            <option value="G12">초등 1~2학년</option>
-                            <option value="G34">초등 3~4학년</option>
-                            <option value="G45">초등 4~5학년</option>
-                            <option value="G56">초등 5~6학년</option>
-                            <option value="M1">중학교 1학년</option>
-                          </select>
+                          <div>
+                            <label className="text-[10px] text-gray-500 mb-1 block">학년</label>
+                            <select value={editSf.gradeGroup} onChange={(e) => setEditSf({ ...editSf, gradeGroup: e.target.value })}
+                              className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-400">
+                              <option value="ALL">전체 학년</option>
+                              <option value="G12">초등 1~2학년</option>
+                              <option value="G34">초등 3~4학년</option>
+                              <option value="G45">초등 4~5학년</option>
+                              <option value="G56">초등 5~6학년</option>
+                              <option value="M1">중학교 1학년</option>
+                            </select>
+                          </div>
                         </div>
                         <div className="flex gap-2">
                           <button onClick={() => saveEditSchedule(s.id)}
