@@ -33,10 +33,20 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     });
     if (!player) return NextResponse.json({ error: "선수를 찾을 수 없습니다." }, { status: 404 });
 
+    const isOwn = user ? player.userId === user.id : false;
+    let votesGiven: Array<{ scheduleId: string; voteType: string }> = [];
+    if (isOwn) {
+      votesGiven = await prisma.playerVote.findMany({
+        where: { voterId: player.id },
+        select: { scheduleId: true, voteType: true },
+      });
+    }
+
     return NextResponse.json({
       ...player,
       scheduleRegistrations: player.scheduleRegs,
-      isOwn: user ? player.userId === user.id : false,
+      isOwn,
+      votesGiven,
     });
   } catch (e) {
     console.error(e);

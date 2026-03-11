@@ -48,6 +48,7 @@ interface Player {
   parentPhone: string;
   parentEmail: string;
   isOwn: boolean;
+  votesGiven?: Array<{ scheduleId: string; voteType: string }>;
   scheduleRegistrations: ScheduleReg[];
   offersReceived: Array<{
     id: string; status: string; clubName: string; message: string;
@@ -149,6 +150,11 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
   const openFairplayCount = openRegs.filter((r) => r.isFairplay).length;
   const isScout = user?.role === "SCOUT" || user?.role === "DIRECTOR" || user?.role === "ADMIN";
   const isOwner = player.isOwn;
+  const votesGiven: Array<{ scheduleId: string; voteType: string }> = player.votesGiven || [];
+  const hasVotedAll = (scheduleId: string) => {
+    const v = votesGiven.filter((v) => v.scheduleId === scheduleId);
+    return v.some((v) => v.voteType === "MVP") && v.some((v) => v.voteType === "FAIRPLAY");
+  };
   const allRegs = player.scheduleRegistrations;
   const seasonGrade = calcGrade(allRegs, "SEASON");
   const openGrade = calcGrade(allRegs, "OPEN");
@@ -335,6 +341,17 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                     <p className="text-sm font-bold truncate">{r.schedule.title}</p>
                     <p className="text-xs text-gray-600">{d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}</p>
                   </div>
+                  {isOwner && r.schedule.status === "ENDED" && (
+                    hasVotedAll(r.schedule.id) ? (
+                      <span className="text-[10px] font-bold text-gray-600 border border-white/8 px-2.5 py-1.5 rounded-full whitespace-nowrap shrink-0">투표완료</span>
+                    ) : (
+                      <Link href={`/dashboard/vote/${r.schedule.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[10px] font-bold text-purple-400 border border-purple-400/20 bg-purple-400/5 px-2.5 py-1.5 rounded-full hover:bg-purple-400/10 transition-colors whitespace-nowrap shrink-0">
+                        투표하기
+                      </Link>
+                    )
+                  )}
                 </Link>
               );
             })}

@@ -9,7 +9,7 @@ const scheduleRegInclude = {
   schedule: {
     select: {
       id: true, title: true, scheduledAt: true, gameFormat: true,
-      videoUrl: true, videoTitle: true, type: true,
+      videoUrl: true, videoTitle: true, type: true, status: true, location: true,
     },
   },
   team: { select: { id: true, name: true, color: true } },
@@ -73,6 +73,7 @@ export async function GET(req: NextRequest) {
         offersReceived: {
           include: { scout: { select: { name: true, organization: true } } },
         },
+        votesGiven: { select: { scheduleId: true, voteType: true } },
       },
     });
     return NextResponse.json(players);
