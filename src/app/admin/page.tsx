@@ -177,6 +177,11 @@ export default function AdminPage() {
     return kst.toISOString().slice(0, 16);
   };
 
+  const toKST = (localStr: string) => {
+    if (!localStr) return undefined;
+    return localStr.length === 16 ? `${localStr}:00+09:00` : localStr;
+  };
+
   const startEditSchedule = (s: Schedule) => {
     setEditingScheduleId(s.id);
     setEditSf({
@@ -325,9 +330,9 @@ export default function AdminPage() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 ...sf,
-                scheduledAt: d,
-                recruitmentStart: sf.recruitmentStart || undefined,
-                recruitmentEnd: sf.recruitmentEnd || undefined,
+                scheduledAt: toKST(d),
+                recruitmentStart: sf.recruitmentStart ? toKST(sf.recruitmentStart) : undefined,
+                recruitmentEnd: sf.recruitmentEnd ? toKST(sf.recruitmentEnd) : undefined,
               }),
             }).then((r) => r.json())
           )
@@ -349,9 +354,9 @@ export default function AdminPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ...sf,
-            scheduledAt: singleDate,
-            recruitmentStart: sf.recruitmentStart || undefined,
-            recruitmentEnd: sf.recruitmentEnd || undefined,
+            scheduledAt: toKST(singleDate),
+            recruitmentStart: sf.recruitmentStart ? toKST(sf.recruitmentStart) : undefined,
+            recruitmentEnd: sf.recruitmentEnd ? toKST(sf.recruitmentEnd) : undefined,
           }),
         });
         if (res.ok) {

@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
         fee: data.fee,
         level: data.level || "ALL",
         gradeLevel: data.gradeLevel || "ALL",
+        gameFormat: data.gameFormat || "5v5",
         recruitmentStart: data.recruitmentStart ? new Date(data.recruitmentStart) : null,
         recruitmentEnd: data.recruitmentEnd ? new Date(data.recruitmentEnd) : null,
         status: "RECRUITING",
