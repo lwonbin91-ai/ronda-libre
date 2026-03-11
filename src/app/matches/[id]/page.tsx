@@ -420,7 +420,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
             {schedule.positionStatus && (
               <div className="bg-white/[0.02] border border-white/6 rounded-xl p-4">
                 <p className="text-xs font-bold text-gray-400 mb-3">포지션별 잔여 자리</p>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {[
                     { pos: "GK", label: "골키퍼", icon: "🧤" },
                     { pos: "DF", label: "수비수", icon: "🛡️" },
@@ -441,7 +441,7 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                       >
                         <div className="text-base mb-1">{icon}</div>
                         <div className="text-[11px] font-black text-white leading-none">{pos}</div>
-                        <div className="text-[9px] text-gray-500 mt-0.5 text-center leading-tight">{label}</div>
+                        <div className="text-[9px] text-gray-500 mt-0.5 text-center leading-tight whitespace-nowrap">{label}</div>
                         {isFull ? (
                           <div className="text-[11px] font-black text-red-400 mt-1.5">마감</div>
                         ) : (
