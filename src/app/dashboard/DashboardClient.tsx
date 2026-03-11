@@ -42,10 +42,10 @@ interface EditForm {
 const POSITIONS = ["골키퍼", "수비수", "미드필더", "공격수"];
 const FEET = ["오른발", "왼발", "양발"];
 
-export default function DashboardClient({ userName, players: initialPlayers, initialPendingVotes }: {
+export default function DashboardClient({ userName, players: initialPlayers, initialPendingVotes = [] }: {
   userName: string;
   players: Player[];
-  initialPendingVotes: { scheduleId: string; title: string }[];
+  initialPendingVotes?: { scheduleId: string; title: string }[];
 }) {
   const router = useRouter();
   const [players, setPlayers] = useState<Player[]>(initialPlayers);
@@ -97,7 +97,7 @@ export default function DashboardClient({ userName, players: initialPlayers, ini
   };
 
   const [deleteConfirm, setDeleteConfirm] = useState(false);
-  const [pendingVotes, setPendingVotes] = useState<{ scheduleId: string; title: string }[]>(initialPendingVotes);
+  const [pendingVotes, setPendingVotes] = useState<{ scheduleId: string; title: string }[]>(initialPendingVotes ?? []);
 
   const handleDeleteAccount = async () => {
     const res = await fetch("/api/users/me", { method: "DELETE" });
