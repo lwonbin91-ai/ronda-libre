@@ -237,14 +237,16 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                 <button onClick={() => setEditingPosition(false)} className="text-xs text-gray-600 hover:text-white">취소</button>
               </div>
             )}
-            {/* 주사용발 수정 */}
-            {isOwner && !editingFoot && (
+            {/* 주사용발 */}
+            {!editingFoot && (
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs text-gray-600">
                   주사용발: <span className="text-gray-400 font-bold">{player.preferredFoot || "미설정"}</span>
                 </span>
-                <button onClick={() => { setFootValue(player.preferredFoot || ""); setEditingFoot(true); }}
-                  className="text-[10px] text-green-400/70 hover:text-green-400 border border-green-400/20 px-2 py-0.5 rounded">✎ 변경</button>
+                {isOwner && (
+                  <button onClick={() => { setFootValue(player.preferredFoot || ""); setEditingFoot(true); }}
+                    className="text-[10px] text-green-400/70 hover:text-green-400 border border-green-400/20 px-2 py-0.5 rounded">✎ 변경</button>
+                )}
               </div>
             )}
             {editingFoot && (
