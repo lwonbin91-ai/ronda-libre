@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             schedule: {
               select: {
                 id: true, title: true, scheduledAt: true, gameFormat: true,
-                videoUrl: true, videoTitle: true, type: true, level: true, location: true,
+                videoUrl: true, videoTitle: true, type: true, level: true, location: true, status: true,
               },
             },
             team: { select: { id: true, name: true, color: true } },

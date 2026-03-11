@@ -32,6 +32,7 @@ interface ScheduleReg {
     type: string;
     level: string;
     location: string | null;
+    status: string;
   };
 }
 
@@ -321,7 +322,9 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-1 mb-0.5">
                       <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-blue-400 border-blue-400/25 bg-blue-400/8">오픈 매칭</span>
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border text-green-400 border-green-400/20 bg-green-400/8">확정</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${r.schedule.status === "ENDED" ? "text-purple-400 border-purple-400/20 bg-purple-400/8" : "text-green-400 border-green-400/20 bg-green-400/8"}`}>
+                        {r.schedule.status === "ENDED" ? "경기끝" : "확정"}
+                      </span>
                       <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${r.teamLabel ? "text-orange-300 border-orange-400/30" : "text-gray-600 border-white/10"}`}>
                         {r.teamLabel || "미배정"}
                       </span>
