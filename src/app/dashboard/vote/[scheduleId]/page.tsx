@@ -82,6 +82,8 @@ export default function VotePage({ params }: { params: Promise<{ scheduleId: str
         const hasMvp = updated.some((v) => v.voteType === "MVP");
         const hasFp = updated.some((v) => v.voteType === "FAIRPLAY");
         if (hasMvp && hasFp) {
+          // sessionStorage에 완료 저장 → 대시보드 팝업 억제
+          if (typeof window !== "undefined") sessionStorage.setItem(`voted_${scheduleId}`, "done");
           router.refresh();
         }
         return updated;

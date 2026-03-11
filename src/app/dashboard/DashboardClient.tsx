@@ -116,6 +116,8 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
 
     const checkVotes = async () => {
       for (const scheduleId of endedScheduleIds) {
+        // sessionStorage에 이미 완료로 저장된 경기는 스킵
+        if (typeof window !== "undefined" && sessionStorage.getItem(`voted_${scheduleId}`) === "done") continue;
         try {
           const res = await fetch(`/api/schedules/${scheduleId}/vote?t=${Date.now()}`, { cache: "no-store" });
           if (!res.ok) continue;
@@ -127,10 +129,13 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
           const myVotes: Array<{ voteType: string }> = data.myVotes || [];
           const hasMvp = myVotes.some((v) => v.voteType === "MVP");
           const hasFp = myVotes.some((v) => v.voteType === "FAIRPLAY");
-          if (!hasMvp || !hasFp) {
-            setVotePopupScheduleId(scheduleId);
-            return;
+          if (hasMvp && hasFp) {
+            // 완료 → sessionStorage에 저장
+            if (typeof window !== "undefined") sessionStorage.setItem(`voted_${scheduleId}`, "done");
+            continue;
           }
+          setVotePopupScheduleId(scheduleId);
+          return;
         } catch {
           // 무시
         }
