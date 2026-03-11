@@ -92,12 +92,19 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
 
   const [showInsuranceModal, setShowInsuranceModal] = useState(false);
   const [insuranceAgreed, setInsuranceAgreed] = useState(false);
+  const [showRulesModal, setShowRulesModal] = useState(false);
+  const [rulesAgreed, setRulesAgreed] = useState(false);
 
   const handleRegister = async () => {
     if (!selectedPlayer) return;
     // 오픈 매칭이면 보험 동의 팝업 먼저
     if (schedule?.type === "ONEDAY" && !insuranceAgreed) {
       setShowInsuranceModal(true);
+      return;
+    }
+    // 보험 동의 완료 후 학부모 규칙 팝업
+    if (schedule?.type === "ONEDAY" && !rulesAgreed) {
+      setShowRulesModal(true);
       return;
     }
     setSubmitting(true);
@@ -171,7 +178,49 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
               </button>
               <button
                 disabled={!insuranceAgreed}
-                onClick={() => { setShowInsuranceModal(false); handleRegister(); }}
+              onClick={() => { setShowInsuranceModal(false); setInsuranceAgreed(true); setShowRulesModal(true); }}
+                className="flex-1 bg-orange-500 text-white py-2.5 rounded-xl text-sm font-black hover:bg-orange-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                동의 후 신청
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── 학부모 행동 규칙 팝업 ── */}
+      {showRulesModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
+          <div className="bg-[#111] border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 className="font-black text-lg mb-1">학부모 참관 규칙 안내</h3>
+            <p className="text-xs text-orange-400 font-bold mb-4">경기 참여 전 반드시 확인해주세요</p>
+            <div className="bg-white/[0.03] border border-white/8 rounded-xl p-4 text-xs text-gray-400 leading-relaxed space-y-3 mb-5">
+              <p className="text-white font-bold text-sm">Ronda Libre 오픈 매칭, 시즌 리그에 참여하는 선수의 부모님께서는 경기중 절대 지도 및 다른 선수의 평가를 금지합니다.</p>
+              <div className="border-t border-white/8 pt-3 space-y-1.5">
+                <p className="text-gray-300 font-bold">위반 신고 접수</p>
+                <p>• 위반 신고 1회 접수 → <strong className="text-yellow-400">경고</strong></p>
+                <p>• 위반 신고 2회 접수 → <strong className="text-red-400">참여 제한</strong></p>
+              </div>
+            </div>
+            <label className="flex items-start gap-2 cursor-pointer mb-5">
+              <input
+                type="checkbox"
+                checked={rulesAgreed}
+                onChange={(e) => setRulesAgreed(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-orange-400 shrink-0"
+              />
+              <span className="text-sm text-gray-300 leading-snug">위 학부모 행동 규칙을 확인하였으며, 이에 동의합니다.</span>
+            </label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setShowRulesModal(false); setRulesAgreed(false); setInsuranceAgreed(false); }}
+                className="flex-1 border border-white/10 text-gray-400 py-2.5 rounded-xl text-sm font-bold hover:border-white/20 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                disabled={!rulesAgreed}
+                onClick={() => { setShowRulesModal(false); handleRegister(); }}
                 className="flex-1 bg-orange-500 text-white py-2.5 rounded-xl text-sm font-black hover:bg-orange-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 동의 후 신청

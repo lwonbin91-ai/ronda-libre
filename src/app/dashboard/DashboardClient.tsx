@@ -302,7 +302,7 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
         </Link>
         <Link href="/standings" className="bg-[#0d0d0d] border border-white/8 rounded-2xl p-4 hover:border-green-400/20 transition-all group">
           <div className="text-2xl mb-2">🏆</div>
-          <div className="font-bold text-sm group-hover:text-green-400 transition-colors">시즌 순위표</div>
+          <div className="font-bold text-sm group-hover:text-green-400 transition-colors">순위표</div>
           <div className="text-xs text-gray-600 mt-0.5">MVP·페어플레이 순위</div>
         </Link>
       </div>
