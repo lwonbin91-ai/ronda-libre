@@ -92,7 +92,7 @@ export default function MatchesFilter({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-1.5 flex-nowrap overflow-x-auto mb-1 pb-0.5 scrollbar-hide">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                       s.type === "SEASON"
                         ? "border-green-400/25 text-green-400/80 bg-green-400/5"

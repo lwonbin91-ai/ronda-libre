@@ -17,13 +17,13 @@ const getSchedules = unstable_cache(
   { tags: ["schedules-list"], revalidate: 30 }
 );
 
-const TYPE_LABEL: Record<string, string> = { SEASON: "시즌 리그", ONEDAY: "오픈 매칭" };
+const TYPE_LABEL: Record<string, string> = { SEASON: "시즌", ONEDAY: "오픈" };
 const LEVEL_LABEL: Record<string, string> = {
-  ALL: "레벨 무관",
-  U1: "1년차까지", U2: "2년차까지", U3: "3년차까지", U4: "4년차까지", U5: "5년차까지",
-  U6: "6년차까지", U7: "7년차까지", U8: "8년차까지", U9: "9년차까지", U10: "10년차까지",
+  ALL: "전체",
+  U1: "1년차↓", U2: "2년차↓", U3: "3년차↓", U4: "4년차↓", U5: "5년차↓",
+  U6: "6년차↓", U7: "7년차↓", U8: "8년차↓", U9: "9년차↓", U10: "10년차↓",
 };
-const GRADE_LABEL: Record<string, string> = { ALL: "전체 학년", G12: "초등 1~2학년", G34: "초등 3~4학년", G45: "초등 4~5학년", G56: "초등 5~6학년", M1: "중학교 1학년" };
+const GRADE_LABEL: Record<string, string> = { ALL: "전체", G12: "1~2학년", G34: "3~4학년", G45: "4~5학년", G56: "5~6학년", M1: "중1" };
 
 export interface Schedule {
   id: string;
