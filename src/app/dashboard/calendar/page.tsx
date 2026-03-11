@@ -8,6 +8,7 @@ import Link from "next/link";
 interface Reg {
   id: string;
   status: string;
+  teamLabel?: string | null;
   schedule: {
     id: string;
     title: string;
@@ -79,6 +80,15 @@ export default function CalendarPage() {
                 ? "text-green-400 border-green-400/20 bg-green-400/8"
                 : "text-yellow-400 border-yellow-400/20 bg-yellow-400/8"
             }`}>{reg.status === "CONFIRMED" ? "확정" : "대기"}</span>
+            {reg.status === "CONFIRMED" && (
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                reg.teamLabel
+                  ? "text-orange-300 border-orange-400/30 bg-orange-400/8"
+                  : "text-gray-500 border-white/10"
+              }`}>
+                {reg.teamLabel || "미배정"}
+              </span>
+            )}
           </div>
           <p className="font-bold text-sm">{reg.schedule.title}</p>
           <p className="text-xs text-gray-600 mt-0.5">
