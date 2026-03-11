@@ -44,6 +44,7 @@ interface Player {
   school: string;
   position: string | null;
   preferredFoot: string | null;
+  yearsExp: number | null;
   parentName: string;
   parentPhone: string;
   parentEmail: string;
@@ -257,6 +258,14 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                 ))}
                 <button onClick={saveFoot} className="text-xs bg-green-400 text-black font-bold px-3 py-1.5 rounded-lg">저장</button>
                 <button onClick={() => setEditingFoot(false)} className="text-xs text-gray-600 hover:text-white">취소</button>
+              </div>
+            )}
+            {/* 축구 경력 */}
+            {player.yearsExp && (
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-gray-600">
+                  축구 경력: <span className="text-gray-400 font-bold">{player.yearsExp}년차</span>
+                </span>
               </div>
             )}
           </div>
