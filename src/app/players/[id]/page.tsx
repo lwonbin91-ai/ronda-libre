@@ -306,6 +306,14 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                     {new Intl.DateTimeFormat("ko-KR", { day: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("일", "")}일
                   </div>
                   <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-1 mb-0.5">
+                      {r.isMVP && (
+                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-yellow-300 border-yellow-400/40 bg-yellow-400/10">⭐ MVP</span>
+                      )}
+                      {r.isFairplay && (
+                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-blue-300 border-blue-400/40 bg-blue-400/10">🤝 페어플레이</span>
+                      )}
+                    </div>
                     <p className="text-sm font-bold truncate">{r.schedule.title}</p>
                     <p className="text-xs text-gray-600">{d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}</p>
                   </div>
@@ -341,6 +349,12 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                       <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${r.jerseyNumber ? "text-blue-300 border-blue-400/30" : "text-gray-600 border-white/10"}`}>
                         {r.jerseyNumber ? `등번호 : ${r.jerseyNumber}` : "번호미배정"}
                       </span>
+                      {r.isMVP && (
+                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-yellow-300 border-yellow-400/40 bg-yellow-400/10">⭐ MVP</span>
+                      )}
+                      {r.isFairplay && (
+                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-blue-300 border-blue-400/40 bg-blue-400/10">🤝 페어플레이</span>
+                      )}
                     </div>
                     <p className="text-sm font-bold truncate">{r.schedule.title}</p>
                     <p className="text-xs text-gray-600">{d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}</p>
