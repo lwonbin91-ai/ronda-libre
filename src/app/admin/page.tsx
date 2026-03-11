@@ -790,23 +790,23 @@ export default function AdminPage() {
                             모집 오픈
                           </button>
                         )}
-                        {s.status === "RECRUITING" && (
-                          <button onClick={() => closeSchedule(s.id)}
-                            className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-yellow-400/30 hover:text-yellow-400 transition-colors">
-                            마감
-                          </button>
-                        )}
-                        {(s.status === "CLOSED" || s.status === "RECRUITING") && s.status !== "ENDED" && s.status !== "CANCELLED" && (
-                          <button onClick={() => endSchedule(s.id, s.title)}
-                            className="text-xs border border-purple-400/30 text-purple-400 px-2.5 py-1.5 rounded-lg hover:bg-purple-400/10 transition-colors font-bold">
-                            경기끝
-                          </button>
-                        )}
-                        {s.status !== "CANCELLED" && (
-                          <button onClick={() => cancelSchedule(s.id, s.title)}
-                            className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-orange-400/30 hover:text-orange-400 transition-colors">
-                            취소
-                          </button>
+                        {s.status !== "CANCELLED" && s.status !== "ENDED" && (
+                          <>
+                            {s.status === "RECRUITING" && (
+                              <button onClick={() => closeSchedule(s.id)}
+                                className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-yellow-400/30 hover:text-yellow-400 transition-colors">
+                                마감
+                              </button>
+                            )}
+                            <button onClick={() => endSchedule(s.id, s.title)}
+                              className="text-xs border border-purple-400/30 text-purple-400 px-2.5 py-1.5 rounded-lg hover:bg-purple-400/10 transition-colors font-bold">
+                              경기끝
+                            </button>
+                            <button onClick={() => cancelSchedule(s.id, s.title)}
+                              className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-orange-400/30 hover:text-orange-400 transition-colors">
+                              취소
+                            </button>
+                          </>
                         )}
                         <button onClick={() => deleteSchedule(s.id)}
                           className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-red-400/30 hover:text-red-400 transition-colors">

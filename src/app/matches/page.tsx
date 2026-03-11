@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import MatchesFilter from "./MatchesFilter";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const TYPE_LABEL: Record<string, string> = { SEASON: "시즌 리그", ONEDAY: "오픈 매칭" };
