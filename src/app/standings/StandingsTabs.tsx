@@ -32,10 +32,10 @@ function RankList({ ranking, emptyMsg }: { ranking: RankEntry[]; emptyMsg: strin
               {i + 1}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="font-black text-sm">{p.name}</p>
+              <div className="flex items-center gap-2 flex-nowrap min-w-0">
+                <p className="font-black text-sm truncate">{p.name}</p>
                 {p.position && (
-                  <span className="text-[10px] border border-white/10 text-gray-500 px-1.5 py-0.5 rounded">{p.position}</span>
+                  <span className="text-[10px] border border-white/10 text-gray-500 px-1.5 py-0.5 rounded whitespace-nowrap shrink-0">{p.position}</span>
                 )}
               </div>
               <p className="text-xs text-gray-600 mt-0.5">{p.school} · {p.birthYear}년생 · {p.games}경기</p>
