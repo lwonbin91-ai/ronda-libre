@@ -262,17 +262,21 @@ export default function DashboardClient({ userName, players: initialPlayers, ini
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full border text-blue-400 border-blue-400/25 bg-blue-400/8">오픈 매칭</span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${r.schedule.status === "ENDED" ? "text-purple-400 border-purple-400/20 bg-purple-400/8" : "text-green-400 border-green-400/20 bg-green-400/8"}`}>
-                          {r.schedule.status === "ENDED" ? "경기끝" : "확정"}
-                        </span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${r.teamLabel ? "text-orange-300 border-orange-400/30 bg-orange-400/8" : "text-gray-500 border-white/10"}`}>
-                          {r.teamLabel || "미배정"}
-                        </span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${r.jerseyNumber ? "text-blue-300 border-blue-400/30 bg-blue-400/8" : "text-gray-500 border-white/10"}`}>
-                          {r.jerseyNumber ? `등번호 : ${r.jerseyNumber}` : "번호미배정"}
-                        </span>
+                      <div className="flex flex-col gap-1 mb-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full border text-blue-400 border-blue-400/25 bg-blue-400/8 whitespace-nowrap">오픈 매칭</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap ${r.schedule.status === "ENDED" ? "text-purple-400 border-purple-400/20 bg-purple-400/8" : "text-green-400 border-green-400/20 bg-green-400/8"}`}>
+                            {r.schedule.status === "ENDED" ? "경기끝" : "확정"}
+                          </span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap ${r.teamLabel ? "text-orange-300 border-orange-400/30 bg-orange-400/8" : "text-gray-500 border-white/10"}`}>
+                            {r.teamLabel || "미배정"}
+                          </span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap ${r.jerseyNumber ? "text-blue-300 border-blue-400/30 bg-blue-400/8" : "text-gray-500 border-white/10"}`}>
+                            {r.jerseyNumber ? `등번호 : ${r.jerseyNumber}` : "번호미배정"}
+                          </span>
+                        </div>
                       </div>
                       <p className="font-bold text-sm truncate">{r.schedule.title}</p>
                       <p className="text-xs text-gray-600 mt-0.5">
