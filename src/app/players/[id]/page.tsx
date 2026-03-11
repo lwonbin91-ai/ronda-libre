@@ -68,6 +68,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
   const [positionValue, setPositionValue] = useState("");
   const [editingFoot, setEditingFoot] = useState(false);
   const [footValue, setFootValue] = useState("");
+  const [matchTab, setMatchTab] = useState<"season" | "match" | null>(null);
 
   useEffect(() => {
     fetch(`/api/players/${id}`)
@@ -135,6 +136,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
 
   const seasonRegs = player.scheduleRegistrations.filter((r) => r.schedule.type === "SEASON");
   const confirmedRegs = seasonRegs.filter((r) => r.status === "CONFIRMED");
+  const openMatchRegs = player.scheduleRegistrations.filter((r) => r.schedule.type === "ONEDAY" && r.status === "CONFIRMED");
   const totalGoals = confirmedRegs.reduce((acc, r) => acc + (r.goals || 0), 0);
   const totalAssists = confirmedRegs.reduce((acc, r) => acc + (r.assists || 0), 0);
   const mvpCount = confirmedRegs.filter((r) => r.isMVP).length;
@@ -251,11 +253,19 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
           </Link>
         </div>
 
-        {/* Stats - 시즌제 경기 기준 */}
+        {/* 통계 */}
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mt-6">
+          <button onClick={() => setMatchTab((t) => t === "season" ? null : "season")}
+            className={`bg-black/40 border rounded-xl p-4 text-center hover:bg-black/60 transition-colors ${matchTab === "season" ? "border-green-400/30" : "border-white/5"}`}>
+            <div className="text-2xl font-black text-green-400">{confirmedRegs.length}</div>
+            <div className="text-xs text-gray-600 mt-1">시즌 경기</div>
+          </button>
+          <button onClick={() => setMatchTab((t) => t === "match" ? null : "match")}
+            className={`bg-black/40 border rounded-xl p-4 text-center hover:bg-black/60 transition-colors ${matchTab === "match" ? "border-orange-400/30" : "border-white/5"}`}>
+            <div className="text-2xl font-black text-orange-400">{openMatchRegs.length}</div>
+            <div className="text-xs text-gray-600 mt-1">매칭 경기</div>
+          </button>
           {[
-            { label: "시즌 경기", value: confirmedRegs.length },
-            { label: "총 신청", value: seasonRegs.length },
             { label: "골", value: totalGoals },
             { label: "어시스트", value: totalAssists },
             { label: "포지션", value: player.position || "-" },
@@ -267,6 +277,54 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
             </div>
           ))}
         </div>
+
+        {/* 시즌 경기 목록 */}
+        {matchTab === "season" && (
+          <div className="mt-4 bg-black/20 border border-white/6 rounded-2xl p-4 space-y-2">
+            <p className="text-xs font-bold text-gray-500 mb-3">시즌 경기 목록</p>
+            {confirmedRegs.length === 0 ? (
+              <p className="text-sm text-gray-600">시즌 경기 기록이 없습니다.</p>
+            ) : confirmedRegs.map((r) => {
+              const d = new Date(r.schedule.scheduledAt);
+              return (
+                <Link key={r.id} href={`/matches/${r.schedule.id}`}
+                  className="flex items-center gap-3 p-3 bg-white/[0.02] border border-white/6 rounded-xl hover:border-green-400/25 transition-colors">
+                  <div className="text-sm font-black text-green-400 w-10 text-center">
+                    {new Intl.DateTimeFormat("ko-KR", { day: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("일", "")}일
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold truncate">{r.schedule.title}</p>
+                    <p className="text-xs text-gray-600">{d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
+        {/* 매칭 경기 목록 */}
+        {matchTab === "match" && (
+          <div className="mt-4 bg-black/20 border border-white/6 rounded-2xl p-4 space-y-2">
+            <p className="text-xs font-bold text-gray-500 mb-3">매칭 경기 목록</p>
+            {openMatchRegs.length === 0 ? (
+              <p className="text-sm text-gray-600">매칭 경기 기록이 없습니다.</p>
+            ) : openMatchRegs.map((r) => {
+              const d = new Date(r.schedule.scheduledAt);
+              return (
+                <Link key={r.id} href={`/matches/${r.schedule.id}`}
+                  className="flex items-center gap-3 p-3 bg-white/[0.02] border border-white/6 rounded-xl hover:border-orange-400/25 transition-colors">
+                  <div className="text-sm font-black text-orange-400 w-10 text-center">
+                    {new Intl.DateTimeFormat("ko-KR", { day: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("일", "")}일
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold truncate">{r.schedule.title}</p>
+                    <p className="text-xs text-gray-600">{d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
         {/* 등급 뱃지 */}
         <div className="flex flex-wrap gap-3 mt-4">

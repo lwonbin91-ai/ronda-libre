@@ -55,7 +55,7 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
   const confirmedRegs = allRegs.filter((r) => r.status === "CONFIRMED");
   const seasonConfirmed = confirmedRegs.filter((r) => r.schedule?.type === "SEASON").length;
   const openConfirmed = confirmedRegs.filter((r) => r.schedule?.type === "ONEDAY").length;
-  const pendingOffers = players.flatMap((p) => p.offersReceived || []).filter((o) => o.status === "PENDING").length;
+  const pendingOffers = players.flatMap((p) => p.offersReceived || []).length;
 
   const startEdit = (player: Player) => {
     setEditForm({
@@ -109,12 +109,13 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
     router.refresh();
   };
 
-  const [activePanel, setActivePanel] = useState<"open" | "offers" | null>(null);
-
+  const scheduleRegs = players.flatMap((p) => p.scheduleRegs || []);
   const openRegs = confirmedRegs.filter((r) => r.schedule?.type === "ONEDAY");
   const allOffers = players.flatMap((p) => p.offersReceived || []);
+  const matchRegs = scheduleRegs.filter((r) => r.schedule?.type === "ONEDAY");
+  const [activePanel, setActivePanel] = useState<"open" | "offers" | "season" | "match" | null>(null);
 
-  const togglePanel = (panel: "open" | "offers") => {
+  const togglePanel = (panel: "open" | "offers" | "season" | "match") => {
     setActivePanel((prev) => (prev === panel ? null : panel));
   };
 
@@ -229,6 +230,78 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 시즌 경기 패널 */}
+      {activePanel === "season" && (
+        <div className="bg-gray-900 border border-white/8 rounded-2xl p-6 mb-6">
+          <p className="text-sm font-bold text-gray-400 mb-4">시즌 경기 기록</p>
+          {scheduleRegs.filter((r) => r.schedule?.type === "SEASON" && r.status === "CONFIRMED").length === 0 ? (
+            <p className="text-sm text-gray-600">확정된 시즌 경기가 없습니다.</p>
+          ) : (
+            <div className="space-y-3">
+              {scheduleRegs.filter((r) => r.schedule?.type === "SEASON" && r.status === "CONFIRMED").map((r) => {
+                const d = new Date(r.schedule.scheduledAt);
+                return (
+                  <Link key={r.id} href={`/matches/${r.schedule.id}`}
+                    className="flex items-center gap-4 bg-white/[0.02] border border-white/6 rounded-xl p-4 hover:border-green-400/25 transition-colors">
+                    <div className="shrink-0 w-12 text-center">
+                      <div className="text-xl font-black text-green-400">
+                        {new Intl.DateTimeFormat("ko-KR", { day: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("일", "")}
+                      </div>
+                      <div className="text-[10px] text-gray-600">
+                        {new Intl.DateTimeFormat("ko-KR", { month: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("월", "")}월
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate">{r.schedule.title}</p>
+                      <p className="text-xs text-gray-600 mt-0.5">
+                        {d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-400/25 text-green-400 bg-green-400/5 shrink-0">시즌</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 매칭 경기 패널 */}
+      {activePanel === "match" && (
+        <div className="bg-gray-900 border border-white/8 rounded-2xl p-6 mb-6">
+          <p className="text-sm font-bold text-gray-400 mb-4">매칭 경기 기록</p>
+          {scheduleRegs.filter((r) => r.schedule?.type === "ONEDAY" && r.status === "CONFIRMED").length === 0 ? (
+            <p className="text-sm text-gray-600">확정된 매칭 경기가 없습니다.</p>
+          ) : (
+            <div className="space-y-3">
+              {scheduleRegs.filter((r) => r.schedule?.type === "ONEDAY" && r.status === "CONFIRMED").map((r) => {
+                const d = new Date(r.schedule.scheduledAt);
+                return (
+                  <Link key={r.id} href={`/matches/${r.schedule.id}`}
+                    className="flex items-center gap-4 bg-white/[0.02] border border-white/6 rounded-xl p-4 hover:border-orange-400/25 transition-colors">
+                    <div className="shrink-0 w-12 text-center">
+                      <div className="text-xl font-black text-orange-400">
+                        {new Intl.DateTimeFormat("ko-KR", { day: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("일", "")}
+                      </div>
+                      <div className="text-[10px] text-gray-600">
+                        {new Intl.DateTimeFormat("ko-KR", { month: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("월", "")}월
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate">{r.schedule.title}</p>
+                      <p className="text-xs text-gray-600 mt-0.5">
+                        {d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-orange-500/30 text-orange-400 bg-orange-500/10 shrink-0">매칭</span>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
@@ -361,16 +434,17 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
                   </div>
                 )}
 
-                <div className="grid grid-cols-3 gap-3 mb-4">
+                <div className="grid grid-cols-3 gap-3 mt-3">
                   {[
-                    { label: "시즌 경기", value: confirmedCount },
-                    { label: "총 신청", value: seasonRegs.length },
-                    { label: "입단 제의", value: (player.offersReceived || []).length },
+                    { label: "시즌 경기", value: scheduleRegs.filter((r) => r.schedule?.type === "SEASON" && r.status === "CONFIRMED").length, panel: "season" as const },
+                    { label: "매칭 경기", value: scheduleRegs.filter((r) => r.schedule?.type === "ONEDAY" && r.status === "CONFIRMED").length, panel: "match" as const },
+                    { label: "입단 제의", value: (players[0]?.offersReceived || []).length, panel: "offers" as const },
                   ].map((s) => (
-                    <div key={s.label} className="bg-black rounded-xl p-3 text-center">
-                      <div className="text-xl font-black text-white">{s.value}</div>
-                      <div className="text-xs text-gray-600 mt-0.5">{s.label}</div>
-                    </div>
+                    <button key={s.label} onClick={() => togglePanel(s.panel)}
+                      className={`bg-black/40 rounded-xl p-4 text-center w-full hover:bg-black/60 transition-colors ${activePanel === s.panel ? "ring-1 ring-green-400/40" : ""}`}>
+                      <div className="text-2xl font-black text-green-400">{s.value}</div>
+                      <div className="text-xs text-gray-600 mt-1">{s.label}</div>
+                    </button>
                   ))}
                 </div>
 
