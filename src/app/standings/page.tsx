@@ -5,26 +5,32 @@ export const revalidate = 0;
 
 export default async function StandingsPage() {
   const seasonPlayers = await prisma.player.findMany({
-    where: { scheduleRegs: { some: { schedule: { type: "SEASON" }, status: "CONFIRMED" } } },
+    where: { scheduleRegs: { some: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } } } },
     select: {
       id: true, name: true, position: true, school: true, birthYear: true,
       scheduleRegs: {
-        where: { schedule: { type: "SEASON" }, status: "CONFIRMED" },
+        where: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } },
         select: { isMVP: true, isFairplay: true },
       },
-      votesReceived: { select: { voteType: true } },
+      votesReceived: {
+        where: { schedule: { type: "SEASON" } },
+        select: { voteType: true },
+      },
     },
   });
 
   const openPlayers = await prisma.player.findMany({
-    where: { scheduleRegs: { some: { schedule: { type: "ONEDAY" }, status: "CONFIRMED" } } },
+    where: { scheduleRegs: { some: { schedule: { type: "ONEDAY" }, status: { not: "CANCELLED" } } } },
     select: {
       id: true, name: true, position: true, school: true, birthYear: true,
       scheduleRegs: {
-        where: { schedule: { type: "ONEDAY" }, status: "CONFIRMED" },
+        where: { schedule: { type: "ONEDAY" }, status: { not: "CANCELLED" } },
         select: { isMVP: true, isFairplay: true },
       },
-      votesReceived: { select: { voteType: true } },
+      votesReceived: {
+        where: { schedule: { type: "ONEDAY" } },
+        select: { voteType: true },
+      },
     },
   });
 
@@ -52,3 +58,4 @@ export default async function StandingsPage() {
     />
   );
 }
+
