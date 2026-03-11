@@ -266,8 +266,13 @@ export default function DashboardClient({ userName, players: initialPlayers, ini
                         <div className="flex items-center gap-1.5">
                           <span className="text-[10px] font-black px-2 py-0.5 rounded-full border text-blue-400 border-blue-400/25 bg-blue-400/8 whitespace-nowrap">오픈 매칭</span>
                         </div>
-                        <div className="flex items-center gap-1.5 flex-wrap">
+                        <div className="flex items-center gap-1.5 sm:hidden">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap ${r.schedule.status === "ENDED" ? "text-purple-400 border-purple-400/20 bg-purple-400/8" : "text-green-400 border-green-400/20 bg-green-400/8"}`}>
+                            {r.schedule.status === "ENDED" ? "경기끝" : "확정"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap hidden sm:inline-flex ${r.schedule.status === "ENDED" ? "text-purple-400 border-purple-400/20 bg-purple-400/8" : "text-green-400 border-green-400/20 bg-green-400/8"}`}>
                             {r.schedule.status === "ENDED" ? "경기끝" : "확정"}
                           </span>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap ${r.teamLabel ? "text-orange-300 border-orange-400/30 bg-orange-400/8" : "text-gray-500 border-white/10"}`}>
