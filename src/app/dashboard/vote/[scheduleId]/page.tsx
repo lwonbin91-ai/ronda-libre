@@ -115,24 +115,32 @@ export default function VotePage({ params }: { params: Promise<{ scheduleId: str
                   </div>
                 </div>
                 <div className="flex gap-2">
+                  {/* MVP 버튼: 이미 다른 선수에게 MVP를 준 경우 비활성 */}
                   <button
                     onClick={() => vote(p.id, "MVP")}
-                    disabled={submitting}
-                    className={`flex-1 py-2.5 rounded-xl border text-sm font-black transition-colors disabled:opacity-50 ${
+                    disabled={submitting || (!!mvpVote && !isMyMvp)}
+                    className={`flex-1 py-2.5 rounded-xl border text-sm font-black transition-colors ${
                       isMyMvp
                         ? "bg-yellow-400/15 border-yellow-400/40 text-yellow-300"
-                        : "bg-white/[0.02] border-white/8 text-gray-500 hover:border-yellow-400/30 hover:text-yellow-400"
+                        : mvpVote
+                          ? "opacity-30 border-white/6 text-gray-600 cursor-not-allowed"
+                          : "bg-white/[0.02] border-white/8 text-gray-500 hover:border-yellow-400/30 hover:text-yellow-400"
                     }`}
                   >
                     ⭐ MVP {isMyMvp ? "✓ 선택됨" : ""}
                   </button>
+                  {/* 페어플레이 버튼: MVP 받은 선수거나 이미 다른 선수에게 페어플레이를 준 경우 비활성 */}
                   <button
                     onClick={() => vote(p.id, "FAIRPLAY")}
-                    disabled={submitting}
-                    className={`flex-1 py-2.5 rounded-xl border text-sm font-black transition-colors disabled:opacity-50 ${
+                    disabled={submitting || isMyMvp || (!!fairplayVote && !isMyFairplay)}
+                    className={`flex-1 py-2.5 rounded-xl border text-sm font-black transition-colors ${
                       isMyFairplay
                         ? "bg-blue-400/15 border-blue-400/40 text-blue-300"
-                        : "bg-white/[0.02] border-white/8 text-gray-500 hover:border-blue-400/30 hover:text-blue-400"
+                        : isMyMvp
+                          ? "opacity-30 border-white/6 text-gray-600 cursor-not-allowed"
+                          : fairplayVote
+                            ? "opacity-30 border-white/6 text-gray-600 cursor-not-allowed"
+                            : "bg-white/[0.02] border-white/8 text-gray-500 hover:border-blue-400/30 hover:text-blue-400"
                     }`}
                   >
                     🤝 페어플레이 {isMyFairplay ? "✓ 선택됨" : ""}

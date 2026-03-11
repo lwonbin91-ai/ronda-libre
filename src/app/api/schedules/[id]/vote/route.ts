@@ -83,6 +83,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "해당 선수는 이 경기 참가자가 아닙니다." }, { status: 400 });
     }
 
+    // 같은 선수에게 MVP와 페어플레이 동시 부여 불가
+    const otherVoteType = voteType === "MVP" ? "FAIRPLAY" : "MVP";
+    const conflictVote = await prisma.playerVote.findFirst({
+      where: { scheduleId, voterId: myPlayer.id, targetId, voteType: otherVoteType },
+    });
+    if (conflictVote) {
+      return NextResponse.json({ error: "같은 선수에게 MVP와 페어플레이를 동시에 줄 수 없습니다." }, { status: 400 });
+    }
+
     const vote = await prisma.playerVote.upsert({
       where: { scheduleId_voterId_voteType: { scheduleId, voterId: myPlayer.id, voteType } },
       create: { scheduleId, voterId: myPlayer.id, targetId, voteType },
