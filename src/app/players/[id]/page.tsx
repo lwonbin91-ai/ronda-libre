@@ -174,7 +174,7 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
             <div className="flex items-center gap-3 mb-2 flex-wrap">
               <h1 className="text-3xl sm:text-4xl font-black tracking-tight">{player.name}</h1>
               {player.position && (
-                <span className="bg-green-400/10 text-green-400 border border-green-400/20 text-sm px-3 py-1 rounded-full font-bold">
+                <span className="bg-green-400/10 text-green-400 border border-green-400/20 text-xs px-2 py-0.5 rounded-full font-bold whitespace-nowrap">
                   {player.position}
                 </span>
               )}
