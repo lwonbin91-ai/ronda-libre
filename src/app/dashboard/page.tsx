@@ -25,6 +25,8 @@ export default async function DashboardPage() {
   }
 
   const currentYear = new Date().getFullYear();
+
+  // 메인 쿼리와 무관한 초기 병렬 처리 가능하도록 쿼리 분리
   const players = await prisma.player.findMany({
     where: { userId: user.id },
     select: {
@@ -61,12 +63,7 @@ export default async function DashboardPage() {
     },
   });
 
-  const playersWithDynamicYears = players.map((p) => ({
-    ...p,
-    yearsExpCurrent: p.yearsExpStartYear ? currentYear - p.yearsExpStartYear : p.yearsExp,
-  }));
-
-  // 서버에서 미리 투표 미완료 경기 계산 (팝업 즉시 표시용)
+  // myPlayerIds 계산
   const myPlayerIds = players.map((p) => p.id);
   let pendingVotes: { scheduleId: string; title: string }[] = [];
 
@@ -79,29 +76,53 @@ export default async function DashboardPage() {
 
       const seen = new Map<string, string>();
       for (const r of myRegs) seen.set(r.scheduleId, r.schedule.title);
+      const scheduleIds = [...seen.keys()];
 
-      for (const [scheduleId, title] of seen.entries()) {
-        const otherCount = await prisma.scheduleRegistration.count({
-          where: { scheduleId, status: { not: "CANCELLED" }, playerId: { notIn: myPlayerIds } },
-        });
-        if (otherCount < 2) continue;
+      if (scheduleIds.length > 0) {
+        // N+1 제거: 두 쿼리를 병렬로 한 번에 실행
+        const [allOtherRegs, allMyVotes] = await Promise.all([
+          prisma.scheduleRegistration.findMany({
+            where: { scheduleId: { in: scheduleIds }, status: { not: "CANCELLED" }, playerId: { notIn: myPlayerIds } },
+            select: { scheduleId: true },
+          }),
+          prisma.playerVote.findMany({
+            where: { scheduleId: { in: scheduleIds }, voterId: { in: myPlayerIds } },
+            select: { scheduleId: true, voteType: true },
+          }),
+        ]);
 
-        const myVotes = await prisma.playerVote.findMany({
-          where: { scheduleId, voterId: { in: myPlayerIds } },
-        });
-        const hasMvp = myVotes.some((v) => v.voteType === "MVP");
-        const hasFp = myVotes.some((v) => v.voteType === "FAIRPLAY");
-        if (!hasMvp || !hasFp) pendingVotes.push({ scheduleId, title });
+        const otherCountMap = new Map<string, number>();
+        for (const r of allOtherRegs) otherCountMap.set(r.scheduleId, (otherCountMap.get(r.scheduleId) ?? 0) + 1);
+
+        const voteMap = new Map<string, { mvp: boolean; fp: boolean }>();
+        for (const v of allMyVotes) {
+          const e = voteMap.get(v.scheduleId) ?? { mvp: false, fp: false };
+          if (v.voteType === "MVP") e.mvp = true;
+          if (v.voteType === "FAIRPLAY") e.fp = true;
+          voteMap.set(v.scheduleId, e);
+        }
+
+        for (const [scheduleId, title] of seen.entries()) {
+          if ((otherCountMap.get(scheduleId) ?? 0) < 2) continue;
+          const v = voteMap.get(scheduleId) ?? { mvp: false, fp: false };
+          if (!v.mvp || !v.fp) pendingVotes.push({ scheduleId, title });
+        }
       }
     }
   } catch {
     pendingVotes = [];
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const playersOut = players.map((p) => ({
+    ...p,
+    yearsExpCurrent: p.yearsExpStartYear ? currentYear - p.yearsExpStartYear : (p.yearsExp ?? null),
+  })) as any;
+
   return (
     <DashboardClient
       userName={user.name}
-      players={JSON.parse(JSON.stringify(playersWithDynamicYears))}
+      players={playersOut}
       initialPendingVotes={pendingVotes}
     />
   );

@@ -5,35 +5,36 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function StandingsPage() {
-  const seasonPlayers = await prisma.player.findMany({
-    where: { scheduleRegs: { some: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } } } },
-    select: {
-      id: true, name: true, position: true, school: true, birthYear: true,
-      scheduleRegs: {
-        where: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } },
-        select: { isMVP: true, isFairplay: true },
+  const [seasonPlayers, openPlayers] = await Promise.all([
+    prisma.player.findMany({
+      where: { scheduleRegs: { some: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } } } },
+      select: {
+        id: true, name: true, position: true, school: true, birthYear: true,
+        scheduleRegs: {
+          where: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } },
+          select: { isMVP: true, isFairplay: true },
+        },
+        votesReceived: {
+          where: { schedule: { type: "SEASON" } },
+          select: { voteType: true },
+        },
       },
-      votesReceived: {
-        where: { schedule: { type: "SEASON" } },
-        select: { voteType: true },
+    }),
+    prisma.player.findMany({
+      where: { scheduleRegs: { some: { schedule: { type: "ONEDAY" }, status: { not: "CANCELLED" } } } },
+      select: {
+        id: true, name: true, position: true, school: true, birthYear: true,
+        scheduleRegs: {
+          where: { schedule: { type: "ONEDAY" }, status: { not: "CANCELLED" } },
+          select: { isMVP: true, isFairplay: true },
+        },
+        votesReceived: {
+          where: { schedule: { type: "ONEDAY" } },
+          select: { voteType: true },
+        },
       },
-    },
-  });
-
-  const openPlayers = await prisma.player.findMany({
-    where: { scheduleRegs: { some: { schedule: { type: "ONEDAY" }, status: { not: "CANCELLED" } } } },
-    select: {
-      id: true, name: true, position: true, school: true, birthYear: true,
-      scheduleRegs: {
-        where: { schedule: { type: "ONEDAY" }, status: { not: "CANCELLED" } },
-        select: { isMVP: true, isFairplay: true },
-      },
-      votesReceived: {
-        where: { schedule: { type: "ONEDAY" } },
-        select: { voteType: true },
-      },
-    },
-  });
+    }),
+  ]);
 
   const buildRanking = (players: typeof seasonPlayers) =>
     players.map((p) => {
