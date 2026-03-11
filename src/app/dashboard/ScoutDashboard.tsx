@@ -69,13 +69,13 @@ export default function ScoutDashboard({
           className="bg-[#0d0d0d] border border-white/8 rounded-2xl p-5 hover:border-green-400/20 transition-all group text-center">
           <div className="text-2xl mb-2">👤</div>
           <div className="font-bold text-sm group-hover:text-green-400 transition-colors">선수 보기</div>
-          <div className="text-xs text-gray-600 mt-0.5">등록 선수 프로필 조회</div>
+          <div className="text-xs text-gray-600 mt-0.5">등록 선수<br />프로필 조회</div>
         </Link>
         <Link href="/videos"
           className="bg-[#0d0d0d] border border-white/8 rounded-2xl p-5 hover:border-green-400/20 transition-all group text-center">
           <div className="text-2xl mb-2">🎬</div>
           <div className="font-bold text-sm group-hover:text-green-400 transition-colors">선수 경기 영상</div>
-          <div className="text-xs text-gray-600 mt-0.5">경기 영상 확인</div>
+          <div className="text-xs text-gray-600 mt-0.5">경기 영상</div>
         </Link>
         <button
           onClick={() => document.getElementById("offers-section")?.scrollIntoView({ behavior: "smooth" })}
