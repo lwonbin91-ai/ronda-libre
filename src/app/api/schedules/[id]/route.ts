@@ -81,7 +81,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const schedule = await prisma.matchSchedule.update({
       where: { id },
       data: {
-        ...(data.status && { status: data.status }),
+        ...(data.status && {
+          status: data.status,
+          ...(data.status === "ENDED" && { endedAt: new Date() }),
+        }),
         ...(data.videoUrl !== undefined && { videoUrl: data.videoUrl }),
         ...(data.videoTitle !== undefined && { videoTitle: data.videoTitle }),
         ...(data.title && { title: data.title }),

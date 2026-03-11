@@ -207,6 +207,7 @@ model MatchSchedule {
   seasonId         String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  endedAt          DateTime?
 
   season        Season?                @relation(fields: [seasonId], references: [id])
   registrations ScheduleRegistration[]

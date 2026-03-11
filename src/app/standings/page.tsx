@@ -1,10 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import StandingsTabs from "./StandingsTabs";
+import { finalizeExpiredMatches } from "@/lib/voteAggregation";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function StandingsPage() {
+  // 24시간 경과 경기 자동 처리 (백그라운드)
+  finalizeExpiredMatches().catch(() => {});
+
   const [seasonPlayers, openPlayers] = await Promise.all([
     prisma.player.findMany({
       where: { scheduleRegs: { some: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } } } },

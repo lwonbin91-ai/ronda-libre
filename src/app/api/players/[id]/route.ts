@@ -4,9 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { finalizeExpiredMatches } from "@/lib/voteAggregation";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  // 24시간 경과 경기 자동 처리 (백그라운드)
+  finalizeExpiredMatches().catch(() => {});
   try {
     const session = await getServerSession(authOptions);
     const user = session?.user as { id: string } | undefined;

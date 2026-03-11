@@ -1,66 +1,11 @@
+import { tryAggregateVotes } from "@/lib/voteAggregation";
+
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-async function runVoteAggregation(scheduleId: string) {
-  const regs = await prisma.scheduleRegistration.findMany({
-    where: { scheduleId, status: { not: "CANCELLED" } },
-    select: { id: true, playerId: true, teamLabel: true },
-  });
-
-  const teamMap: Record<string, typeof regs> = {};
-  for (const r of regs) {
-    const key = r.teamLabel || "none";
-    if (!teamMap[key]) teamMap[key] = [];
-    teamMap[key].push(r);
-  }
-
-  for (const teamRegs of Object.values(teamMap)) {
-    const playerIds = teamRegs.map((r) => r.playerId);
-
-    const [mvpVotes, fairplayVotes] = await Promise.all([
-      prisma.playerVote.groupBy({
-        by: ["targetId"],
-        where: { scheduleId, targetId: { in: playerIds }, voteType: "MVP" },
-        _count: { targetId: true },
-        orderBy: { _count: { targetId: "desc" } },
-      }),
-      prisma.playerVote.groupBy({
-        by: ["targetId"],
-        where: { scheduleId, targetId: { in: playerIds }, voteType: "FAIRPLAY" },
-        _count: { targetId: true },
-        orderBy: { _count: { targetId: "desc" } },
-      }),
-    ]);
-
-    const topMvpCount = mvpVotes[0]?._count.targetId ?? 0;
-    const topFairplayCount = fairplayVotes[0]?._count.targetId ?? 0;
-
-    const topMvpPlayerIds = topMvpCount > 0
-      ? mvpVotes.filter((v) => v._count.targetId === topMvpCount).map((v) => v.targetId)
-      : [];
-    const topFairplayPlayerIds = topFairplayCount > 0
-      ? fairplayVotes.filter((v) => v._count.targetId === topFairplayCount).map((v) => v.targetId)
-      : [];
-
-    await prisma.scheduleRegistration.updateMany({
-      where: { id: { in: teamRegs.map((r) => r.id) } },
-      data: { isMVP: false, isFairplay: false },
-    });
-
-    for (const playerId of topMvpPlayerIds) {
-      const reg = teamRegs.find((r) => r.playerId === playerId);
-      if (reg) await prisma.scheduleRegistration.update({ where: { id: reg.id }, data: { isMVP: true } });
-    }
-    for (const playerId of topFairplayPlayerIds) {
-      const reg = teamRegs.find((r) => r.playerId === playerId);
-      if (reg) await prisma.scheduleRegistration.update({ where: { id: reg.id }, data: { isFairplay: true } });
-    }
-  }
-}
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: scheduleId } = await params;
@@ -104,12 +49,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       });
     }
 
-    return NextResponse.json({
-      myPlayerId: myPlayer.id,
-      myTeam,
-      teamGroups,
-      myVotes,
-    });
+    return NextResponse.json({ myPlayerId: myPlayer.id, myTeam, teamGroups, myVotes });
   } catch (e) {
     console.error("vote GET error:", e);
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
@@ -143,12 +83,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     }
 
     const [myReg, targetReg] = await Promise.all([
-      prisma.scheduleRegistration.findUnique({
-        where: { scheduleId_playerId: { scheduleId, playerId: myPlayer.id } },
-      }),
-      prisma.scheduleRegistration.findUnique({
-        where: { scheduleId_playerId: { scheduleId, playerId: targetId } },
-      }),
+      prisma.scheduleRegistration.findUnique({ where: { scheduleId_playerId: { scheduleId, playerId: myPlayer.id } } }),
+      prisma.scheduleRegistration.findUnique({ where: { scheduleId_playerId: { scheduleId, playerId: targetId } } }),
     ]);
 
     if (!myReg || myReg.status === "CANCELLED") {
@@ -157,14 +93,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!targetReg || targetReg.status === "CANCELLED") {
       return NextResponse.json({ error: "해당 선수는 이 경기 참가자가 아닙니다." }, { status: 400 });
     }
-
     if (myReg.teamLabel && targetReg.teamLabel && myReg.teamLabel !== targetReg.teamLabel) {
       return NextResponse.json({ error: "같은 팀 선수에게만 투표할 수 있습니다." }, { status: 400 });
     }
 
-    const otherVoteType = voteType === "MVP" ? "FAIRPLAY" : "MVP";
     const conflictVote = await prisma.playerVote.findFirst({
-      where: { scheduleId, voterId: myPlayer.id, targetId, voteType: otherVoteType },
+      where: { scheduleId, voterId: myPlayer.id, targetId, voteType: voteType === "MVP" ? "FAIRPLAY" : "MVP" },
     });
     if (conflictVote) {
       return NextResponse.json({ error: "같은 선수에게 MVP와 페어플레이를 동시에 줄 수 없습니다." }, { status: 400 });
@@ -176,7 +110,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       update: { targetId },
     });
 
-    await runVoteAggregation(scheduleId);
+    // 전원 투표 완료 여부 확인 후 조건 충족 시에만 집계
+    await tryAggregateVotes(scheduleId);
 
     return NextResponse.json(vote);
   } catch (e) {
