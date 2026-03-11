@@ -18,7 +18,7 @@ interface Player {
     id: string;
     status: string;
     isGK: boolean;
-    schedule: { id: string; title: string; type: string; scheduledAt: string };
+    schedule: { id: string; title: string; type: string; scheduledAt: string; location?: string | null };
     team: { name: string; color: string | null } | null;
   }>;
   offersReceived: Array<{
@@ -109,6 +109,15 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
     router.refresh();
   };
 
+  const [activePanel, setActivePanel] = useState<"open" | "offers" | null>(null);
+
+  const openRegs = confirmedRegs.filter((r) => r.schedule?.type === "ONEDAY");
+  const allOffers = players.flatMap((p) => p.offersReceived || []);
+
+  const togglePanel = (panel: "open" | "offers") => {
+    setActivePanel((prev) => (prev === panel ? null : panel));
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
       <div className="flex items-center justify-between mb-10">
@@ -139,16 +148,91 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
           </div>
         )}
         {[
-          { label: "시즌 확정", value: seasonConfirmed },
-          { label: "오픈 확정", value: openConfirmed },
-          { label: "입단 제의", value: pendingOffers },
+          { label: "시즌 확정", value: seasonConfirmed, panel: null as null },
+          { label: "오픈 확정", value: openConfirmed, panel: "open" as const },
+          { label: "입단 제의", value: pendingOffers, panel: "offers" as const },
         ].map((s) => (
-          <div key={s.label} className="bg-gray-900 rounded-2xl p-6 text-center">
-            <div className="text-3xl font-black text-green-400">{s.value}</div>
-            <div className="text-sm text-gray-500 mt-1">{s.label}</div>
-          </div>
+          s.panel ? (
+            <button key={s.label} onClick={() => togglePanel(s.panel!)}
+              className={`bg-gray-900 rounded-2xl p-6 text-center w-full hover:bg-gray-800 hover:ring-1 hover:ring-green-400/30 transition-all ${activePanel === s.panel ? "ring-1 ring-green-400/40" : ""}`}>
+              <div className="text-3xl font-black text-green-400">{s.value}</div>
+              <div className="text-sm text-gray-500 mt-1">{s.label}</div>
+            </button>
+          ) : (
+            <div key={s.label} className="bg-gray-900 rounded-2xl p-6 text-center">
+              <div className="text-3xl font-black text-green-400">{s.value}</div>
+              <div className="text-sm text-gray-500 mt-1">{s.label}</div>
+            </div>
+          )
         ))}
       </div>
+
+      {/* 오픈 확정 경기 패널 */}
+      {activePanel === "open" && (
+        <div className="bg-gray-900 border border-white/8 rounded-2xl p-6 mb-6">
+          <p className="text-sm font-bold text-gray-400 mb-4">오픈 확정 경기</p>
+          {openRegs.length === 0 ? (
+            <p className="text-sm text-gray-600">확정된 오픈 매칭이 없습니다.</p>
+          ) : (
+            <div className="space-y-3">
+              {openRegs.map((r) => {
+                const d = new Date(r.schedule.scheduledAt);
+                return (
+                  <Link key={r.id} href={`/matches/${r.schedule.id}`}
+                    className="flex items-center gap-4 bg-white/[0.02] border border-white/6 rounded-xl p-4 hover:border-green-400/25 transition-colors">
+                    <div className="shrink-0 w-12 text-center">
+                      <div className="text-xl font-black text-green-400">
+                        {new Intl.DateTimeFormat("ko-KR", { day: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("일", "")}
+                      </div>
+                      <div className="text-[10px] text-gray-600">
+                        {new Intl.DateTimeFormat("ko-KR", { month: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("월", "")}월
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate">{r.schedule.title}</p>
+                      <p className="text-xs text-gray-600 mt-0.5">
+                        {d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}
+                        {r.schedule.location && ` · ${r.schedule.location}`}
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-400/25 text-green-400 bg-green-400/5 shrink-0">확정</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 입단 제의 패널 */}
+      {activePanel === "offers" && (
+        <div className="bg-gray-900 border border-white/8 rounded-2xl p-6 mb-6">
+          <p className="text-sm font-bold text-gray-400 mb-4">입단 제의</p>
+          {allOffers.length === 0 ? (
+            <p className="text-sm text-gray-600">받은 입단 제의가 없습니다.</p>
+          ) : (
+            <div className="space-y-3">
+              {allOffers.map((offer) => (
+                <div key={offer.id} className="bg-white/[0.02] border border-white/6 rounded-xl p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-bold text-sm">{offer.clubName}</p>
+                      <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">{offer.message}</p>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 ${
+                      offer.status === "ACCEPTED" ? "border-green-400/25 text-green-400 bg-green-400/5"
+                      : offer.status === "REJECTED" ? "border-red-400/25 text-red-400"
+                      : "border-yellow-400/25 text-yellow-400"
+                    }`}>
+                      {offer.status === "ACCEPTED" ? "수락" : offer.status === "REJECTED" ? "거절" : "대기 중"}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {pendingOffers > 0 && (
         <div className="bg-green-400/10 border border-green-400/30 rounded-2xl p-4 mb-8 flex items-center justify-between">

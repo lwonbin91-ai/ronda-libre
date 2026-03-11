@@ -53,8 +53,8 @@ export default function CalendarPage() {
     const date = new Date(reg.schedule.scheduledAt);
     const isPast = date < now;
     return (
-      <div className={`flex gap-4 p-4 rounded-2xl border transition-all ${
-        isPast ? "bg-black/20 border-white/4 opacity-60" : "bg-[#0d0d0d] border-white/8"
+      <Link href={`/matches/${reg.schedule.id}`} className={`flex gap-4 p-4 rounded-2xl border transition-all ${
+        isPast ? "bg-black/20 border-white/4 opacity-60" : "bg-[#0d0d0d] border-white/8 hover:border-green-400/25 hover:bg-white/[0.03]"
       }`}>
         <div className="text-center shrink-0 w-14">
           <div className="text-2xl font-black text-green-400">
@@ -87,7 +87,7 @@ export default function CalendarPage() {
             {reg.team ? ` · ${reg.team.name}` : ""}
           </p>
         </div>
-      </div>
+      </Link>
     );
   };
 
