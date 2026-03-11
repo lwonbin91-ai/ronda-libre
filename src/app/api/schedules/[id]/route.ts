@@ -39,8 +39,20 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
       POSITION_LIMITS = { GK: 1, DF: 4, MF: 3, FW: 3 };
     }
     const positionCounts: Record<string, number> = { GK: 0, DF: 0, MF: 0, FW: 0 };
+    const posMap: Record<string, string> = {
+      골키퍼: "GK", gk: "GK",
+      수비수: "DF", df: "DF",
+      미드필더: "MF", mf: "MF",
+      공격수: "FW", fw: "FW",
+    };
     for (const r of schedule.registrations) {
-      const p = r.isGK ? "GK" : r.player?.position?.toUpperCase();
+      let p: string | undefined;
+      if (r.isGK) {
+        p = "GK";
+      } else {
+        const raw = r.player?.position || "";
+        p = posMap[raw] ?? posMap[raw.toLowerCase()] ?? (["GK","DF","MF","FW"].includes(raw.toUpperCase()) ? raw.toUpperCase() : undefined);
+      }
       if (p && p in positionCounts) positionCounts[p]++;
     }
     const positionStatus = Object.fromEntries(
