@@ -28,12 +28,18 @@ interface Player {
 export default function PlayersSearch({ players }: { players: Player[] }) {
   const [search, setSearch] = useState("");
 
-  const filtered = players.filter(
+  const filtered = players
+    .filter(
     (p) =>
       p.name.includes(search) ||
       p.school.includes(search) ||
       (p.position || "").includes(search)
-  );
+  )
+  .sort((a, b) => {
+    const countA = a.scheduleRegs.filter((r) => r.status === "CONFIRMED").length;
+    const countB = b.scheduleRegs.filter((r) => r.status === "CONFIRMED").length;
+    return countB - countA;
+  });
 
   return (
     <>
