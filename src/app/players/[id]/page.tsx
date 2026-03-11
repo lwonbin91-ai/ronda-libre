@@ -352,30 +352,30 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                     {new Intl.DateTimeFormat("ko-KR", { day: "numeric", timeZone: "Asia/Seoul" }).format(d).replace("일", "")}일
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex flex-col gap-1 mb-0.5">
+                    <div className="flex flex-col gap-0.5 mb-0.5">
+                      {/* 1줄: 오픈 매칭 */}
                       <div className="flex items-center gap-1">
                         <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-blue-400 border-blue-400/25 bg-blue-400/8 whitespace-nowrap">오픈 매칭</span>
                       </div>
-                      <div className="flex items-center gap-1 sm:hidden">
+                      {/* 2줄: 경기끝/확정 */}
+                      <div className="flex items-center gap-1">
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border whitespace-nowrap ${r.schedule.status === "ENDED" ? "text-purple-400 border-purple-400/20 bg-purple-400/8" : "text-green-400 border-green-400/20 bg-green-400/8"}`}>
                           {r.schedule.status === "ENDED" ? "경기끝" : "확정"}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 flex-wrap">
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border whitespace-nowrap hidden sm:inline-flex ${r.schedule.status === "ENDED" ? "text-purple-400 border-purple-400/20 bg-purple-400/8" : "text-green-400 border-green-400/20 bg-green-400/8"}`}>
-                          {r.schedule.status === "ENDED" ? "경기끝" : "확정"}
-                        </span>
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border whitespace-nowrap ${r.teamLabel ? "text-orange-300 border-orange-400/30" : "text-gray-600 border-white/10"}`}>
+                      {/* 3줄: B팀, 등번호 */}
+                      <div className="flex items-center gap-1 flex-nowrap">
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${r.teamLabel ? "text-orange-300 border-orange-400/30" : "text-gray-600 border-white/10"}`}>
                           {r.teamLabel || "미배정"}
                         </span>
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border whitespace-nowrap ${r.jerseyNumber ? "text-blue-300 border-blue-400/30" : "text-gray-600 border-white/10"}`}>
-                          {r.jerseyNumber ? `등번호 : ${r.jerseyNumber}` : "번호미배정"}
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border whitespace-nowrap shrink-0 ${r.jerseyNumber ? "text-blue-300 border-blue-400/30" : "text-gray-600 border-white/10"}`}>
+                          {r.jerseyNumber ? `등번호:${r.jerseyNumber}` : "번호미배정"}
                         </span>
                         {r.isMVP && (
-                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-yellow-300 border-yellow-400/40 bg-yellow-400/10 whitespace-nowrap">⭐ MVP</span>
+                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-yellow-300 border-yellow-400/40 bg-yellow-400/10 whitespace-nowrap shrink-0">⭐ MVP</span>
                         )}
                         {r.isFairplay && (
-                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-blue-300 border-blue-400/40 bg-blue-400/10 whitespace-nowrap">🤝 페어플레이</span>
+                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full border text-blue-300 border-blue-400/40 bg-blue-400/10 whitespace-nowrap shrink-0">🤝 페어플레이</span>
                         )}
                       </div>
                     </div>
