@@ -14,10 +14,6 @@ export default async function StandingsPage() {
           where: { schedule: { type: "SEASON" }, status: { not: "CANCELLED" } },
           select: { isMVP: true, isFairplay: true },
         },
-        votesReceived: {
-          where: { schedule: { type: "SEASON" } },
-          select: { voteType: true },
-        },
       },
     }),
     prisma.player.findMany({
@@ -28,26 +24,19 @@ export default async function StandingsPage() {
           where: { schedule: { type: "ONEDAY" }, status: { not: "CANCELLED" } },
           select: { isMVP: true, isFairplay: true },
         },
-        votesReceived: {
-          where: { schedule: { type: "ONEDAY" } },
-          select: { voteType: true },
-        },
       },
     }),
   ]);
 
   const buildRanking = (players: typeof seasonPlayers) =>
     players.map((p) => {
-      const mvpVotes = p.votesReceived.filter((v) => v.voteType === "MVP").length;
-      const fairplayVotes = p.votesReceived.filter((v) => v.voteType === "FAIRPLAY").length;
-      const mvpAward = p.scheduleRegs.filter((r) => r.isMVP).length;
-      const fairplayAward = p.scheduleRegs.filter((r) => r.isFairplay).length;
-      const totalMVP = mvpVotes + mvpAward;
-      const totalFairplay = fairplayVotes + fairplayAward;
+      const mvp = p.scheduleRegs.filter((r) => r.isMVP).length;
+      const fairplay = p.scheduleRegs.filter((r) => r.isFairplay).length;
+      const games = p.scheduleRegs.length;
       return {
         id: p.id, name: p.name, position: p.position, school: p.school, birthYear: p.birthYear,
-        mvp: totalMVP, fairplay: totalFairplay, games: p.scheduleRegs.length,
-        score: totalMVP * 3 + totalFairplay * 2 + p.scheduleRegs.length,
+        mvp, fairplay, games,
+        score: mvp * 3 + fairplay * 2 + games,
       };
     })
     .filter((p) => p.games > 0)
@@ -60,4 +49,3 @@ export default async function StandingsPage() {
     />
   );
 }
-
