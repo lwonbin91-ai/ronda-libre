@@ -98,13 +98,16 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
   const [votePopupScheduleId, setVotePopupScheduleId] = useState<string | null>(null);
 
   useEffect(() => {
-    const allRegs = players.flatMap((p) => p.scheduleRegs || []);
     const votesGiven = players.flatMap((p) => p.votesGiven || []);
+    // 모든 ENDED 경기 중 투표 미완료인 것을 찾음 (중복 scheduleId 제거)
+    const seenIds = new Set<string>();
+    const allRegs = players.flatMap((p) => p.scheduleRegs || []);
     const pendingVote = allRegs.find((r) => {
       if (r.schedule.status !== "ENDED") return false;
+      if (seenIds.has(r.schedule.id)) return false;
+      seenIds.add(r.schedule.id);
       const done = votesGiven.filter((v) => v.scheduleId === r.schedule.id);
-      const fullyVoted = done.some((v) => v.voteType === "MVP") && done.some((v) => v.voteType === "FAIRPLAY");
-      return !fullyVoted;
+      return !(done.some((v) => v.voteType === "MVP") && done.some((v) => v.voteType === "FAIRPLAY"));
     });
     if (pendingVote) setVotePopupScheduleId(pendingVote.schedule.id);
   }, [players]);

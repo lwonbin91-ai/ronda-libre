@@ -60,6 +60,12 @@ export default function VotePage({ params }: { params: Promise<{ scheduleId: str
 
   const vote = async (targetId: string, voteType: "MVP" | "FAIRPLAY") => {
     setError("");
+    // 낙관적 업데이트 - 즉시 UI 반영
+    const tempId = `temp-${Date.now()}`;
+    setMyVotes((prev) => {
+      const filtered = prev.filter((v) => v.voteType !== voteType);
+      return [...filtered, { id: tempId, voteType, targetId }];
+    });
     setSubmitting(true);
     const res = await fetch(`/api/schedules/${scheduleId}/vote`, {
       method: "POST",
@@ -69,11 +75,11 @@ export default function VotePage({ params }: { params: Promise<{ scheduleId: str
     const data = await res.json();
     setSubmitting(false);
     if (res.ok) {
-      setMyVotes((prev) => {
-        const filtered = prev.filter((v) => v.voteType !== voteType);
-        return [...filtered, data];
-      });
+      // 서버 응답으로 교체
+      setMyVotes((prev) => prev.map((v) => v.id === tempId ? data : v));
     } else {
+      // 실패 시 롤백
+      setMyVotes((prev) => prev.filter((v) => v.id !== tempId));
       setError(data.error || "오류 발생");
     }
   };
