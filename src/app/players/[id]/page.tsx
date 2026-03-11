@@ -391,16 +391,16 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
         )}
 
         {/* 등급 뱃지 */}
-        <div className="flex gap-3 mt-4 flex-wrap">
+        <div className="flex gap-3 mt-4">
           {[
             { label: "시즌 리그", ...seasonGrade },
             { label: "오픈 매칭", ...openGrade },
           ].map((g) => (
-            <div key={g.label} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border ${g.grade.bg} ${g.grade.border}`}>
-              <span className="text-xl">{g.grade.emoji}</span>
-              <div>
-                <div className={`font-black text-sm ${g.grade.color}`}>{g.grade.name}</div>
-                <div className="text-[10px] text-gray-600">{g.label} · {g.score}점</div>
+            <div key={g.label} className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border flex-1 min-w-0 ${g.grade.bg} ${g.grade.border}`}>
+              <span className="text-xl shrink-0">{g.grade.emoji}</span>
+              <div className="min-w-0">
+                <div className={`font-black text-sm truncate ${g.grade.color}`}>{g.grade.name}</div>
+                <div className="text-[10px] text-gray-600 truncate">{g.label} · {g.score}점</div>
               </div>
             </div>
           ))}
