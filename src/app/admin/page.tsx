@@ -96,6 +96,7 @@ interface ScheduleReg {
   isMVP: boolean;
   isFairplay: boolean;
   teamLabel?: string;
+  jerseyNumber?: string;
   goals: number;
   assists: number;
   fee: number;
@@ -230,13 +231,26 @@ export default function AdminPage() {
 
   const assignTeam = async (regId: string, scheduleId: string, teamLabel: string) => {
     setAssigningTeam((prev) => ({ ...prev, [regId]: teamLabel }));
-    await fetch(`/api/registrations/${regId}`, {
+    const res = await fetch(`/api/registrations/${regId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ teamLabel }),
     });
-    setRegs((prev) => prev.map((r) => r.id === regId ? { ...r, teamLabel } : r));
+    if (res.ok) {
+      setRegs((prev) => prev.map((r) => r.id === regId ? { ...r, teamLabel } : r));
+    }
     setAssigningTeam((prev) => { const n = { ...prev }; delete n[regId]; return n; });
+  };
+
+  const assignJersey = async (regId: string, jerseyNumber: string) => {
+    const res = await fetch(`/api/registrations/${regId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jerseyNumber }),
+    });
+    if (res.ok) {
+      setRegs((prev) => prev.map((r) => r.id === regId ? { ...r, jerseyNumber } : r));
+    }
   };
 
   /* video form */
@@ -1037,6 +1051,24 @@ export default function AdminPage() {
                                   {label}
                                 </button>
                               ))}
+                            </div>
+                            {/* 등번호 배정 */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-gray-500 font-bold shrink-0">등번호:</span>
+                              <input
+                                type="number"
+                                min={1} max={99}
+                                defaultValue={reg.jerseyNumber || ""}
+                                placeholder="번호"
+                                className="w-16 bg-black border border-white/10 rounded-lg px-2 py-1 text-xs text-white text-center focus:outline-none focus:border-blue-400"
+                                onBlur={(e) => {
+                                  const val = e.target.value.trim();
+                                  if (val !== (reg.jerseyNumber || "")) assignJersey(reg.id, val);
+                                }}
+                              />
+                              {reg.jerseyNumber && (
+                                <span className="text-[10px] text-blue-400 font-bold">#{reg.jerseyNumber}</span>
+                              )}
                             </div>
                             {/* MVP/페어플레이 안내 */}
                             <p className="text-[10px] text-gray-700">⭐ MVP · 🤝 페어플레이는 경기 후 선수 투표로 진행됩니다.</p>

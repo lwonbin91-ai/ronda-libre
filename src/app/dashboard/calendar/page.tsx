@@ -9,6 +9,7 @@ interface Reg {
   id: string;
   status: string;
   teamLabel?: string | null;
+  jerseyNumber?: string | null;
   schedule: {
     id: string;
     title: string;
@@ -81,13 +82,22 @@ export default function CalendarPage() {
                 : "text-yellow-400 border-yellow-400/20 bg-yellow-400/8"
             }`}>{reg.status === "CONFIRMED" ? "확정" : "대기"}</span>
             {reg.status === "CONFIRMED" && (
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                reg.teamLabel
-                  ? "text-orange-300 border-orange-400/30 bg-orange-400/8"
-                  : "text-gray-500 border-white/10"
-              }`}>
-                {reg.teamLabel || "미배정"}
-              </span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  reg.teamLabel
+                    ? "text-orange-300 border-orange-400/30 bg-orange-400/8"
+                    : "text-gray-500 border-white/10"
+                }`}>
+                  {reg.teamLabel || "미배정"}
+                </span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  reg.jerseyNumber
+                    ? "text-blue-300 border-blue-400/30 bg-blue-400/8"
+                    : "text-gray-500 border-white/10"
+                }`}>
+                  {reg.jerseyNumber ? `#${reg.jerseyNumber}` : "번호미배정"}
+                </span>
+              </div>
             )}
           </div>
           <p className="font-bold text-sm">{reg.schedule.title}</p>

@@ -21,7 +21,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       data.paidAt = body.status === "CONFIRMED" ? new Date() : null;
     }
     if (body.teamLabel !== undefined) data.teamLabel = body.teamLabel || null;
-    const reg = await prisma.registration.update({ where: { id }, data });
+    if (body.jerseyNumber !== undefined) data.jerseyNumber = body.jerseyNumber || null;
+    const reg = await prisma.scheduleRegistration.update({ where: { id }, data });
     return NextResponse.json(reg);
   } catch {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });

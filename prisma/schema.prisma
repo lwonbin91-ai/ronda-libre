@@ -233,6 +233,7 @@ model ScheduleRegistration {
   isMVP      Boolean  @default(false)
   isFairplay Boolean  @default(false)
   teamLabel  String?
+  jerseyNumber String?
   goals      Int      @default(0)
   assists    Int      @default(0)
   fee        Int      @default(0)
