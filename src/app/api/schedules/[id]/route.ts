@@ -105,7 +105,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ...(data.gradeLevel !== undefined && { gradeLevel: data.gradeLevel }),
       },
     });
-    revalidateTag("schedules-list");
+    revalidateTag("schedules-list", "default");
     return NextResponse.json(schedule);
   } catch {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
@@ -122,7 +122,7 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
   try {
     await prisma.scheduleRegistration.deleteMany({ where: { scheduleId: id } });
     await prisma.matchSchedule.delete({ where: { id } });
-    revalidateTag("schedules-list");
+    revalidateTag("schedules-list", "default");
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });

@@ -151,8 +151,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const reg = await prisma.scheduleRegistration.create({
       data: { scheduleId, playerId, teamId: teamId || null, isGK, fee, status: (isGK || fee === 0) ? "CONFIRMED" : "PENDING" },
     });
-    revalidateTag("schedules-list");
-    revalidateTag("players-list");
+    revalidateTag("schedules-list", "default");
+    revalidateTag("players-list", "default");
 
     return NextResponse.json({ ...reg, isGKFree: isGK });
   } catch {

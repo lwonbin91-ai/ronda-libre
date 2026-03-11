@@ -26,11 +26,11 @@ export const getCachedSchedules = unstable_cache(
       orderBy: { scheduledAt: "asc" },
       select: {
         id: true, title: true, type: true, level: true, gameFormat: true,
-        location: true, scheduledAt: true, endTime: true, maxPlayers: true,
-        status: true, isOpen: true, gradeLimit: true,
+        location: true, scheduledAt: true, maxPlayers: true,
+        status: true, gradeLevel: true,
         registrations: {
           where: { status: { not: "CANCELLED" } },
-          select: { id: true, position: true, playerId: true, status: true },
+          select: { id: true, playerId: true, status: true },
         },
       },
     }),

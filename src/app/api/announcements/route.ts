@@ -24,6 +24,6 @@ export async function POST(req: NextRequest) {
     data: { title, content, isPinned: !!isPinned, authorId: user.id },
     include: { author: { select: { name: true } } },
   });
-  revalidateTag("announcements");
+  revalidateTag("announcements", "default");
   return NextResponse.json(a);
 }

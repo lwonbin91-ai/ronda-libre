@@ -113,8 +113,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // 전원 투표 완료 여부 확인 후 조건 충족 시에만 집계
     await tryAggregateVotes(scheduleId);
-    revalidateTag("standings");
-    revalidateTag("players-list");
+    revalidateTag("standings", "default");
+    revalidateTag("players-list", "default");
 
     return NextResponse.json(vote);
   } catch (e) {

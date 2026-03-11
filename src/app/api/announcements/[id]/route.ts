@@ -14,7 +14,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const data = await req.json();
   const a = await prisma.announcement.update({ where: { id }, data });
-  revalidateTag("announcements");
+  revalidateTag("announcements", "default");
   return NextResponse.json(a);
 }
 
@@ -25,6 +25,6 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
   if (!user || user.role !== "ADMIN") return NextResponse.json({ error: "권한 없음" }, { status: 403 });
 
   await prisma.announcement.delete({ where: { id } });
-  revalidateTag("announcements");
+  revalidateTag("announcements", "default");
   return NextResponse.json({ ok: true });
 }

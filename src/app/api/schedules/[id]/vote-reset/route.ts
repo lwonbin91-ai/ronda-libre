@@ -23,8 +23,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       }),
     ]);
 
-    revalidateTag("standings");
-    revalidateTag("players-list");
+    revalidateTag("standings", "default");
+    revalidateTag("players-list", "default");
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error(e);

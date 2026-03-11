@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       },
       include: { _count: { select: { registrations: true } } },
     });
-    revalidateTag("schedules-list");
+    revalidateTag("schedules-list", "default");
     return NextResponse.json(schedule);
   } catch {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
