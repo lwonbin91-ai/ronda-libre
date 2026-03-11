@@ -32,7 +32,7 @@ export default function VotePage({ params }: { params: Promise<{ scheduleId: str
   const [myVotes, setMyVotes] = useState<MyVote[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [submittingType, setSubmittingType] = useState<"MVP" | "FAIRPLAY" | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
@@ -63,20 +63,21 @@ export default function VotePage({ params }: { params: Promise<{ scheduleId: str
   }, [session, scheduleId]);
 
   const vote = async (targetId: string, voteType: "MVP" | "FAIRPLAY") => {
+    if (submittingType === voteType) return;
     setError("");
     const tempId = `temp-${Date.now()}`;
     setMyVotes((prev) => {
       const filtered = prev.filter((v) => v.voteType !== voteType);
       return [...filtered, { id: tempId, voteType, targetId }];
     });
-    setSubmitting(true);
+    setSubmittingType(voteType);
     const res = await fetch(`/api/schedules/${scheduleId}/vote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ targetId, voteType }),
     });
     const data = await res.json();
-    setSubmitting(false);
+    setSubmittingType(null);
     if (res.ok) {
       setMyVotes((prev) => {
         const updated = prev.map((v) => v.id === tempId ? data : v);
@@ -191,7 +192,7 @@ export default function VotePage({ params }: { params: Promise<{ scheduleId: str
                     <div className="flex gap-2">
                       <button
                         onClick={() => vote(p.id, "MVP")}
-                        disabled={submitting || (!!mvpVote && !isMyMvp)}
+                        disabled={submittingType === "MVP" || (!!mvpVote && !isMyMvp)}
                         className={`flex-1 py-2.5 rounded-xl border text-sm font-black transition-colors ${
                           isMyMvp
                             ? "bg-yellow-400/15 border-yellow-400/40 text-yellow-300"
@@ -204,7 +205,7 @@ export default function VotePage({ params }: { params: Promise<{ scheduleId: str
                       </button>
                       <button
                         onClick={() => vote(p.id, "FAIRPLAY")}
-                        disabled={submitting || isMyMvp || (!!fairplayVote && !isMyFairplay)}
+                        disabled={submittingType === "FAIRPLAY" || isMyMvp || (!!fairplayVote && !isMyFairplay)}
                         className={`flex-1 py-2.5 rounded-xl border text-sm font-black transition-colors ${
                           isMyFairplay
                             ? "bg-blue-400/15 border-blue-400/40 text-blue-300"
