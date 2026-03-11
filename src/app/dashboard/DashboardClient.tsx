@@ -55,9 +55,10 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
   const [editLoading, setEditLoading] = useState(false);
 
   const allRegs = players.flatMap((p) => p.scheduleRegs || []);
+  const activeRegs = allRegs.filter((r) => r.status !== "CANCELLED");
   const confirmedRegs = allRegs.filter((r) => r.status === "CONFIRMED");
-  const seasonConfirmed = confirmedRegs.filter((r) => r.schedule?.type === "SEASON").length;
-  const openConfirmed = confirmedRegs.filter((r) => r.schedule?.type === "ONEDAY").length;
+  const seasonConfirmed = activeRegs.filter((r) => r.schedule?.type === "SEASON").length;
+  const openConfirmed = activeRegs.filter((r) => r.schedule?.type === "ONEDAY").length;
   const pendingOffers = players.flatMap((p) => p.offersReceived || []).length;
 
   const startEdit = (player: Player) => {

@@ -14,9 +14,9 @@ export async function GET() {
   const myPlayer = await prisma.player.findFirst({ where: { userId: user.id } });
   if (!myPlayer) return NextResponse.json({ scheduleId: null });
 
-  // 내가 참여한 ENDED 경기 목록
+  // 내가 참여한 ENDED 경기 목록 (CONFIRMED만)
   const myRegs = await prisma.scheduleRegistration.findMany({
-    where: { playerId: myPlayer.id, status: { not: "CANCELLED" }, schedule: { status: "ENDED" } },
+    where: { playerId: myPlayer.id, status: "CONFIRMED", schedule: { status: "ENDED" } },
     select: { scheduleId: true },
   });
 
