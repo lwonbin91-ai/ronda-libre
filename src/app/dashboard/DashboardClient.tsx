@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -95,6 +95,19 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
   };
 
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [votePopupScheduleId, setVotePopupScheduleId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const allRegs = players.flatMap((p) => p.scheduleRegs || []);
+    const votesGiven = players.flatMap((p) => p.votesGiven || []);
+    const pendingVote = allRegs.find((r) => {
+      if (r.schedule.status !== "ENDED") return false;
+      const done = votesGiven.filter((v) => v.scheduleId === r.schedule.id);
+      const fullyVoted = done.some((v) => v.voteType === "MVP") && done.some((v) => v.voteType === "FAIRPLAY");
+      return !fullyVoted;
+    });
+    if (pendingVote) setVotePopupScheduleId(pendingVote.schedule.id);
+  }, [players]);
 
   const handleDeleteAccount = async () => {
     const res = await fetch("/api/users/me", { method: "DELETE" });
@@ -129,6 +142,36 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-12">
+
+      {/* 미투표 알림 팝업 */}
+      {votePopupScheduleId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
+          <div className="bg-[#111] border border-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl text-center">
+            <div className="text-4xl mb-4">🏆</div>
+            <h3 className="font-black text-lg mb-2">경기가 종료되었습니다.</h3>
+            <p className="text-gray-400 text-sm leading-relaxed mb-6">
+              MVP와 페어플레이 투표를 아직 완료하지 않았습니다.<br />
+              지금 투표를 진행해주세요.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setVotePopupScheduleId(null)}
+                className="flex-1 border border-white/10 text-gray-500 py-2.5 rounded-xl text-sm font-bold hover:border-white/20 transition-colors"
+              >
+                나중에
+              </button>
+              <Link
+                href={`/dashboard/vote/${votePopupScheduleId}`}
+                onClick={() => setVotePopupScheduleId(null)}
+                className="flex-1 bg-purple-500 text-white py-2.5 rounded-xl text-sm font-black hover:bg-purple-400 transition-colors"
+              >
+                투표하기
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-10">
         <div>
           <h1 className="text-3xl font-black">{userName}님의 대시보드</h1>
