@@ -109,7 +109,11 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
       const done = votesGiven.filter((v) => v.scheduleId === r.schedule.id);
       return !(done.some((v) => v.voteType === "MVP") && done.some((v) => v.voteType === "FAIRPLAY"));
     });
-    if (pendingVote) setVotePopupScheduleId(pendingVote.schedule.id);
+    if (pendingVote) {
+      setVotePopupScheduleId(pendingVote.schedule.id);
+    } else {
+      setVotePopupScheduleId(null);
+    }
   }, [players]);
 
   const handleDeleteAccount = async () => {
