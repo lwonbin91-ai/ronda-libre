@@ -76,7 +76,16 @@ export default function VotePage({ params }: { params: Promise<{ scheduleId: str
     setSubmitting(false);
     if (res.ok) {
       // 서버 응답으로 교체
-      setMyVotes((prev) => prev.map((v) => v.id === tempId ? data : v));
+      setMyVotes((prev) => {
+        const updated = prev.map((v) => v.id === tempId ? data : v);
+        // MVP + FAIRPLAY 모두 완료 시 대시보드 캐시 갱신 예약
+        const hasMvp = updated.some((v) => v.voteType === "MVP");
+        const hasFp = updated.some((v) => v.voteType === "FAIRPLAY");
+        if (hasMvp && hasFp) {
+          router.refresh();
+        }
+        return updated;
+      });
     } else {
       // 실패 시 롤백
       setMyVotes((prev) => prev.filter((v) => v.id !== tempId));

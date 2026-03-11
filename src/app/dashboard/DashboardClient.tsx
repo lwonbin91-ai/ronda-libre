@@ -98,22 +98,43 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
   const [votePopupScheduleId, setVotePopupScheduleId] = useState<string | null>(null);
 
   useEffect(() => {
-    const votesGiven = players.flatMap((p) => p.votesGiven || []);
-    // 모든 ENDED 경기 중 투표 미완료인 것을 찾음 (중복 scheduleId 제거)
-    const seenIds = new Set<string>();
     const allRegs = players.flatMap((p) => p.scheduleRegs || []);
-    const pendingVote = allRegs.find((r) => {
-      if (r.schedule.status !== "ENDED") return false;
-      if (seenIds.has(r.schedule.id)) return false;
-      seenIds.add(r.schedule.id);
-      const done = votesGiven.filter((v) => v.scheduleId === r.schedule.id);
-      return !(done.some((v) => v.voteType === "MVP") && done.some((v) => v.voteType === "FAIRPLAY"));
+    const seenIds = new Set<string>();
+    const endedScheduleIds: string[] = [];
+    allRegs.forEach((r) => {
+      if (r.schedule.status === "ENDED" && !seenIds.has(r.schedule.id)) {
+        seenIds.add(r.schedule.id);
+        endedScheduleIds.push(r.schedule.id);
+      }
     });
-    if (pendingVote) {
-      setVotePopupScheduleId(pendingVote.schedule.id);
-    } else {
+
+    if (endedScheduleIds.length === 0) {
       setVotePopupScheduleId(null);
+      return;
     }
+
+    // API에서 실시간 투표 상태 확인
+    const checkVotes = async () => {
+      for (const scheduleId of endedScheduleIds) {
+        try {
+          const res = await fetch(`/api/schedules/${scheduleId}/vote`);
+          if (!res.ok) continue;
+          const data = await res.json();
+          const myVotes: Array<{ voteType: string }> = data.myVotes || [];
+          const hasMvp = myVotes.some((v) => v.voteType === "MVP");
+          const hasFp = myVotes.some((v) => v.voteType === "FAIRPLAY");
+          if (!hasMvp || !hasFp) {
+            setVotePopupScheduleId(scheduleId);
+            return;
+          }
+        } catch {
+          // 무시
+        }
+      }
+      setVotePopupScheduleId(null);
+    };
+
+    checkVotes();
   }, [players]);
 
   const handleDeleteAccount = async () => {
