@@ -499,6 +499,16 @@ export default function AdminPage() {
     setSchedules(schedules.map((s) => s.id === id ? { ...s, status: "RECRUITING", recruitmentStart: null } : s));
   };
 
+  const resetVotes = async (id: string, title: string) => {
+    if (!confirm(`"${title}" 경기의 모든 투표를 초기화하시겠습니까?\n\n참가 선수들이 다시 MVP/페어플레이 투표를 진행할 수 있습니다.`)) return;
+    const res = await fetch(`/api/schedules/${id}/vote-reset`, { method: "DELETE" });
+    if (res.ok) {
+      alert("투표가 초기화되었습니다. 선수들이 재투표할 수 있습니다.");
+    } else {
+      alert("초기화 실패. 다시 시도해주세요.");
+    }
+  };
+
   const endSchedule = async (id: string, title: string) => {
     if (!confirm(`"${title}" 경기를 경기끝 상태로 변경하면 참가 선수들이 MVP/페어플레이 투표를 진행할 수 있습니다. 계속하시겠습니까?`)) return;
     await fetch(`/api/schedules/${id}`, {
@@ -817,6 +827,12 @@ export default function AdminPage() {
                           className="text-xs border border-white/10 text-gray-500 px-2.5 py-1.5 rounded-lg hover:border-red-400/30 hover:text-red-400 transition-colors">
                           삭제
                         </button>
+                        {s.status === "ENDED" && (
+                          <button onClick={() => resetVotes(s.id, s.title)}
+                            className="text-xs border border-red-400/30 text-red-400 px-2.5 py-1.5 rounded-lg hover:bg-red-400/10 transition-colors font-bold">
+                            투표 초기화
+                          </button>
+                        )}
                       </div>
                     </div>
 
