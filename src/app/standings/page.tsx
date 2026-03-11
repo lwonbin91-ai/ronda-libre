@@ -44,7 +44,8 @@ export default async function StandingsPage() {
       };
     })
     .filter((p) => p.games > 0)
-    .sort((a, b) => b.score - a.score || b.mvp - a.mvp || b.fairplay - a.fairplay);
+    .sort((a, b) => b.score - a.score || b.mvp - a.mvp || b.fairplay - a.fairplay)
+    .slice(0, 50);
 
   return (
     <StandingsTabs
