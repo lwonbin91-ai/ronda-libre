@@ -24,7 +24,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const [participants, myVotes] = await Promise.all([
       prisma.scheduleRegistration.findMany({
-        where: { scheduleId, status: "CONFIRMED" },
+        where: { scheduleId, status: { not: "CANCELLED" } },
         include: { player: { select: { id: true, name: true, position: true, school: true } } },
       }),
       prisma.playerVote.findMany({

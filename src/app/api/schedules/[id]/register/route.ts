@@ -126,7 +126,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const fee = isGK ? 0 : schedule.fee;
 
     const reg = await prisma.scheduleRegistration.create({
-      data: { scheduleId, playerId, teamId: teamId || null, isGK, fee, status: isGK ? "CONFIRMED" : "PENDING" },
+      data: { scheduleId, playerId, teamId: teamId || null, isGK, fee, status: (isGK || fee === 0) ? "CONFIRMED" : "PENDING" },
     });
 
     return NextResponse.json({ ...reg, isGKFree: isGK });
