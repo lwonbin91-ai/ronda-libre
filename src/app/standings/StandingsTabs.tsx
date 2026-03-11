@@ -67,7 +67,7 @@ export default function StandingsTabs({
   seasonRanking: RankEntry[];
   openRanking: RankEntry[];
 }) {
-  const [tab, setTab] = useState<"season" | "open">("season");
+  const [tab, setTab] = useState<"season" | "open">("open");
 
   return (
     <div className="min-h-screen bg-black text-white pt-24 pb-16">
