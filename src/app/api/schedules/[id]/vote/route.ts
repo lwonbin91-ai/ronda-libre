@@ -72,14 +72,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const myReg = await prisma.scheduleRegistration.findUnique({
       where: { scheduleId_playerId: { scheduleId, playerId: myPlayer.id } },
     });
-    if (!myReg || myReg.status !== "CONFIRMED") {
+    if (!myReg || myReg.status === "CANCELLED") {
       return NextResponse.json({ error: "이 경기 참가자만 투표할 수 있습니다." }, { status: 403 });
     }
 
     const targetReg = await prisma.scheduleRegistration.findUnique({
       where: { scheduleId_playerId: { scheduleId, playerId: targetId } },
     });
-    if (!targetReg || targetReg.status !== "CONFIRMED") {
+    if (!targetReg || targetReg.status === "CANCELLED") {
       return NextResponse.json({ error: "해당 선수는 이 경기 참가자가 아닙니다." }, { status: 400 });
     }
 
