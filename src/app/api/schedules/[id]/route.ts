@@ -86,6 +86,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         }),
         ...(data.level !== undefined && { level: data.level }),
         ...(data.gameFormat !== undefined && { gameFormat: data.gameFormat }),
+        ...(data.gradeLevel !== undefined && { gradeLevel: data.gradeLevel }),
       },
     });
     return NextResponse.json(schedule);

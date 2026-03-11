@@ -195,7 +195,7 @@ export default function AdminPage() {
       status: s.status,
       level: s.level || "ALL",
       gameFormat: s.gameFormat || "5v5",
-      gradeGroup: s.gradeGroup || "ALL",
+      gradeGroup: s.gradeLevel || "ALL",
     });
   };
 
@@ -204,6 +204,7 @@ export default function AdminPage() {
   const saveEditSchedule = async (id: string) => {
     const body = {
       ...editSf,
+      gradeLevel: editSf.gradeGroup,
       maxPlayers: parseInt(String(editSf.maxPlayers)),
       fee: parseInt(String(editSf.fee)),
       recruitmentStart: editSf.recruitmentStart ? toKST(editSf.recruitmentStart) : null,
@@ -218,7 +219,7 @@ export default function AdminPage() {
       const updated = await res.json();
       setSchedules((prev) => prev.map((s) =>
         s.id === id
-          ? { ...s, ...updated, level: updated.level ?? body.level, gameFormat: updated.gameFormat ?? body.gameFormat }
+          ? { ...s, ...updated, level: updated.level ?? body.level, gameFormat: updated.gameFormat ?? body.gameFormat, gradeGroup: updated.gradeLevel ?? body.gradeLevel }
           : s
       ));
       setEditingScheduleId(null);
