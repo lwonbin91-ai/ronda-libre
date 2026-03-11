@@ -38,8 +38,8 @@ export function calcGrade(regs: Reg[], type: "OPEN" | "SEASON"): { grade: GradeI
     (r) => r.status === "CONFIRMED" && r.schedule?.type === (type === "OPEN" ? "ONEDAY" : "SEASON")
   );
   const base = filtered.length;
-  const fairplayBonus = filtered.filter((r) => r.isFairplay).length;
-  const mvpBonus = filtered.filter((r) => r.isMVP).length * 2;
+  const fairplayBonus = filtered.filter((r) => r.isFairplay).length * 2;
+  const mvpBonus = filtered.filter((r) => r.isMVP).length * 3;
   const bonus = fairplayBonus + mvpBonus;
   const score = base + bonus;
 
