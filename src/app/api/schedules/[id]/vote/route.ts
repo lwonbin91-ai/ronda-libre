@@ -36,20 +36,27 @@ async function runVoteAggregation(scheduleId: string) {
       }),
     ]);
 
-    const topMvpPlayerId = mvpVotes[0]?.targetId;
-    const topFairplayPlayerId = fairplayVotes[0]?.targetId;
+    const topMvpCount = mvpVotes[0]?._count.targetId ?? 0;
+    const topFairplayCount = fairplayVotes[0]?._count.targetId ?? 0;
+
+    const topMvpPlayerIds = topMvpCount > 0
+      ? mvpVotes.filter((v) => v._count.targetId === topMvpCount).map((v) => v.targetId)
+      : [];
+    const topFairplayPlayerIds = topFairplayCount > 0
+      ? fairplayVotes.filter((v) => v._count.targetId === topFairplayCount).map((v) => v.targetId)
+      : [];
 
     await prisma.scheduleRegistration.updateMany({
       where: { id: { in: teamRegs.map((r) => r.id) } },
       data: { isMVP: false, isFairplay: false },
     });
 
-    if (topMvpPlayerId) {
-      const reg = teamRegs.find((r) => r.playerId === topMvpPlayerId);
+    for (const playerId of topMvpPlayerIds) {
+      const reg = teamRegs.find((r) => r.playerId === playerId);
       if (reg) await prisma.scheduleRegistration.update({ where: { id: reg.id }, data: { isMVP: true } });
     }
-    if (topFairplayPlayerId) {
-      const reg = teamRegs.find((r) => r.playerId === topFairplayPlayerId);
+    for (const playerId of topFairplayPlayerIds) {
+      const reg = teamRegs.find((r) => r.playerId === playerId);
       if (reg) await prisma.scheduleRegistration.update({ where: { id: reg.id }, data: { isFairplay: true } });
     }
   }
