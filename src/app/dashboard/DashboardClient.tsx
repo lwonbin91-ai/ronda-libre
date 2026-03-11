@@ -98,7 +98,8 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
   const [votePopupScheduleId, setVotePopupScheduleId] = useState<string | null>(null);
 
   useEffect(() => {
-    const allRegs = players.flatMap((p) => p.scheduleRegs || []);
+    // 마운트 시 항상 DB에서 직접 투표 상태 확인 (캐시 우회)
+    const allRegs = initialPlayers.flatMap((p) => p.scheduleRegs || []);
     const seenIds = new Set<string>();
     const endedScheduleIds: string[] = [];
     allRegs.forEach((r) => {
@@ -113,11 +114,10 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
       return;
     }
 
-    // API에서 실시간 투표 상태 확인
     const checkVotes = async () => {
       for (const scheduleId of endedScheduleIds) {
         try {
-          const res = await fetch(`/api/schedules/${scheduleId}/vote`);
+          const res = await fetch(`/api/schedules/${scheduleId}/vote?t=${Date.now()}`, { cache: "no-store" });
           if (!res.ok) continue;
           const data = await res.json();
           const myVotes: Array<{ voteType: string }> = data.myVotes || [];
@@ -135,7 +135,7 @@ export default function DashboardClient({ userName, players: initialPlayers }: {
     };
 
     checkVotes();
-  }, [players]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDeleteAccount = async () => {
     const res = await fetch("/api/users/me", { method: "DELETE" });
