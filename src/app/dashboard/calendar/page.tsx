@@ -57,9 +57,15 @@ export default function CalendarPage() {
         isPast ? "bg-black/20 border-white/4 opacity-60" : "bg-[#0d0d0d] border-white/8"
       }`}>
         <div className="text-center shrink-0 w-14">
-          <div className="text-2xl font-black text-green-400">{date.getDate()}</div>
-          <div className="text-xs text-gray-600">{date.getMonth() + 1}월</div>
-          <div className="text-[10px] text-gray-700">{["일","월","화","수","목","금","토"][date.getDay()]}</div>
+          <div className="text-2xl font-black text-green-400">
+            {new Intl.DateTimeFormat("ko-KR", { day: "numeric", timeZone: "Asia/Seoul" }).format(date).replace("일", "")}
+          </div>
+          <div className="text-xs text-gray-600">
+            {new Intl.DateTimeFormat("ko-KR", { month: "numeric", timeZone: "Asia/Seoul" }).format(date).replace("월", "")}월
+          </div>
+          <div className="text-[10px] text-gray-700">
+            {new Intl.DateTimeFormat("ko-KR", { weekday: "short", timeZone: "Asia/Seoul" }).format(date)}
+          </div>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
@@ -76,7 +82,7 @@ export default function CalendarPage() {
           </div>
           <p className="font-bold text-sm">{reg.schedule.title}</p>
           <p className="text-xs text-gray-600 mt-0.5">
-            {date.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
+            {date.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" })}
             {reg.schedule.location ? ` · ${reg.schedule.location}` : ""}
             {reg.team ? ` · ${reg.team.name}` : ""}
           </p>
