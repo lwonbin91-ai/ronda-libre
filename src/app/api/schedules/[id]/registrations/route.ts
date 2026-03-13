@@ -6,11 +6,35 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendMail, confirmationMailHtml } from "@/lib/mail";
 
-export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: scheduleId } = await params;
   const session = await getServerSession(authOptions);
-  const user = session?.user as { role: string } | undefined;
-  if (!session || user?.role !== "ADMIN") {
+  const user = session?.user as { id: string; role: string } | undefined;
+  if (!session || !user) return NextResponse.json({ error: "로그인 필요" }, { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const mine = searchParams.get("mine") === "1";
+
+  // ?mine=1 이면 본인 등록 내역만 반환 (본인 선수 확인)
+  if (mine) {
+    try {
+      const myPlayers = await prisma.player.findMany({
+        where: { userId: user.id },
+        select: { id: true },
+      });
+      const myPlayerIds = myPlayers.map((p) => p.id);
+      const regs = await prisma.scheduleRegistration.findMany({
+        where: { scheduleId, playerId: { in: myPlayerIds } },
+        select: { playerId: true, status: true },
+      });
+      return NextResponse.json(regs);
+    } catch {
+      return NextResponse.json({ error: "서버 오류" }, { status: 500 });
+    }
+  }
+
+  // 관리자만 전체 조회 가능
+  if (user.role !== "ADMIN") {
     return NextResponse.json({ error: "권한 없음" }, { status: 403 });
   }
 

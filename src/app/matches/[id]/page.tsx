@@ -73,6 +73,9 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [myRegisteredPlayerId, setMyRegisteredPlayerId] = useState<string | null>(null);
+  const [cancelConfirm, setCancelConfirm] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   useEffect(() => {
     fetch(`/api/schedules/${id}`)
@@ -86,6 +89,18 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
           const list = Array.isArray(data) ? data : [];
           setMyPlayers(list);
           if (list.length > 0) setSelectedPlayer(list[0].id);
+          // 이미 신청한 선수가 있는지 확인
+          fetch(`/api/schedules/${id}/registrations?mine=1`, { credentials: "include" })
+            .then((r) => r.json())
+            .then((regs) => {
+              if (Array.isArray(regs) && regs.length > 0) {
+                const myReg = regs.find((r: { playerId: string; status: string }) =>
+                  list.some((p: Player) => p.id === r.playerId) && r.status !== "CANCELLED"
+                );
+                if (myReg) setMyRegisteredPlayerId(myReg.playerId);
+              }
+            })
+            .catch(() => {});
         });
     }
   }, [id, session]);
@@ -143,6 +158,37 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
   const ended = recEnd && now > recEnd;
   const canRegister = schedule.status === "RECRUITING" && !isFull && !notStarted && !ended;
   const embed = schedule.videoUrl ? getVideoEmbed(schedule.videoUrl) : null;
+
+  // 취소 가능 여부: 경기 이틀 전(KST) 까지만
+  const KST_OFFSET = 9 * 60 * 60 * 1000;
+  const schedKstDay = Math.floor((schedDate.getTime() + KST_OFFSET) / (24 * 60 * 60 * 1000));
+  const nowKstDay = Math.floor((now.getTime() + KST_OFFSET) / (24 * 60 * 60 * 1000));
+  const daysUntilMatch = schedKstDay - nowKstDay;
+  const canCancel = !!myRegisteredPlayerId && schedule.type === "ONEDAY"
+    && schedule.status !== "ENDED" && schedule.status !== "CANCELLED"
+    && daysUntilMatch >= 2;
+
+  const handleCancelRegistration = async () => {
+    if (!myRegisteredPlayerId) return;
+    setCancelLoading(true);
+    const res = await fetch(`/api/schedules/${id}/unregister`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ playerId: myRegisteredPlayerId }),
+    });
+    setCancelLoading(false);
+    if (res.ok) {
+      setMyRegisteredPlayerId(null);
+      setCancelConfirm(false);
+      setSuccess(false);
+      setSchedule((prev) => prev ? { ...prev, _count: { registrations: prev._count.registrations - 1 } } : prev);
+    } else {
+      const data = await res.json().catch(() => ({}));
+      alert(data.error || "취소 중 오류가 발생했습니다.");
+      setCancelConfirm(false);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -456,6 +502,47 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
                     );
                   })}
                 </div>
+              </div>
+            )}
+
+            {/* 이미 신청한 경우 - 취소 버튼 */}
+            {myRegisteredPlayerId && !success && (
+              <div className="space-y-2">
+                <div className="bg-green-400/8 border border-green-400/20 rounded-xl p-4 text-center">
+                  <p className="text-green-400 font-bold text-sm">✓ 신청 완료된 경기입니다</p>
+                </div>
+                {canCancel ? (
+                  !cancelConfirm ? (
+                    <button
+                      onClick={() => setCancelConfirm(true)}
+                      className="w-full border border-red-400/30 text-red-400 text-sm font-bold py-2.5 rounded-xl hover:bg-red-400/5 transition-colors"
+                    >
+                      신청 취소
+                    </button>
+                  ) : (
+                    <div className="bg-red-400/8 border border-red-400/20 rounded-xl p-4 space-y-3">
+                      <p className="text-red-400 font-bold text-sm text-center">정말 취소하시겠습니까?</p>
+                      <p className="text-xs text-gray-500 text-center">취소 후에는 다시 신청할 수 있습니다.</p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleCancelRegistration}
+                          disabled={cancelLoading}
+                          className="flex-1 bg-red-500 text-white font-black text-sm py-2.5 rounded-xl hover:bg-red-600 transition-colors disabled:opacity-50"
+                        >
+                          {cancelLoading ? "취소 중..." : "확인"}
+                        </button>
+                        <button
+                          onClick={() => setCancelConfirm(false)}
+                          className="flex-1 border border-white/10 text-gray-500 text-sm py-2.5 rounded-xl hover:border-white/25"
+                        >
+                          돌아가기
+                        </button>
+                      </div>
+                    </div>
+                  )
+                ) : myRegisteredPlayerId && daysUntilMatch < 2 ? (
+                  <p className="text-xs text-gray-600 text-center">경기 이틀 전 이후에는 취소가 불가합니다.</p>
+                ) : null}
               </div>
             )}
 
