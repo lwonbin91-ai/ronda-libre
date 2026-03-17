@@ -300,7 +300,7 @@ export default function AdminPage() {
     setSelectedSchedule(s);
     setTab("registrations");
     setLoadingRegs(true);
-    const res = await fetch(`/api/schedules/${s.id}/registrations`);
+    const res = await fetch(`/api/schedules/${s.id}/registrations`, { credentials: "include" });
     const data = await res.json();
     setRegs(Array.isArray(data) ? data : []);
     setLoadingRegs(false);
@@ -1022,10 +1022,16 @@ export default function AdminPage() {
                       {new Date(selectedSchedule.scheduledAt).toLocaleDateString("ko-KR")} · {regs.length}명 신청
                     </p>
                   </div>
-                  <button onClick={() => setTab("schedules")}
-                    className="text-xs text-gray-500 hover:text-white border border-white/10 px-3 py-1.5 rounded-lg">
-                    ← 목록
-                  </button>
+                  <div className="flex gap-2">
+                    <button onClick={() => selectedSchedule && loadRegs(selectedSchedule)}
+                      className="text-xs text-gray-500 hover:text-white border border-white/10 px-3 py-1.5 rounded-lg">
+                      ↻ 새로고침
+                    </button>
+                    <button onClick={() => setTab("schedules")}
+                      className="text-xs text-gray-500 hover:text-white border border-white/10 px-3 py-1.5 rounded-lg">
+                      ← 목록
+                    </button>
+                  </div>
                 </div>
 
                 {loadingRegs ? (
@@ -1088,7 +1094,7 @@ export default function AdminPage() {
                               <p className="text-xs text-gray-600 mt-0.5">참가비: {reg.fee.toLocaleString()}원</p>
                             )}
                           </div>
-                          {reg.status === "PENDING" && (
+                          {reg.status !== "CONFIRMED" && reg.status !== "CANCELLED" && (
                             <button
                               onClick={() => confirmReg(reg.id, selectedSchedule.id)}
                               className="text-xs bg-green-400 text-black font-bold px-3 py-1.5 rounded-lg hover:bg-green-300 transition-colors shrink-0"
