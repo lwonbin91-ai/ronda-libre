@@ -464,12 +464,15 @@ export default function AdminPage() {
   };
 
   const confirmReg = async (regId: string, scheduleId: string) => {
-    await fetch(`/api/schedules/${scheduleId}/registrations`, {
+    const res = await fetch(`/api/schedules/${scheduleId}/registrations`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ registrationId: regId, status: "CONFIRMED" }),
     });
-    setRegs(regs.map((r) => r.id === regId ? { ...r, status: "CONFIRMED", paidAt: new Date().toISOString() } : r));
+    if (res.ok) {
+      setRegs(regs.map((r) => r.id === regId ? { ...r, status: "CONFIRMED", paidAt: new Date().toISOString() } : r));
+    }
   };
 
   const toggleRegAward = async (regId: string, scheduleId: string, field: "isMVP" | "isFairplay", current: boolean) => {
@@ -1085,7 +1088,7 @@ export default function AdminPage() {
                               <p className="text-xs text-gray-600 mt-0.5">참가비: {reg.fee.toLocaleString()}원</p>
                             )}
                           </div>
-                          {reg.status === "PENDING" && !reg.isGK && (
+                          {reg.status === "PENDING" && (
                             <button
                               onClick={() => confirmReg(reg.id, selectedSchedule.id)}
                               className="text-xs bg-green-400 text-black font-bold px-3 py-1.5 rounded-lg hover:bg-green-300 transition-colors shrink-0"
