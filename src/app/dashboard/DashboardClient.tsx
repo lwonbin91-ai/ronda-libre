@@ -369,6 +369,51 @@ export default function DashboardClient({ userName, players: initialPlayers, ini
         </div>
       )}
 
+      {/* 선수 정보 + 학교/팀명 수정 */}
+      {players.length > 0 && players.map((player) => (
+        <div key={player.id} className="bg-gray-900 border border-white/8 rounded-2xl p-5 mb-4">
+          {editingId === player.id ? (
+            <div className="space-y-3">
+              <p className="text-sm font-bold text-gray-400 mb-2">학교/팀명 수정</p>
+              <input
+                value={editForm.school}
+                onChange={(e) => setEditForm({ ...editForm, school: e.target.value })}
+                placeholder="학교/클럽명"
+                className="w-full bg-black border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-green-400/50"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => saveEdit(player.id)}
+                  disabled={editLoading}
+                  className="flex-1 bg-green-400 text-black font-black text-sm py-2.5 rounded-xl hover:bg-green-300 transition-colors disabled:opacity-50"
+                >
+                  {editLoading ? "저장 중..." : "저장"}
+                </button>
+                <button
+                  onClick={() => setEditingId(null)}
+                  className="flex-1 border border-white/10 text-gray-500 text-sm py-2.5 rounded-xl hover:border-white/25"
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-bold text-sm">{player.name}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{player.school || "학교/팀명 없음"}{player.position ? ` · ${player.position}` : ""}</p>
+              </div>
+              <button
+                onClick={() => startEdit(player)}
+                className="text-xs text-gray-500 hover:text-green-400 border border-white/10 hover:border-green-400/30 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                학교/팀명 수정
+              </button>
+            </div>
+          )}
+        </div>
+      ))}
+
       {/* 회원 탈퇴 */}
       <div className="mt-16 pt-8 border-t border-white/5">
         {!deleteConfirm ? (
