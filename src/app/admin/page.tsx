@@ -1041,6 +1041,17 @@ export default function AdminPage() {
                         <div className="text-xs text-gray-600 mt-0.5">입금 대기</div>
                       </div>
                     </div>
+                    {regs.some(r => r.status === "PENDING" && r.fee === 0) && (
+                      <button
+                        onClick={async () => {
+                          await fetch("/api/admin/confirm-free", { method: "POST", credentials: "include" });
+                          if (selectedSchedule) loadRegs(selectedSchedule);
+                        }}
+                        className="w-full bg-green-500 text-black font-black text-sm py-2.5 rounded-xl hover:bg-green-400 transition-colors mb-2"
+                      >
+                        ✓ 무료(0원) 대기자 전체 확정
+                      </button>
+                    )}
                     {regs.map((reg) => (
                       <div key={reg.id} className="bg-white/[0.02] border border-white/6 rounded-xl p-4">
                         <div className="flex items-start justify-between gap-3">
