@@ -21,24 +21,13 @@ export async function DELETE() {
 
     if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    // 플레이어 ID 목록
-    const players = await prisma.player.findMany({ where: { userId: dbUser.id }, select: { id: true } });
-    const playerIds = players.map(p => p.id);
+    // 투표 기록 보존을 위해 선수 정보만 익명화
+    await prisma.player.updateMany({
+      where: { userId: dbUser.id },
+      data: { name: "(탈퇴한 회원)", parentPhone: "", parentEmail: "", photoUrl: null },
+    });
 
-    if (playerIds.length > 0) {
-      // 선수 이름을 "(탈퇴)"로 변경 → 투표 기록 유지, 투표 화면에서 이름으로 식별 불가
-      await prisma.player.updateMany({
-        where: { id: { in: playerIds } },
-        data: { name: "(탈퇴한 회원)", parentPhone: "", parentEmail: "", photoUrl: null },
-      });
-      await prisma.scheduleRegistration.deleteMany({ where: { playerId: { in: playerIds } } });
-      await prisma.recruitmentOffer.deleteMany({ where: { playerId: { in: playerIds } } });
-      await prisma.matchPlayerRecord.deleteMany({ where: { playerId: { in: playerIds } } });
-    }
-
-    await prisma.recruitmentOffer.deleteMany({ where: { scoutId: dbUser.id } });
-    await prisma.account.deleteMany({ where: { userId: dbUser.id } });
-    await prisma.session.deleteMany({ where: { userId: dbUser.id } });
+    // User 삭제 → onDelete: Cascade로 연관 account/session 자동 삭제
     await prisma.user.delete({ where: { id: dbUser.id } });
 
     return NextResponse.json({ ok: true });
