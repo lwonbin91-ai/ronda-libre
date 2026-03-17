@@ -1046,11 +1046,11 @@ export default function AdminPage() {
                         <div className="text-xs text-gray-600 mt-0.5">입금 확인</div>
                       </div>
                       <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4">
-                        <div className="text-xl font-black text-yellow-400">{regs.filter(r => r.status === "PENDING").length}</div>
+                        <div className="text-xl font-black text-yellow-400">{regs.filter(r => r.status !== "CONFIRMED" && r.status !== "CANCELLED").length}</div>
                         <div className="text-xs text-gray-600 mt-0.5">입금 대기</div>
                       </div>
                     </div>
-                    {regs.some(r => r.status === "PENDING" && r.fee === 0) && (
+                    {regs.some(r => r.status !== "CONFIRMED" && r.status !== "CANCELLED" && r.fee === 0) && (
                       <button
                         onClick={async () => {
                           await fetch("/api/admin/confirm-free", { method: "POST", credentials: "include" });
@@ -1094,7 +1094,7 @@ export default function AdminPage() {
                               <p className="text-xs text-gray-600 mt-0.5">참가비: {reg.fee.toLocaleString()}원</p>
                             )}
                           </div>
-                          {reg.status !== "CONFIRMED" && reg.status !== "CANCELLED" && (
+                          {reg.status !== "CONFIRMED" && (
                             <button
                               onClick={() => confirmReg(reg.id, selectedSchedule.id)}
                               className="text-xs bg-green-400 text-black font-bold px-3 py-1.5 rounded-lg hover:bg-green-300 transition-colors shrink-0"

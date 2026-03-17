@@ -15,7 +15,7 @@ export async function POST() {
   }
 
   const result = await prisma.scheduleRegistration.updateMany({
-    where: { status: "PENDING", fee: 0 },
+    where: { status: { not: "CONFIRMED" }, fee: 0 },
     data: { status: "CONFIRMED", paidAt: new Date() },
   });
 
