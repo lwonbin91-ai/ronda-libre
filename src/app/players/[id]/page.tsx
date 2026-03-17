@@ -80,6 +80,8 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
   const [positionValue, setPositionValue] = useState("");
   const [editingFoot, setEditingFoot] = useState(false);
   const [footValue, setFootValue] = useState("");
+  const [editingSchool, setEditingSchool] = useState(false);
+  const [schoolValue, setSchoolValue] = useState("");
   const [matchTab, setMatchTab] = useState<"season" | "match" | null>(null);
 
   useEffect(() => {
@@ -139,6 +141,18 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
     }
   };
 
+  const saveSchool = async () => {
+    const res = await fetch(`/api/players/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ school: schoolValue }),
+    });
+    if (res.ok) {
+      setPlayer((p) => p ? { ...p, school: schoolValue } : p);
+      setEditingSchool(false);
+    }
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-gray-500">불러오는 중...</div>;
   }
@@ -183,7 +197,29 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
               )}
             </div>
             <p className="text-gray-500 text-sm flex items-center gap-2 flex-wrap">
-              <span>{player.school} · {player.birthYear}년생</span>
+              {editingSchool ? (
+                <span className="flex items-center gap-2">
+                  <input
+                    value={schoolValue}
+                    onChange={(e) => setSchoolValue(e.target.value)}
+                    placeholder="학교/클럽명"
+                    className="bg-black border border-white/10 rounded-lg px-3 py-1 text-sm text-white focus:outline-none focus:border-green-400/50 w-40"
+                    autoFocus
+                    onKeyDown={(e) => { if (e.key === "Enter") saveSchool(); if (e.key === "Escape") setEditingSchool(false); }}
+                  />
+                  <button onClick={saveSchool} className="text-xs bg-green-400 text-black font-bold px-3 py-1.5 rounded-lg">저장</button>
+                  <button onClick={() => setEditingSchool(false)} className="text-xs text-gray-500">취소</button>
+                </span>
+              ) : (
+                <span className="flex items-center gap-1">
+                  {player.school}
+                  {isOwner && (
+                    <button onClick={() => { setSchoolValue(player.school || ""); setEditingSchool(true); }}
+                      className="text-[10px] text-gray-600 hover:text-green-400 ml-1">✎</button>
+                  )}
+                  · {player.birthYear}년생
+                </span>
+              )}
               {player.height ? (
                 <span className="flex items-center gap-1">
                   · {player.height}cm
