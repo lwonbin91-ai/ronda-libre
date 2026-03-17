@@ -105,7 +105,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ...(data.gradeLevel !== undefined && { gradeLevel: data.gradeLevel }),
       },
     });
+
+    // 참가비가 0원으로 변경된 경우 기존 PENDING 등록 자동 확정
+    if (data.fee === 0) {
+      await prisma.scheduleRegistration.updateMany({
+        where: { scheduleId: id, status: "PENDING" },
+        data: { status: "CONFIRMED", paidAt: new Date() },
+      });
+    }
+
     revalidateTag("schedules-list", "default");
+    revalidateTag("players-list", "default");
     return NextResponse.json(schedule);
   } catch {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
