@@ -475,6 +475,19 @@ export default function AdminPage() {
     }
   };
 
+  const removeReg = async (regId: string, scheduleId: string) => {
+    if (!confirm('이 선수를 경기에서 제외(불참 처리)하시겠습니까?')) return;
+    const res = await fetch(`/api/schedules/${scheduleId}/registrations`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ registrationId: regId, status: 'CANCELLED' }),
+    });
+    if (res.ok) {
+      setRegs(regs.map((r) => r.id === regId ? { ...r, status: 'CANCELLED' } : r));
+    }
+  };
+
   const toggleRegAward = async (regId: string, scheduleId: string, field: "isMVP" | "isFairplay", current: boolean) => {
     await fetch(`/api/schedules/${scheduleId}/registrations`, {
       method: "PATCH",
@@ -1094,14 +1107,24 @@ export default function AdminPage() {
                               <p className="text-xs text-gray-600 mt-0.5">참가비: {reg.fee.toLocaleString()}원</p>
                             )}
                           </div>
-                          {reg.status !== "CONFIRMED" && (
-                            <button
-                              onClick={() => confirmReg(reg.id, selectedSchedule.id)}
-                              className="text-xs bg-green-400 text-black font-bold px-3 py-1.5 rounded-lg hover:bg-green-300 transition-colors shrink-0"
-                            >
-                              입금 확인
-                            </button>
-                          )}
+                          <div className="flex gap-2">
+                            {reg.status !== "CONFIRMED" && (
+                              <button
+                                onClick={() => confirmReg(reg.id, selectedSchedule.id)}
+                                className="text-xs bg-green-400 text-black font-bold px-3 py-1.5 rounded-lg hover:bg-green-300 transition-colors shrink-0"
+                              >
+                                입금 확인
+                              </button>
+                            )}
+                            {reg.status === "CONFIRMED" && (
+                              <button
+                                onClick={() => removeReg(reg.id, selectedSchedule.id)}
+                                className="text-xs border border-red-400/30 text-red-400 font-bold px-3 py-1.5 rounded-lg hover:bg-red-400/10 transition-colors shrink-0"
+                              >
+                                불참 처리
+                              </button>
+                            )}
+                          </div>
                         </div>
                         {reg.status === "CONFIRMED" && (
                           <div className="mt-3 pt-3 border-t border-white/5 space-y-3">
