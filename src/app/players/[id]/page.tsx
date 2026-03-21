@@ -613,28 +613,35 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {/* 경기 기록 - 시즌제 등록 기반 */}
+      {/* 경기 기록 - 시즌 + 오픈 매칭 */}
       <div className="bg-[#0d0d0d] border border-white/6 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-black">경기 기록</h2>
-          <span className="text-xs text-gray-700">{seasonRegs.length}경기</span>
+          <span className="text-xs text-gray-700">{allRegs.length}경기</span>
         </div>
 
-        {seasonRegs.length === 0 ? (
-          <div className="text-center py-10 text-gray-700 text-sm">아직 시즌 경기 기록이 없습니다.</div>
+        {allRegs.length === 0 ? (
+          <div className="text-center py-10 text-gray-700 text-sm">아직 경기 기록이 없습니다.</div>
         ) : (
           <div className="space-y-3">
-            {seasonRegs.map((reg) => (
+            {allRegs.map((reg) => (
               <div key={reg.id} className="border border-white/6 rounded-xl p-4 hover:border-white/12 transition-colors">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        reg.schedule.type === "SEASON"
+                          ? "border-green-400/20 text-green-400 bg-green-400/5"
+                          : "border-orange-400/20 text-orange-400 bg-orange-400/5"
+                      }`}>
+                        {reg.schedule.type === "SEASON" ? "시즌" : "오픈매칭"}
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                         reg.status === "CONFIRMED"
                           ? "border-green-400/20 text-green-400 bg-green-400/5"
                           : "border-yellow-400/20 text-yellow-400"
                       }`}>
-                        {reg.status === "CONFIRMED" ? "확정" : "대기"}
+                        {reg.schedule.status === "ENDED" ? "경기끝" : reg.status === "CONFIRMED" ? "확정" : "대기"}
                       </span>
                       {reg.isGK && (
                         <span className="text-[10px] text-green-400/70 border border-green-400/15 px-1.5 py-0.5 rounded-full">
@@ -647,6 +654,8 @@ export default function PlayerProfilePage({ params }: { params: Promise<{ id: st
                           {reg.team.name}
                         </span>
                       )}
+                      {reg.isMVP && <span className="text-[10px] text-yellow-400">⭐ MVP</span>}
+                      {reg.isFairplay && <span className="text-[10px] text-yellow-500">🏅 페어플레이</span>}
                     </div>
                     <Link href={`/matches/${reg.schedule.id}`}
                       className="font-bold text-sm hover:text-green-400 transition-colors">
