@@ -4,15 +4,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { canViewSensitivePlayerInfo } from "@/lib/authz";
 import { finalizeExpiredMatches } from "@/lib/voteAggregation";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  // 24시간 경과 경기 자동 처리 (백그라운드)
   finalizeExpiredMatches().catch(() => {});
   try {
     const session = await getServerSession(authOptions);
-    const user = session?.user as { id: string } | undefined;
+    const user = session?.user as { id: string; role: string; name: string } | undefined;
 
     const player = await prisma.player.findUnique({
       where: { id },
@@ -37,6 +37,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     if (!player) return NextResponse.json({ error: "선수를 찾을 수 없습니다." }, { status: 404 });
 
     const isOwn = user ? player.userId === user.id : false;
+
+    // 민감 정보 접근 권한 확인 (OWASP object-level authorization)
+    const canViewSensitive = isOwn || (user ? await canViewSensitivePlayerInfo(user, id) : false);
+
     let votesGiven: Array<{ scheduleId: string; voteType: string }> = [];
     if (isOwn) {
       votesGiven = await prisma.playerVote.findMany({
@@ -45,14 +49,24 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       });
     }
 
-    // isMVP/isFairplay 플래그 기준 집계 (순위표와 동일한 방식)
     const seasonMvp = player.scheduleRegs.filter((r) => r.schedule.type === "SEASON" && r.status !== "CANCELLED" && r.isMVP).length;
     const seasonFairplay = player.scheduleRegs.filter((r) => r.schedule.type === "SEASON" && r.status !== "CANCELLED" && r.isFairplay).length;
     const openMvp = player.scheduleRegs.filter((r) => r.schedule.type !== "SEASON" && r.status !== "CANCELLED" && r.isMVP).length;
     const openFairplay = player.scheduleRegs.filter((r) => r.schedule.type !== "SEASON" && r.status !== "CANCELLED" && r.isFairplay).length;
 
+    // 민감 필드 마스킹 처리
+    const maskedName = player.name
+      ? player.name.charAt(0) + "*".repeat(Math.max(player.name.length - 1, 1))
+      : "익명";
+
     return NextResponse.json({
       ...player,
+      name: canViewSensitive ? player.name : maskedName,
+      birthYear: canViewSensitive ? player.birthYear : null,
+      height: canViewSensitive ? player.height : null,
+      school: canViewSensitive ? player.school : null,
+      // 입단 제의 상세 내용은 본인만 조회 가능
+      offersReceived: isOwn ? player.offersReceived : player.offersReceived.map(() => null).filter(Boolean),
       scheduleRegistrations: player.scheduleRegs,
       isOwn,
       votesGiven,

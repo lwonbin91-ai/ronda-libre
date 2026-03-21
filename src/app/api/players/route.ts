@@ -1,13 +1,15 @@
 export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSessionUser, canViewSensitivePlayerInfo } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 
-const playerListSelect = {
-  id: true, name: true, birthYear: true, height: true, school: true,
-  position: true, preferredFoot: true, yearsExp: true,
+// 공개 가능한 필드만 포함 (민감 정보 제외)
+const publicPlayerSelect = {
+  id: true,
+  position: true,
+  preferredFoot: true,
+  yearsExp: true,
   scheduleRegs: {
     where: { status: { not: "CANCELLED" } },
     select: {
@@ -20,52 +22,104 @@ const playerListSelect = {
   },
 };
 
+// 민감 정보 포함 필드 (권한 확인 후만 사용)
+const sensitiveFields = {
+  name: true,
+  birthYear: true,
+  height: true,
+  school: true,
+};
+
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  const { searchParams } = new URL(req.url);
-  const publicOnly = searchParams.get("public") === "true";
-
-  // 비로그인도 public 조회 허용 - 전체 선수
-  if (publicOnly || !session) {
-    try {
-      const players = await prisma.player.findMany({
-        select: playerListSelect,
-        orderBy: { name: "asc" },
-      });
-      return NextResponse.json(players.map((p) => ({ ...p, scheduleRegistrations: p.scheduleRegs })));
-    } catch (e) {
-      console.error("players GET public error:", e);
-      return NextResponse.json({ error: "서버 오류" }, { status: 500 });
-    }
-  }
-
-  const user = session.user as { id: string; role: string };
+  const viewer = await getSessionUser();
 
   try {
-    if (user.role === "SCOUT" || user.role === "ADMIN") {
-      const players = await prisma.player.findMany({
+    const players = await prisma.player.findMany({
+      select: {
+        ...publicPlayerSelect,
+        // 민감 필드는 항상 가져오되 응답 시 필터링
+        name: true,
+        birthYear: true,
+        height: true,
+        school: true,
+        userId: true,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    // 각 선수별로 민감 정보 접근 권한 계산
+    const result = await Promise.all(
+      players.map(async (p) => {
+        const isOwnProfile = viewer?.id && p.userId === viewer.id;
+        const canViewSensitive =
+          isOwnProfile ||
+          (viewer ? await canViewSensitivePlayerInfo(viewer, p.id) : false);
+
+        const base = {
+          id: p.id,
+          position: p.position,
+          preferredFoot: p.preferredFoot,
+          yearsExp: p.yearsExp,
+          scheduleRegs: p.scheduleRegs,
+          scheduleRegistrations: p.scheduleRegs,
+        };
+
+        if (canViewSensitive) {
+          return {
+            ...base,
+            name: p.name,
+            birthYear: p.birthYear,
+            height: p.height,
+            school: p.school,
+          };
+        }
+
+        // 공개용: 이름은 성+* 마스킹, 나머지 민감 정보 숨김
+        const maskedName = p.name
+          ? p.name.charAt(0) + "*".repeat(Math.max(p.name.length - 1, 1))
+          : "익명";
+
+        return {
+          ...base,
+          name: maskedName,
+          birthYear: null,
+          height: null,
+          school: null,
+        };
+      })
+    );
+
+    // 본인 프로필 조회 시 추가 정보 포함
+    if (viewer && viewer.role !== "ADMIN") {
+      const ownPlayer = await prisma.player.findFirst({
+        where: { userId: viewer.id },
         select: {
-          ...playerListSelect,
+          ...publicPlayerSelect,
+          ...sensitiveFields,
           offersReceived: {
-            select: { id: true, status: true, clubName: true, scout: { select: { name: true, organization: true } } },
+            select: { id: true, status: true, clubName: true, message: true, scout: { select: { name: true, organization: true } } },
           },
+          votesGiven: { select: { scheduleId: true, voteType: true } },
         },
-        orderBy: { name: "asc" },
       });
-      return NextResponse.json(players);
+      if (ownPlayer) {
+        const idx = result.findIndex((r) => r.id === ownPlayer.id);
+        if (idx !== -1) {
+          result[idx] = {
+            ...result[idx],
+            name: ownPlayer.name,
+            birthYear: ownPlayer.birthYear,
+            height: ownPlayer.height,
+            school: ownPlayer.school,
+            // @ts-expect-error extended fields
+            offersReceived: ownPlayer.offersReceived,
+            votesGiven: ownPlayer.votesGiven,
+          };
+        }
+      }
     }
 
-    const players = await prisma.player.findMany({
-      where: { userId: user.id },
-      select: {
-        ...playerListSelect,
-        offersReceived: {
-          select: { id: true, status: true, clubName: true, message: true, scout: { select: { name: true, organization: true } } },
-        },
-        votesGiven: { select: { scheduleId: true, voteType: true } },
-      },
-    });
-    return NextResponse.json(players);
+    return NextResponse.json(result);
   } catch (e) {
     console.error("players GET error:", e);
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
@@ -73,35 +127,42 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "로그인 필요" }, { status: 401 });
+  const viewer = await getSessionUser();
+  if (!viewer) return NextResponse.json({ error: "로그인 필요" }, { status: 401 });
 
-  const user = session.user as { id: string };
+  // role, isAdmin 등 권한 필드는 클라이언트 입력 무시 (mass assignment 방지)
+  const ALLOWED_FIELDS = ["name", "birthYear", "height", "school", "position", "preferredFoot", "yearsExp", "parentName", "parentPhone", "parentEmail"] as const;
 
   try {
-    const existing = await prisma.player.findFirst({ where: { userId: user.id } });
+    const existing = await prisma.player.findFirst({ where: { userId: viewer.id } });
     if (existing) {
-      return NextResponse.json({ error: "이미 선수 프로필이 등록되어 있습니다. 계정당 1개만 등록 가능합니다." }, { status: 409 });
+      return NextResponse.json({ error: "이미 선수 프로필이 등록되어 있습니다." }, { status: 409 });
     }
 
-    const data = await req.json();
-    const yearsExpVal = data.yearsExp ? parseInt(data.yearsExp) : null;
+    const raw = await req.json();
+    const data: Record<string, unknown> = {};
+    for (const key of ALLOWED_FIELDS) {
+      if (key in raw) data[key] = raw[key];
+    }
+
+    const yearsExpVal = data.yearsExp ? parseInt(data.yearsExp as string) : null;
     const currentYear = new Date().getFullYear();
     const yearsExpStartYear = yearsExpVal ? currentYear - yearsExpVal : null;
+
     const player = await prisma.player.create({
       data: {
-        name: data.name,
-        birthYear: data.birthYear,
-        height: data.height ? parseInt(data.height) : null,
-        school: data.school,
-        position: data.position || null,
-        preferredFoot: data.preferredFoot || null,
+        name: data.name as string,
+        birthYear: data.birthYear ? parseInt(data.birthYear as string) : 0,
+        height: data.height ? parseInt(data.height as string) : null,
+        school: (data.school as string) || "",
+        position: (data.position as string) || null,
+        preferredFoot: (data.preferredFoot as string) || null,
         yearsExp: yearsExpVal,
         yearsExpStartYear,
-        parentName: data.parentName,
-        parentPhone: data.parentPhone,
-        parentEmail: data.parentEmail,
-        userId: user.id,
+        parentName: (data.parentName as string) || "",
+        parentPhone: (data.parentPhone as string) || "",
+        parentEmail: (data.parentEmail as string) || "",
+        userId: viewer.id,
       },
     });
     return NextResponse.json(player);
