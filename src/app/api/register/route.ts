@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
+const ALLOWED_SIGNUP_ROLES = ["PLAYER", "SCOUT", "DIRECTOR"] as const;
+type AllowedRole = typeof ALLOWED_SIGNUP_ROLES[number];
+
 export async function POST(req: NextRequest) {
   try {
     const { email, password, name, phone, role, organization } = await req.json();
@@ -11,6 +14,10 @@ export async function POST(req: NextRequest) {
     if (!email || !password || !name) {
       return NextResponse.json({ error: "필수 정보를 입력해주세요." }, { status: 400 });
     }
+
+    // 허용된 역할만 허용 - ADMIN은 회원가입으로 절대 생성 불가
+    const safeRole: AllowedRole =
+      ALLOWED_SIGNUP_ROLES.includes(role as AllowedRole) ? (role as AllowedRole) : "PLAYER";
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -25,7 +32,7 @@ export async function POST(req: NextRequest) {
         password: hashed,
         name,
         phone: phone || null,
-        role: role || "PLAYER",
+        role: safeRole,
         organization: organization || null,
       },
     });
